@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.env.*
+!/.env.example
+service_account.json
+project/
+ALMA_ARCHIVE/
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log

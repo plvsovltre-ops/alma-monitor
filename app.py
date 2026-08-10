@@ -48,12 +48,12 @@ except Exception as e:
     st.error(f"Ошибка клиента AI: {e}")
     st.stop()
 
-# Список моделей (Добавлена рабочая gemini-2.0-flash-exp)
-MODEL_CANDIDATES = [
-    "gemini-2.0-flash-exp",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro"
-]
+# The selected model can be changed without modifying the code. The fallback
+# models are stable Gemini API models, not preview model IDs.
+MODEL_CANDIDATES = list(dict.fromkeys([
+    os.environ.get("GEMINI_MODEL", "gemini-3.6-flash"),
+    "gemini-2.5-flash",
+]))
 
 @st.cache_resource
 def get_working_model_name():

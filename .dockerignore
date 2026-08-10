@@ -1,0 +1,16 @@
+.git/
+.github/
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.env.*
+service_account.json
+project/
+ALMA_ARCHIVE/
+.mergin/
+*.gpkg
+*.qgz
+*.jpg
+*.jpeg
+*.png
