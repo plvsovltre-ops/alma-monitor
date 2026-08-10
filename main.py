@@ -8,6 +8,7 @@ import os
 import glob
 import sys
 import json
+import math
 import logging
 import smtplib
 import shutil
@@ -45,6 +46,16 @@ MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
 PROJECT_PATH = "./project"
 ARCHIVE_PATH = "./ALMA_ARCHIVE"
 GOOGLE_SHEET_NAME = "ALMA_Registry"
+GOOGLE_SHEET_HEADERS = [
+    "Дата",
+    "ID Дела",
+    "Кадастр",
+    "Тип нарушения",
+    "Координаты",
+    "Ответ AI (RU)",
+    "Ответ AI (KZ)",
+    "Путь к фото",
+]
 
 INCIDENTS_FILE = "Инцидент.gpkg"
 PHOTOS_FILE = "photos.gpkg"
@@ -56,6 +67,7 @@ DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
 STATE_OBJECT = "state/last-scanned-version.json"
 LOCK_OBJECT = "locks/alma-monitor.lock"
 LOCK_TTL_SECONDS = 30 * 60
+STATE_SCHEMA_VERSION = 2
 
 
 def model_candidates():
@@ -120,12 +132,17 @@ def read_last_scanned_version(bucket):
     except (json.JSONDecodeError, TypeError, ValueError) as e:
         raise RuntimeError("The ALMA Monitor state object is invalid") from e
 
+    if state.get("schema_version") != STATE_SCHEMA_VERSION:
+        LOG.info("Watcher state schema changed; a full scan is required")
+        return None
+
     version = state.get("version")
     return str(version) if version else None
 
 
 def write_last_scanned_version(bucket, version):
     payload = {
+        "schema_version": STATE_SCHEMA_VERSION,
         "version": version,
         "scanned_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -199,24 +216,120 @@ def release_watcher_lock(lock):
         LOG.warning("Watcher lock changed before it could be released")
 
 
+def normalize_sheet_value(value):
+    if value is None:
+        return ""
+
+    try:
+        if bool(pd.isna(value)):
+            return ""
+    except (TypeError, ValueError):
+        pass
+
+    if hasattr(value, "item"):
+        try:
+            value = value.item()
+        except (TypeError, ValueError):
+            pass
+
+    if isinstance(value, float) and not math.isfinite(value):
+        return ""
+    if isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def open_registry_sheet():
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    creds, _ = google.auth.default(scopes=scope)
+    client_gs = gspread.authorize(creds)
+    sheet = client_gs.open(GOOGLE_SHEET_NAME).sheet1
+
+    if not sheet.get_all_values():
+        sheet.append_row(GOOGLE_SHEET_HEADERS)
+    return sheet
+
+
+def append_registry_row(sheet, data_row, existing_ids=None):
+    safe_row = [normalize_sheet_value(value) for value in data_row]
+    uid = str(safe_row[1]).strip() if len(safe_row) > 1 else ""
+
+    if existing_ids is None:
+        existing_ids = {str(value).strip() for value in sheet.col_values(2)[1:]}
+    if uid and uid in existing_ids:
+        LOG.info("Incident is already present in Google Sheets: %s", uid)
+        return False
+
+    sheet.append_row(safe_row)
+    if uid:
+        existing_ids.add(uid)
+    return True
+
+
 def log_to_google_sheet(data_row):
     try:
-        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        creds, _ = google.auth.default(scopes=scope)
-        client_gs = gspread.authorize(creds)
-        sheet = client_gs.open(GOOGLE_SHEET_NAME).sheet1
-        
-        if not sheet.get_all_values():
-            headers = ["Дата", "ID Дела", "Кадастр", "Тип нарушения", "Координаты", "Ответ AI (RU)", "Ответ AI (KZ)", "Путь к фото"]
-            sheet.append_row(headers)
-        
-        sheet.append_row(data_row)
+        sheet = open_registry_sheet()
+        append_registry_row(sheet, data_row)
         LOG.info("Incident written to Google Sheets")
         return True
     except Exception as e:
         # The GeoPackage and Mergin Maps are the system of record. The registry is
         # a secondary log, so a registry failure must not cause duplicate emails.
         LOG.exception("Google Sheets registry update failed: %s", e)
+        return False
+
+
+def get_coordinates(row, source_crs):
+    try:
+        if source_crs != "EPSG:4326":
+            geometry = (
+                gpd.GeoDataFrame([row], crs=source_crs)
+                .to_crs("EPSG:4326")
+                .iloc[0]
+                .geometry
+            )
+        else:
+            geometry = row.geometry
+        return f"{geometry.y:.6f}, {geometry.x:.6f}"
+    except Exception:
+        LOG.warning("Could not read incident coordinates", exc_info=True)
+        return ""
+
+
+def reconcile_google_sheet(incidents):
+    try:
+        sheet = open_registry_sheet()
+        existing_ids = {str(value).strip() for value in sheet.col_values(2)[1:]}
+        processed = incidents[incidents["is_sent"] == 1]
+        restored = 0
+
+        for _, row in processed.iterrows():
+            uid = normalize_sheet_value(row.get("unique-id"))
+            uid = str(uid).strip()
+            if not uid or uid in existing_ids:
+                continue
+
+            data_row = [
+                row.get("processed_at"),
+                uid,
+                row.get("cadastre_id"),
+                row.get("incident_type"),
+                get_coordinates(row, incidents.crs),
+                row.get("ai_complaint"),
+                row.get("ai_complaint_kz"),
+                "",
+            ]
+            if append_registry_row(sheet, data_row, existing_ids):
+                restored += 1
+
+        if restored:
+            LOG.info("Restored missing Google Sheets rows: %s", restored)
+        return True
+    except Exception as e:
+        LOG.exception("Google Sheets registry reconciliation failed: %s", e)
         return False
 
 def load_knowledge_base():
@@ -352,11 +465,12 @@ def process_project(mc):
 
     if 'is_sent' not in incidents.columns: incidents['is_sent'] = 0
     incidents['is_sent'] = incidents['is_sent'].fillna(0).astype(int)
+    registry_ok = reconcile_google_sheet(incidents)
     new_recs = incidents[incidents['is_sent'] == 0]
     
     if new_recs.empty: 
         LOG.info("No new incidents")
-        return
+        return registry_ok
 
     # Do not spend Gemini quota on scheduled checks that have no new work.
     api_key = get_env('GEMINI_API_KEY')
@@ -411,7 +525,7 @@ def process_project(mc):
         if incidents.crs != "EPSG:4326":
             p_geo = gpd.GeoDataFrame([row], crs=incidents.crs).to_crs("EPSG:4326").iloc[0].geometry
         else: p_geo = row.geometry
-        coords_str = f"{p_geo.y:.6f}, {p_geo.x:.6f}"
+        coords_str = get_coordinates(row, incidents.crs)
         
         # --- ОПРЕДЕЛЕНИЕ КАДАСТРОВОГО НОМЕРА ---
         cad_id = None
@@ -490,6 +604,8 @@ def process_project(mc):
         # incident fails and causes Cloud Run to retry the job.
         incidents.at[idx, 'cadastre_id'] = cad_id
         incidents.at[idx, 'ai_complaint'] = responses["RU"]
+        incidents.at[idx, 'ai_complaint_kz'] = responses["KZ"]
+        incidents.at[idx, 'processed_at'] = datetime.now(timezone.utc).isoformat()
         incidents.at[idx, 'is_sent'] = 1
 
         incidents.to_file(os.path.join(PROJECT_PATH, INCIDENTS_FILE), driver="GPKG")
@@ -506,9 +622,10 @@ def process_project(mc):
             responses["KZ"], 
             os.path.abspath(incident_photo_dir)
         ]
-        log_to_google_sheet(sheet_row)
+        registry_ok = log_to_google_sheet(sheet_row) and registry_ok
 
     LOG.info("ALMA Monitor completed successfully")
+    return registry_ok
 
 
 def main():
@@ -547,7 +664,9 @@ def main():
             LOG.info("Mergin Maps version was already scanned: %s", current_version)
             return
 
-        process_project(mc)
+        registry_ok = process_project(mc)
+        if not registry_ok:
+            raise RuntimeError("Google Sheets registry synchronization is incomplete")
 
         # Record the version that this execution selected for scanning. The
         # worker can create a newer version when it writes results. Keeping the
