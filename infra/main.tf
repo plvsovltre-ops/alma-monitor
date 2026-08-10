@@ -138,7 +138,7 @@ resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
 resource "google_cloud_scheduler_job" "monitor" {
   project          = var.project_id
   region           = var.scheduler_region
-  name             = "alma-monitor-every-15-minutes"
+  name             = "alma-monitor-every-30-minutes"
   description      = "Runs ALMA Monitor without a personal computer"
   schedule         = var.schedule
   time_zone        = "Asia/Almaty"
