@@ -6,6 +6,8 @@ warnings.filterwarnings("ignore")
 
 import os
 import glob
+import sys
+import logging
 import smtplib
 import shutil
 import time
@@ -27,7 +29,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from mergin import MerginClient, ClientError # Добавили импорт ошибки
 
-print("✅ Библиотеки загружены.", flush=True)
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)s %(message)s",
+    stream=sys.stdout,
+)
+LOG = logging.getLogger("alma_monitor")
+LOG.info("Libraries loaded")
 
 # --- НАСТРОЙКИ ---
 MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
@@ -42,9 +50,14 @@ LAWS_FOLDER = "laws"
 GARDEN_KEYWORDS = ["сады", "orchards", "защищенные", "проверке", "возвращенный"]
 MAX_LAW_CHARS = 200000 
 
-MODEL_CANDIDATES = [
-    "gemini-2.0-flash-exp"
-]
+DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
+
+
+def model_candidates():
+    configured = os.environ.get("GEMINI_MODEL", "").strip()
+    candidates = [configured] if configured else []
+    candidates.extend(DEFAULT_MODEL_CANDIDATES)
+    return list(dict.fromkeys(candidates))
 
 FILE_MAPPING = {
     "00_guidelines.txt": "Руководство и Стратегия ALMA",
@@ -66,24 +79,23 @@ FILE_MAPPING = {
 os.makedirs(ARCHIVE_PATH, exist_ok=True)
 os.makedirs(os.path.join(ARCHIVE_PATH, "PHOTOS"), exist_ok=True)
 
-def get_env(name):
+def get_env(name, required=True):
     val = os.environ.get(name)
-    if not val: print(f"⚠️ ВНИМАНИЕ: Секрет {name} не найден!", flush=True)
+    if not val:
+        message = f"Required environment variable is not set: {name}"
+        if required:
+            raise RuntimeError(message)
+        LOG.warning(message)
     return val
 
 def setup_google_credentials():
     """Создает файл service_account.json из секрета GitHub"""
     json_content = get_env('GOOGLE_CREDENTIALS_JSON')
-    if json_content:
-        with open(CREDENTIALS_FILE, 'w', encoding='utf-8') as f:
-            f.write(json_content)
-        print("🔑 Файл авторизации Google создан.", flush=True)
-    else:
-        print("❌ ОШИБКА: Нет GOOGLE_CREDENTIALS_JSON в секретах!", flush=True)
+    with open(CREDENTIALS_FILE, 'w', encoding='utf-8') as f:
+        f.write(json_content)
+    LOG.info("Google credentials file created")
 
 def log_to_google_sheet(data_row):
-    if not os.path.exists(CREDENTIALS_FILE):
-        return
     try:
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
@@ -95,9 +107,13 @@ def log_to_google_sheet(data_row):
             sheet.append_row(headers)
         
         sheet.append_row(data_row)
-        print("   📊 Записано в Google Sheets.", flush=True)
+        LOG.info("Incident written to Google Sheets")
+        return True
     except Exception as e:
-        print(f"   ❌ Ошибка записи в Google Sheets: {e}", flush=True)
+        # The GeoPackage and Mergin Maps are the system of record. The registry is
+        # a secondary log, so a registry failure must not cause duplicate emails.
+        LOG.exception("Google Sheets registry update failed: %s", e)
+        return False
 
 def load_knowledge_base():
     full_text = ""
@@ -172,13 +188,15 @@ def get_legal_prompt(lang, inc_type, desc, cad_id, coords, legal_db):
     """
 
 def send_email_with_attachments(to_email, subject, body, attachment_paths):
-    sender = get_env('MERGIN_USER') 
+    sender = get_env('GMAIL_USER')
     password = get_env('GMAIL_APP_PASS')
-    if not sender or not password: return
 
     msg = MIMEMultipart()
     msg['From'] = sender
-    msg['To'] = f"{sender}, {to_email}"
+    recipients = [sender]
+    if to_email and str(to_email).strip().lower() != "nan":
+        recipients.append(str(to_email).strip())
+    msg['To'] = ", ".join(recipients)
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
@@ -195,9 +213,9 @@ def send_email_with_attachments(to_email, subject, body, attachment_paths):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
             s.login(sender, password)
             s.send_message(msg)
-        print(f"   ✉️ Почта отправлена ({subject})", flush=True)
+        LOG.info("Email sent: %s", subject)
     except Exception as e:
-        print(f"   ❌ Ошибка почты: {e}", flush=True)
+        raise RuntimeError(f"Email delivery failed for {subject}") from e
 
 def sync_project_safely(mc, project_path):
     """Пытается отправить изменения. Если версия устарела, обновляет и пробует снова."""
@@ -205,62 +223,65 @@ def sync_project_safely(mc, project_path):
         mc.push_project(project_path)
     except ClientError as e:
         if "There is a new version" in str(e):
-            print("   ⚠️ Версия на сервере изменилась. Выполняю слияние...", flush=True)
+            LOG.warning("Mergin Maps project changed. Pulling and retrying push.")
             try:
                 mc.pull_project(project_path) # Скачиваем изменения (v93)
                 mc.push_project(project_path) # Отправляем наши изменения поверх
-                print("   ✅ Синхронизация восстановлена.", flush=True)
+                LOG.info("Mergin Maps synchronization restored")
             except Exception as e2:
-                print(f"   ❌ Не удалось восстановить синхронизацию: {e2}", flush=True)
+                raise RuntimeError("Mergin Maps synchronization recovery failed") from e2
         else:
-            print(f"   ❌ Ошибка отправки проекта: {e}", flush=True)
+            raise RuntimeError("Mergin Maps push failed") from e
 
 def main():
-    print("🚀 ЗАПУСК ALMA 8.9 (SYNC FIX + SMART COLUMNS)", flush=True)
+    LOG.info("Starting ALMA Monitor")
     
     setup_google_credentials()
 
     try:
         mc = MerginClient("https://app.merginmaps.com", login=get_env('MERGIN_USER'), password=get_env('MERGIN_PASS'))
-        print("✅ Mergin Maps: OK", flush=True)
+        LOG.info("Mergin Maps client configured")
     except Exception as e:
-        print(f"❌ MERGIN ERROR: {e}", flush=True); return
+        raise RuntimeError("Mergin Maps client configuration failed") from e
 
     api_key = get_env('GEMINI_API_KEY')
-    if not api_key: return
     client = genai.Client(api_key=api_key)
 
-    print("🔍 Проверка связи с AI...", flush=True)
+    LOG.info("Checking Gemini model availability")
     active_model_name = None
-    for m in MODEL_CANDIDATES:
+    for m in model_candidates():
         try:
             client.models.generate_content(model=m, contents="Ping")
-            print(f"   ✅ Модель {m} отвечает!", flush=True)
+            LOG.info("Gemini model is available: %s", m)
             active_model_name = m
             break
         except Exception as e:
-            print(f"   ⚠️ Модель {m} недоступна: {e}", flush=True)
+            LOG.warning("Gemini model is unavailable: %s (%s)", m, e)
     
     if not active_model_name:
-        print("❌ ОШИБКА: Ни одна модель Gemini не работает.", flush=True); return
+        raise RuntimeError("No configured Gemini model is available")
 
     legal_knowledge = load_knowledge_base()
     
     if os.path.exists(PROJECT_PATH): shutil.rmtree(PROJECT_PATH)
-    try: mc.download_project(MERGIN_PROJECT, PROJECT_PATH)
-    except: print("❌ Ошибка скачивания проекта"); return
+    try:
+        mc.download_project(MERGIN_PROJECT, PROJECT_PATH)
+    except Exception as e:
+        raise RuntimeError(f"Could not download Mergin Maps project {MERGIN_PROJECT}") from e
 
     try:
         incidents = gpd.read_file(os.path.join(PROJECT_PATH, INCIDENTS_FILE))
         photos_gdf = gpd.read_file(os.path.join(PROJECT_PATH, PHOTOS_FILE))
-    except: print("❌ Ошибка чтения GPKG"); return
+    except Exception as e:
+        raise RuntimeError("Could not read Mergin Maps GeoPackage files") from e
 
     if 'is_sent' not in incidents.columns: incidents['is_sent'] = 0
     incidents['is_sent'] = incidents['is_sent'].fillna(0).astype(int)
     new_recs = incidents[incidents['is_sent'] == 0]
     
     if new_recs.empty: 
-        print("✅ Новых данных нет.", flush=True); return
+        LOG.info("No new incidents")
+        return
 
     garden_files = []
     for f in glob.glob(f"{PROJECT_PATH}/*.gpkg"):
@@ -268,11 +289,11 @@ def main():
             if any(k in os.path.basename(f).lower() for k in GARDEN_KEYWORDS):
                 garden_files.append(f)
 
-    print(f"⚡ Новых дел: {len(new_recs)}", flush=True)
+    LOG.info("New incidents: %s", len(new_recs))
 
     for idx, row in new_recs.iterrows():
         uid = str(row.get('unique-id'))
-        print(f"\n--- Дело № {uid} ---", flush=True)
+        LOG.info("Processing incident: %s", uid)
         
         # --- ФОТО ---
         attachments = []
@@ -324,12 +345,10 @@ def main():
                         
                         if found_col:
                              cad_id = str(match_row[found_col])
-                             print(f"   🎯 Найдено в поле '{found_col}' слоя {os.path.basename(g_file)} -> {cad_id}", flush=True)
+                             LOG.info("Cadastre found in %s for incident %s", os.path.basename(g_file), uid)
                         else:
                             cad_id = os.path.splitext(os.path.basename(g_file))[0]
-                            print(f"   ⚠️ Поле layers не найдено, взято имя файла: {cad_id}", flush=True)
-                            # Вывод доступных колонок для отладки
-                            print(f"   (Доступные колонки: {list(match_row.index)})", flush=True)
+                            LOG.warning("Cadastre field not found in %s", os.path.basename(g_file))
                         break
                 except Exception as e: pass
         
@@ -340,7 +359,7 @@ def main():
         responses = {"RU": "", "KZ": ""}
 
         for lang in ["RU", "KZ"]:
-            print(f"   🧬 Генерация {lang}...", flush=True)
+            LOG.info("Generating %s response for incident %s", lang, uid)
             prompt = get_legal_prompt(lang, row.get('incident_type'), row.get('description'), cad_id, coords_str, legal_knowledge)
             
             contents_list = [prompt]
@@ -359,12 +378,27 @@ def main():
                 
                 clean_text = resp.text.replace("**", "").replace("##", "").replace("--- ДОКУМЕНТ:", "")
                 responses[lang] = clean_text
-                
-                subj = f"ALMA {'КОНСУЛЬТАЦИЯ' if lang=='RU' else 'КЕҢЕСІ'}: {cad_id}"
-                send_email_with_attachments(row.get('volunteer_email'), subj, clean_text, attachments)
-                time.sleep(2)
             except Exception as e:
-                print(f"   ❌ Ошибка AI {lang}: {e}", flush=True)
+                raise RuntimeError(f"Could not process {lang} response for incident {uid}") from e
+
+        # One bilingual email prevents a partially delivered case if the second
+        # language generation or delivery fails.
+        email_subject = f"ALMA: {cad_id}"
+        email_body = f"РУССКИЙ\n\n{responses['RU']}\n\n{'=' * 72}\n\nҚАЗАҚША\n\n{responses['KZ']}"
+        send_email_with_attachments(
+            row.get('volunteer_email'), email_subject, email_body, attachments
+        )
+        time.sleep(2)
+
+        # The primary result is first written back to the source GeoPackage and
+        # synchronised to Mergin Maps. This preserves successful work if a later
+        # incident fails and causes Cloud Run to retry the job.
+        incidents.at[idx, 'cadastre_id'] = cad_id
+        incidents.at[idx, 'ai_complaint'] = responses["RU"]
+        incidents.at[idx, 'is_sent'] = 1
+
+        incidents.to_file(os.path.join(PROJECT_PATH, INCIDENTS_FILE), driver="GPKG")
+        sync_project_safely(mc, PROJECT_PATH)
 
         # --- GOOGLE SHEETS ---
         sheet_row = [
@@ -379,17 +413,11 @@ def main():
         ]
         log_to_google_sheet(sheet_row)
 
-        incidents.at[idx, 'cadastre_id'] = cad_id
-        incidents.at[idx, 'ai_complaint'] = responses["RU"]
-        incidents.at[idx, 'is_sent'] = 1
-
-    # Сохраняем локально
-    incidents.to_file(os.path.join(PROJECT_PATH, INCIDENTS_FILE), driver="GPKG")
-    
-    # Безопасная синхронизация
-    sync_project_safely(mc, PROJECT_PATH)
-    
-    print("💾 Готово.", flush=True)
+    LOG.info("ALMA Monitor completed successfully")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        LOG.exception("ALMA Monitor failed")
+        sys.exit(1)
