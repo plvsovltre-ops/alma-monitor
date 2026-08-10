@@ -19,10 +19,10 @@ import PIL.Image
 # ИСПОЛЬЗУЕМ НОВУЮ БИБЛИОТЕКУ (Google GenAI SDK)
 from google import genai
 from google.genai import types
+import google.auth
 
 # Гугл Таблицы
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -42,7 +42,6 @@ MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
 PROJECT_PATH = "./project"
 ARCHIVE_PATH = "./ALMA_ARCHIVE"
 GOOGLE_SHEET_NAME = "ALMA_Registry"
-CREDENTIALS_FILE = "service_account.json"
 
 INCIDENTS_FILE = "Инцидент.gpkg"
 PHOTOS_FILE = "photos.gpkg"
@@ -88,17 +87,10 @@ def get_env(name, required=True):
         LOG.warning(message)
     return val
 
-def setup_google_credentials():
-    """Создает файл service_account.json из секрета GitHub"""
-    json_content = get_env('GOOGLE_CREDENTIALS_JSON')
-    with open(CREDENTIALS_FILE, 'w', encoding='utf-8') as f:
-        f.write(json_content)
-    LOG.info("Google credentials file created")
-
 def log_to_google_sheet(data_row):
     try:
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+        creds, _ = google.auth.default(scopes=scope)
         client_gs = gspread.authorize(creds)
         sheet = client_gs.open(GOOGLE_SHEET_NAME).sheet1
         
@@ -235,8 +227,6 @@ def sync_project_safely(mc, project_path):
 
 def main():
     LOG.info("Starting ALMA Monitor")
-    
-    setup_google_credentials()
 
     try:
         mc = MerginClient("https://app.merginmaps.com", login=get_env('MERGIN_USER'), password=get_env('MERGIN_PASS'))
