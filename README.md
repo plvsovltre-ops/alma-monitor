@@ -33,12 +33,15 @@ The worker needs these secrets:
 | `GMAIL_USER` | Email account that sends replies |
 | `GMAIL_APP_PASS` | App password for the sender account |
 | `GEMINI_API_KEY` | Gemini API key |
-| `GOOGLE_CREDENTIALS_JSON` | Service account JSON with access to `ALMA_Registry` |
 
 Set `GEMINI_MODEL` only when a different supported model is needed. The default
 is `gemini-3.6-flash`. The worker uses `gemini-2.5-flash` as a fallback.
 
 Never commit secret values. Use `.env.example` only as a list of variable names.
+
+The Cloud Run service account is used for Google Sheets. Share `ALMA_Registry`
+with `alma-monitor@alma-monitor-prod-2026.iam.gserviceaccount.com` as an editor.
+This avoids a long-lived service-account JSON key.
 
 ## Google Cloud deployment
 
