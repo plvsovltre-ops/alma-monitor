@@ -6,4 +6,5 @@ pyogrio
 streamlit
 gspread
 google-auth
+google-cloud-storage
 Pillow
