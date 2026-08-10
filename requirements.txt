@@ -5,5 +5,5 @@ google-genai
 pyogrio
 streamlit
 gspread
-oauth2client
+google-auth
 Pillow
