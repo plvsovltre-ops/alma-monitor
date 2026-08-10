@@ -234,25 +234,6 @@ def main():
     except Exception as e:
         raise RuntimeError("Mergin Maps client configuration failed") from e
 
-    api_key = get_env('GEMINI_API_KEY')
-    client = genai.Client(api_key=api_key)
-
-    LOG.info("Checking Gemini model availability")
-    active_model_name = None
-    for m in model_candidates():
-        try:
-            client.models.generate_content(model=m, contents="Ping")
-            LOG.info("Gemini model is available: %s", m)
-            active_model_name = m
-            break
-        except Exception as e:
-            LOG.warning("Gemini model is unavailable: %s (%s)", m, e)
-    
-    if not active_model_name:
-        raise RuntimeError("No configured Gemini model is available")
-
-    legal_knowledge = load_knowledge_base()
-    
     if os.path.exists(PROJECT_PATH): shutil.rmtree(PROJECT_PATH)
     try:
         mc.download_project(MERGIN_PROJECT, PROJECT_PATH)
@@ -272,6 +253,26 @@ def main():
     if new_recs.empty: 
         LOG.info("No new incidents")
         return
+
+    # Do not spend Gemini quota on scheduled checks that have no new work.
+    api_key = get_env('GEMINI_API_KEY')
+    client = genai.Client(api_key=api_key)
+
+    LOG.info("Checking Gemini model availability")
+    active_model_name = None
+    for m in model_candidates():
+        try:
+            client.models.generate_content(model=m, contents="Ping")
+            LOG.info("Gemini model is available: %s", m)
+            active_model_name = m
+            break
+        except Exception as e:
+            LOG.warning("Gemini model is unavailable: %s (%s)", m, e)
+
+    if not active_model_name:
+        raise RuntimeError("No configured Gemini model is available")
+
+    legal_knowledge = load_knowledge_base()
 
     garden_files = []
     for f in glob.glob(f"{PROJECT_PATH}/*.gpkg"):

@@ -49,6 +49,13 @@ The prepared Terraform configuration is in `infra/`. It uses the project ID
 `alma-monitor-prod-2026` by default.
 
 1. Install and authenticate the Google Cloud CLI and Terraform.
+   Enable the Cloud Resource Manager API once before Terraform manages the
+   remaining project services:
+
+   ```sh
+   gcloud services enable cloudresourcemanager.googleapis.com \
+     --project=alma-monitor-prod-2026
+   ```
 2. Create the Cloud APIs, container registry, service accounts, and empty Secret
    Manager entries:
 
@@ -89,6 +96,8 @@ secret containers before the first image exists. All later changes use a normal
 ## Operations
 
 - Use Cloud Logging to review every job execution.
+- Scheduled checks with no new incidents do not call Gemini or consume model
+  quota.
 - Configure an alert for failed Cloud Run Job executions.
 - Keep one task and one parallel worker. The worker must not process the same
   Mergin Maps project from two locations at once.

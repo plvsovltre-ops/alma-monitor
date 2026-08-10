@@ -2,6 +2,7 @@ locals {
   required_apis = toset([
     "artifactregistry.googleapis.com",
     "cloudbuild.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
     "cloudscheduler.googleapis.com",
     "drive.googleapis.com",
     "generativelanguage.googleapis.com",
