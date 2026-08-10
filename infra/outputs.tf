@@ -6,6 +6,10 @@ output "monitor_service_account" {
   value = google_service_account.monitor.email
 }
 
+output "monitor_state_bucket" {
+  value = google_storage_bucket.monitor_state.name
+}
+
 output "scheduler_name" {
   value = google_cloud_scheduler_job.monitor.name
 }

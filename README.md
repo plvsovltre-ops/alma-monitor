@@ -12,7 +12,9 @@ need a personal computer after deployment.
 
 - **Mergin Maps Cloud** is the source of GIS data and incident status.
 - **Cloud Run Job** is the processing worker.
-- **Cloud Scheduler** starts the worker every 30 minutes.
+- **Cloud Scheduler** starts the watcher every minute.
+- **Cloud Storage** keeps the last scanned Mergin Maps version and an atomic
+  execution lock.
 - **Secret Manager** stores credentials.
 - **Google Sheets** is a secondary registry. A Sheets failure does not resend a
   completed email.
@@ -33,6 +35,9 @@ The worker needs these secrets:
 | `GMAIL_USER` | Email account that sends replies |
 | `GMAIL_APP_PASS` | App password for the sender account |
 | `GEMINI_API_KEY` | Gemini API key |
+
+Terraform sets `STATE_BUCKET` as a normal environment variable. Do not create a
+Secret Manager entry for it.
 
 Set `GEMINI_MODEL` only when a different supported model is needed. The default
 is `gemini-3.6-flash`. The worker uses `gemini-2.5-flash` as a fallback.
@@ -96,11 +101,14 @@ secret containers before the first image exists. All later changes use a normal
 ## Operations
 
 - Use Cloud Logging to review every job execution.
-- Scheduled checks with no new incidents do not call Gemini or consume model
-  quota.
+- The watcher reads the Mergin Maps project version each minute. If the version
+  did not change, it does not download the GIS project and it does not call
+  Gemini.
+- If the version changed, the worker downloads and scans the project. It calls
+  Gemini only when it finds an unsent incident.
 - Configure an alert for failed Cloud Run Job executions.
-- Keep one task and one parallel worker. The worker must not process the same
-  Mergin Maps project from two locations at once.
+- Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
+  executions from processing the same Mergin Maps project.
 - Update the Gemini model before a published model shutdown date.
 - Review generated legal drafts before they are used as official submissions.
 

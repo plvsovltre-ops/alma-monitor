@@ -10,6 +10,7 @@ locals {
     "run.googleapis.com",
     "sheets.googleapis.com",
     "secretmanager.googleapis.com",
+    "storage.googleapis.com",
   ])
 
   runtime_secrets = toset([
@@ -75,6 +76,27 @@ resource "google_secret_manager_secret_iam_member" "monitor_access" {
   member    = "serviceAccount:${google_service_account.monitor.email}"
 }
 
+resource "google_storage_bucket" "monitor_state" {
+  project                     = var.project_id
+  name                        = "${var.project_id}-alma-monitor-state"
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+
+  versioning {
+    enabled = true
+  }
+
+  depends_on = [google_project_service.required]
+}
+
+resource "google_storage_bucket_iam_member" "monitor_state_access" {
+  bucket = google_storage_bucket.monitor_state.name
+  role   = "roles/storage.objectUser"
+  member = "serviceAccount:${google_service_account.monitor.email}"
+}
+
 resource "google_cloud_run_v2_job" "monitor" {
   name                = "alma-monitor"
   location            = var.region
@@ -87,8 +109,8 @@ resource "google_cloud_run_v2_job" "monitor" {
     template {
       service_account = google_service_account.monitor.email
       timeout         = "840s"
-      # Two 14-minute attempts fit inside the 30-minute schedule interval.
-      # This prevents two job executions from editing the same Mergin project.
+      # The application uses an atomic Cloud Storage lock. It prevents
+      # overlapping executions from editing the same Mergin Maps project.
       max_retries     = 1
 
       containers {
@@ -111,6 +133,11 @@ resource "google_cloud_run_v2_job" "monitor" {
           value = "INFO"
         }
 
+        env {
+          name  = "STATE_BUCKET"
+          value = google_storage_bucket.monitor_state.name
+        }
+
         dynamic "env" {
           for_each = local.runtime_secrets
           content {
@@ -127,7 +154,10 @@ resource "google_cloud_run_v2_job" "monitor" {
     }
   }
 
-  depends_on = [google_secret_manager_secret_iam_member.monitor_access]
+  depends_on = [
+    google_secret_manager_secret_iam_member.monitor_access,
+    google_storage_bucket_iam_member.monitor_state_access,
+  ]
 }
 
 resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
@@ -141,8 +171,8 @@ resource "google_cloud_run_v2_job_iam_member" "scheduler_invoker" {
 resource "google_cloud_scheduler_job" "monitor" {
   project          = var.project_id
   region           = var.scheduler_region
-  name             = "alma-monitor-every-30-minutes"
-  description      = "Runs ALMA Monitor without a personal computer"
+  name             = "alma-monitor-every-minute"
+  description      = "Checks Mergin Maps each minute and processes each new incident"
   schedule         = var.schedule
   time_zone        = "Asia/Almaty"
   attempt_deadline = "600s"

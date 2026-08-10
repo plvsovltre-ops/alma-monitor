@@ -7,19 +7,22 @@ warnings.filterwarnings("ignore")
 import os
 import glob
 import sys
+import json
 import logging
 import smtplib
 import shutil
 import time
 import pandas as pd
 import geopandas as gpd
-from datetime import datetime
+from datetime import datetime, timezone
 import PIL.Image
 
 # ИСПОЛЬЗУЕМ НОВУЮ БИБЛИОТЕКУ (Google GenAI SDK)
 from google import genai
 from google.genai import types
 import google.auth
+from google.cloud import storage
+from google.api_core.exceptions import NotFound, PreconditionFailed
 
 # Гугл Таблицы
 import gspread
@@ -50,6 +53,9 @@ GARDEN_KEYWORDS = ["сады", "orchards", "защищенные", "провер
 MAX_LAW_CHARS = 200000 
 
 DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
+STATE_OBJECT = "state/last-scanned-version.json"
+LOCK_OBJECT = "locks/alma-monitor.lock"
+LOCK_TTL_SECONDS = 30 * 60
 
 
 def model_candidates():
@@ -86,6 +92,112 @@ def get_env(name, required=True):
             raise RuntimeError(message)
         LOG.warning(message)
     return val
+
+
+def get_project_version(mc):
+    try:
+        version = mc.project_info(MERGIN_PROJECT).get("version")
+    except Exception as e:
+        raise RuntimeError(
+            f"Could not read Mergin Maps project version for {MERGIN_PROJECT}"
+        ) from e
+
+    if not version:
+        raise RuntimeError("Mergin Maps did not return a project version")
+    return str(version)
+
+
+def get_state_bucket():
+    bucket_name = get_env("STATE_BUCKET")
+    return storage.Client().bucket(bucket_name)
+
+
+def read_last_scanned_version(bucket):
+    try:
+        state = json.loads(bucket.blob(STATE_OBJECT).download_as_text())
+    except NotFound:
+        return None
+    except (json.JSONDecodeError, TypeError, ValueError) as e:
+        raise RuntimeError("The ALMA Monitor state object is invalid") from e
+
+    version = state.get("version")
+    return str(version) if version else None
+
+
+def write_last_scanned_version(bucket, version):
+    payload = {
+        "version": version,
+        "scanned_at": datetime.now(timezone.utc).isoformat(),
+    }
+    bucket.blob(STATE_OBJECT).upload_from_string(
+        json.dumps(payload, ensure_ascii=True),
+        content_type="application/json",
+    )
+    LOG.info("Recorded scanned Mergin Maps version: %s", version)
+
+
+def _delete_stale_lock(bucket):
+    blob = bucket.blob(LOCK_OBJECT)
+    try:
+        blob.reload()
+    except NotFound:
+        return True
+
+    if not blob.time_created:
+        return False
+
+    age = datetime.now(timezone.utc) - blob.time_created
+    if age.total_seconds() < LOCK_TTL_SECONDS:
+        return False
+
+    try:
+        blob.delete(if_generation_match=blob.generation)
+        LOG.warning(
+            "Removed stale watcher lock after %s seconds",
+            int(age.total_seconds()),
+        )
+        return True
+    except (NotFound, PreconditionFailed):
+        return False
+
+
+def acquire_watcher_lock(bucket, version):
+    for attempt in range(2):
+        blob = bucket.blob(LOCK_OBJECT)
+        payload = {
+            "version": version,
+            "acquired_at": datetime.now(timezone.utc).isoformat(),
+        }
+        try:
+            blob.upload_from_string(
+                json.dumps(payload, ensure_ascii=True),
+                content_type="application/json",
+                if_generation_match=0,
+            )
+            blob.reload()
+            LOG.info("Acquired watcher lock")
+            return blob, blob.generation
+        except PreconditionFailed:
+            if attempt == 0 and _delete_stale_lock(bucket):
+                continue
+            return None
+
+    return None
+
+
+def release_watcher_lock(lock):
+    if not lock:
+        return
+
+    blob, generation = lock
+    try:
+        blob.delete(if_generation_match=generation)
+        LOG.info("Released watcher lock")
+    except NotFound:
+        LOG.warning("Watcher lock was already removed")
+    except PreconditionFailed:
+        LOG.warning("Watcher lock changed before it could be released")
+
 
 def log_to_google_sheet(data_row):
     try:
@@ -225,15 +337,7 @@ def sync_project_safely(mc, project_path):
         else:
             raise RuntimeError("Mergin Maps push failed") from e
 
-def main():
-    LOG.info("Starting ALMA Monitor")
-
-    try:
-        mc = MerginClient("https://app.merginmaps.com", login=get_env('MERGIN_USER'), password=get_env('MERGIN_PASS'))
-        LOG.info("Mergin Maps client configured")
-    except Exception as e:
-        raise RuntimeError("Mergin Maps client configuration failed") from e
-
+def process_project(mc):
     if os.path.exists(PROJECT_PATH): shutil.rmtree(PROJECT_PATH)
     try:
         mc.download_project(MERGIN_PROJECT, PROJECT_PATH)
@@ -405,6 +509,54 @@ def main():
         log_to_google_sheet(sheet_row)
 
     LOG.info("ALMA Monitor completed successfully")
+
+
+def main():
+    LOG.info("Starting ALMA Monitor watcher")
+
+    try:
+        mc = MerginClient("https://app.merginmaps.com", login=get_env('MERGIN_USER'), password=get_env('MERGIN_PASS'))
+        LOG.info("Mergin Maps client configured")
+    except Exception as e:
+        raise RuntimeError("Mergin Maps client configuration failed") from e
+
+    bucket = get_state_bucket()
+    current_version = get_project_version(mc)
+    last_scanned_version = read_last_scanned_version(bucket)
+
+    if current_version == last_scanned_version:
+        LOG.info("Mergin Maps version unchanged: %s", current_version)
+        return
+
+    LOG.info(
+        "Mergin Maps version changed: %s -> %s",
+        last_scanned_version or "not scanned",
+        current_version,
+    )
+    lock = acquire_watcher_lock(bucket, current_version)
+    if not lock:
+        LOG.info("Another watcher execution is active; this execution will stop")
+        return
+
+    try:
+        # A second check closes the race between the fast version check and the
+        # atomic lock acquisition.
+        current_version = get_project_version(mc)
+        last_scanned_version = read_last_scanned_version(bucket)
+        if current_version == last_scanned_version:
+            LOG.info("Mergin Maps version was already scanned: %s", current_version)
+            return
+
+        process_project(mc)
+
+        # Record the version that this execution selected for scanning. The
+        # worker can create a newer version when it writes results. Keeping the
+        # selected version forces one safe follow-up scan, which also catches an
+        # incident that was synchronised while this execution was running.
+        write_last_scanned_version(bucket, current_version)
+    finally:
+        release_watcher_lock(lock)
+
 
 if __name__ == "__main__":
     try:
