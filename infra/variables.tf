@@ -30,5 +30,5 @@ variable "gemini_model" {
 variable "schedule" {
   description = "Unix cron schedule for monitoring Mergin Maps."
   type        = string
-  default     = "*/30 * * * *"
+  default     = "* * * * *"
 }
