@@ -3,8 +3,11 @@ locals {
     "artifactregistry.googleapis.com",
     "cloudbuild.googleapis.com",
     "cloudscheduler.googleapis.com",
+    "drive.googleapis.com",
+    "generativelanguage.googleapis.com",
     "logging.googleapis.com",
     "run.googleapis.com",
+    "sheets.googleapis.com",
     "secretmanager.googleapis.com",
   ])
 
@@ -14,7 +17,6 @@ locals {
     "GMAIL_USER",
     "GMAIL_APP_PASS",
     "GEMINI_API_KEY",
-    "GOOGLE_CREDENTIALS_JSON",
   ])
 }
 
