@@ -7,7 +7,7 @@
   "lawyer_review_status": "LAWYER_REVIEW_PENDING",
   "public_legal_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
   "artifacts": {
-    "cards.json": "59d2f68ecd0c0add57886d5806ff8ae547ab43e42c745e518136f20008ebdb9d",
+    "cards.json": "b3c42ec3b93c4948a32063285e088867a1f7c3a6b4f3d38d4969c8863d051d90",
     "sources.json": "15db8df513aa562a8b495dbaef2a6c2441ffc9a4dc5d98988c1e30f0489d60be"
   }
 }

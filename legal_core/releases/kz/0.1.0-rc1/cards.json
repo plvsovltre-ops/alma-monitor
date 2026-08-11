@@ -17,7 +17,7 @@
       "safe_summary": "Норма может иметь отношение к загрязнению места общего пользования, парка или сквера, включая выброс коммунальных отходов в неустановленном месте. Фотография последствий сама по себе не устанавливает действие, лицо или вину.",
       "source_id": "kz-koap-2014",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:bc8af871e99f781f58df782e111459c320cfc5f83c2802c740d5c91407a4f383",
+      "card_hash": "sha256:2160e8df01649520d85fb604e3e40535b4a364640481abd23e688dc006a3da53",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -38,7 +38,7 @@
       "safe_summary": "Норма может иметь отношение к складированию отходов вне специально установленных мест, предназначенных для их накопления или захоронения. Видимые материалы и назначение места должны быть юридически проверены.",
       "source_id": "kz-koap-2014",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:341783b2867ef94ef51da6ed6a958ff9bad2d9e06436bbc2648851f32fb30804",
+      "card_hash": "sha256:ffb6c8918ac90f50c200dd11fc293cb012b84b5407f613c056784afc638892b3",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -59,7 +59,7 @@
       "safe_summary": "До 20 августа 2026 года норма может иметь отношение к захоронению отходов без требуемого экологического разрешения. По полевой фотографии нельзя установить наличие разрешения или юридически подтвердить захоронение.",
       "source_id": "kz-koap-2014",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:4809698ff3a8fd15659e2ea8a8c1961fe6b11bd3cace0877e6e8d7ab2501d623",
+      "card_hash": "sha256:ff41b9db5066ee0f3bc3ed528b1e7d64e489cfb2adf963d2ff18551a1e680066",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -80,7 +80,7 @@
       "safe_summary": "До 20 августа 2026 года норма может иметь отношение к захоронению отходов, которые не заявлены в декларации о воздействии на окружающую среду. Это обстоятельство проверяется по документам оператора, а не по наблюдению волонтера.",
       "source_id": "kz-koap-2014",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:4280094de8259d5cffec5d58a2cbfc4b5ecd5444c5b8cdc77c1c018e26752d0d",
+      "card_hash": "sha256:242fb097d60d2ee5b0d13e58c77632fb0d3a28585c05b382d643cc343b7527c8",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -101,7 +101,7 @@
       "safe_summary": "Часть 1 статьи 505 является бланкетной. Эта карточка охватывает только ветвь уборки и содержания: требуется установить конкретную обязанность по действующим Правилам благоустройства Алматы, ответственное лицо, территорию его ответственности и факт неисполнения. Наличие мусора в один момент времени само по себе этого не доказывает.",
       "source_id": "kz-koap-2014",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:61f895120e1d61db3ad987a86239ae98d4c267719d5fe81f76de0a00c8ec5448",
+      "card_hash": "sha256:54ba098abf80ea05f6c6eac63f7668c4c31dc26ccad7dc3122c485ec051f34f7",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -122,7 +122,7 @@
       "safe_summary": "Норма обязывает собственника земельного участка или землепользователя не допускать загрязнения, захламления, деградации и ухудшения плодородия почв. Для связи нормы с событием требуется установить участок, право на него и соответствующее состояние земли.",
       "source_id": "kz-land-2003",
       "official_url": "https://www.adilet.zan.kz/rus/docs/K030000442_",
-      "card_hash": "sha256:8ec7d3cf7c3ffa2375cfb8794cf194c1cd209e7cb48554fe3499053041df9585",
+      "card_hash": "sha256:bd3470d034390aa24923f0aafcec6caccaf6d395a3906e0950a79bcff5ef472d",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -143,7 +143,7 @@
       "safe_summary": "Пункт 3 статьи 340 регулирует действия местного исполнительного органа при выявлении бесхозяйных отходов. Статус отходов как бесхозяйных нельзя выводить только из того, что собственник пока неизвестен волонтеру.",
       "source_id": "kz-eco-2021",
       "official_url": "https://adilet.zan.kz/rus/docs/K2100000400",
-      "card_hash": "sha256:ee4ebb3a22d0240e49bfaf4569c365ddfbef42b628bd9dd4284c8e48c92e9d44",
+      "card_hash": "sha256:2ba67a5cf3736d6909196647825f4300706fdf6fe8eb5b5c54de9a1a17fc834c",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -164,7 +164,7 @@
       "safe_summary": "Собственники организуют содержание и защиту зеленых насаждений на землях, не относящихся к землям общего пользования, за свой счет. Для применения нужно установить участок, собственника и нахождение насаждений в границах действия Правил.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:d160c8ac0771af4cd02366c1a57e16b20b95853b2a5947c9137785391c665531",
+      "card_hash": "sha256:e45108f93a05e0ce28afb17d3703df3d824744fb2e4dffb32b6ba9077441d98b",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -185,7 +185,7 @@
       "safe_summary": "Собственники земельных участков и землепользователи должны содержать расположенные на них зеленые насаждения в здоровом состоянии, обеспечивать их сохранность, защиту и уход. Лицо и границы участка требуют документальной проверки.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:d24827aa97978cd1294150a92fd3536d947aca8b8f900cda72c392744fe71b63",
+      "card_hash": "sha256:175a715048ea34e55dcba6a7b8cd38453202ba835c2d32b463d1d67684b4e337",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -206,7 +206,7 @@
       "safe_summary": "Доля озелененных территорий должна составлять не менее 20% площади застраиваемого участка. Полевое наблюдение дает сигнал, но расчет требует границ участка, проектной документации и площади озеленения.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:0581debc311ebf5eebbf67032256d372dd90906e41ff269dac3e8b7eb0db553c",
+      "card_hash": "sha256:8d7ecc94907bc88310d061c26dc0ffd40e2921d8bf4882f9d28bb0fc52b674c2",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -227,7 +227,7 @@
       "safe_summary": "На землях общего пользования в рекреационной зоне не допускаются новые или расширяемые промышленные, коммунальные, складские и жилищно-гражданские объекты, не связанные с работой рекреационной зоны. Нужно подтвердить функциональную зону и назначение объекта.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:24337fd14a50a80ec54e2ebd595d1a1d83bee56194080df7bdac7db343bcb103",
+      "card_hash": "sha256:6830709c3b55c882f1c349dd1059e5b2609dc1691f2c7fd5c68b5688ca22cfd5",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -248,7 +248,7 @@
       "safe_summary": "При проектировании и строительстве предусматриваются озеленение участка, максимальное сохранение существующих насаждений и минимальные расстояния до них. Проверка требует проекта, дендроплана и фактических измерений.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:c3364ca9ea062aefec0c9ce0a9d6c91af665b434302849aa876d60a83aceb51b",
+      "card_hash": "sha256:d1f094547ec467ad6bd51dee146f188c7776b8f42c9813ac688961a3251f4310",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -269,7 +269,7 @@
       "safe_summary": "Ответственность за содержание и защиту зависит от вида территории: земли общего пользования, парк или сквер, объект собственности либо стройплощадка. Волонтер фиксирует место; правообладателя и ответственного определяет орган по документам.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:7e54b6950da8f769474f8de8f5c1090df89f9f79f6061d1153b424a8e8e00234",
+      "card_hash": "sha256:b0a7d015f84f2130bef496177b4984e70a6ff89dedb5f6de9eced2536c3ddafe",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -290,7 +290,7 @@
       "safe_summary": "Пересадка зеленых насаждений проводится по письменному согласованию с уполномоченным органом и с мерами по сохранению и уходу. По фотографии нельзя установить наличие согласования; в обращении следует просить его проверить.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:0dcb5d2fc708a1ea6de007e6b4f855d224c6b0d74d01c2f43debd3443c2815b0",
+      "card_hash": "sha256:dfa4e978fc4196d3050ff274ec93091466baa46ab568ea41f1d5504ab38db0bb",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -311,7 +311,7 @@
       "safe_summary": "Строительная организация должна оградить площадку так, чтобы сохраняемые деревья и кустарники оставались вне ее, и обеспечить индивидуальную защиту ствола и кроны. Нужны фото границ работ и защитных устройств.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:d17ad771ebd5fd9d48d83926293c2338b900a6911f3b02b99c30c4ebdfd63fe5",
+      "card_hash": "sha256:437ed62a1b945c0d28bfbac5ab60743e6b1995435b267a2b70255bd6a9f294dd",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -332,7 +332,7 @@
       "safe_summary": "На стройплощадке не допускаются использование сохраняемых деревьев как столбов для оград, светильников и иных предметов и нанесение повреждений. Фото может подтвердить видимое крепление или повреждение, но не виновное лицо.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:0484e499cc30dcb474b5b0d817b39de150b44ff98f92b1fde5ef9708d6d4ea2f",
+      "card_hash": "sha256:d80e89c6a092ac8adc190480712f73021c8c6bfb64cc07cdface90e40d5ac861",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -353,7 +353,7 @@
       "safe_summary": "Не допускаются обнажение корней и засыпание приствольных кругов землей, строительными материалами или мусором. Для сигнала полезны общий план, основание ствола и масштаб.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:6844d3cca05dec1e64a0ab09359d58187e3e80a4ad6f0b1841f338c2fc997323",
+      "card_hash": "sha256:ebcdfcc92d1ca56105af51c8a4f7c4c76cb6c2c1a36290e8bfca05072b74311e",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -374,7 +374,7 @@
       "safe_summary": "При строительстве дорог, тротуаров и иных сооружений у насаждений не допускается изменение вертикальных отметок без проектных устройств, сохраняющих нормальные условия роста. Требуются измерения и проектная проверка.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:e450a15a48975e12212f82a602b858b7d85f0047b96bacc6396f665ae4b609ae",
+      "card_hash": "sha256:395a542635e57e0c53916e5d681f87af37596f01b193a6bcd6d5084b38f604a6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -395,7 +395,7 @@
       "safe_summary": "На стройплощадке не допускаются стоянка машин на газонах, складирование стройматериалов, слив горюче-смазочных материалов и нечистот. Наблюдение должно разделять видимый факт и предположение о составе жидкости.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:164a35ec6193d17f105d48f596d056dd571c98d1ebe614384ea385898a4f994b",
+      "card_hash": "sha256:94f1dccceb29a7643a7f9848e188bc496857448b610ec5698dd068b13d5cb128",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -416,7 +416,7 @@
       "safe_summary": "Подъездные пути и краны размещают вне зеленых насаждений; работы подкопом выполняют ниже основных скелетных корней без повреждения корневой системы. Для вывода нужны схема работ и обследование корней.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:1829ea1c627c2cad7f93fb7c53176507eeabd6a0824e61d73897ab7e6dfa85c0",
+      "card_hash": "sha256:8c3852a9cc667efc51bb42143528e59c480d294e8f17051f9a1cd1588a19c512",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -437,7 +437,7 @@
       "safe_summary": "При новом строительстве верхний растительный грунт сохраняют, снимают и буртуют для последующего озеленения либо передачи озеленяющей организации. Наличие и объем грунта требуют проверки документации и площадки.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:7bfcb27af758e04585345f18b7d664e24474ad71adc918359eb6b368eeb0ab08",
+      "card_hash": "sha256:de1e1370c01611332f0a08da1c276652bb69ec99d9401228138f6b52ebd23bd5",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -458,7 +458,7 @@
       "safe_summary": "При асфальтировании, мощении и укладке плитки вокруг дерева оставляют приствольный круг диаметром не менее 1,2 метра. Для сигнала нужна фотография с измерительным ориентиром.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:72551ec180bc22c73af3768db750f3858e3c4a3d974cb57d0326024b43e10077",
+      "card_hash": "sha256:a5e7dcb5434e1fff41a16fccb4401a77cc6bd545b51aad5d000ec4d7d02d8cf5",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -479,7 +479,7 @@
       "safe_summary": "На озелененных территориях не допускаются повреждение или уничтожение зеленых насаждений. Видимое состояние дерева является фактом; причину, время, лицо и юридическую категорию повреждения устанавливает проверка.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:a030923682545156e13fec08f810f9008f76ee688547a27357e9c058ab354e47",
+      "card_hash": "sha256:60d1c7453b77f9c3310a5a1c2fbe3a6e84767dafe2aacd2a4c44f8431c775893",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -500,7 +500,7 @@
       "safe_summary": "На озелененных территориях не допускаются разведение костров и сжигание опавшей листвы или сухой травы. Фото дыма без места и источника недостаточно; нужны координаты и общий план.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:10a34cc4155f51dc28a39e357ff9a54bcbdcdef7233d913ca1786729b793e151",
+      "card_hash": "sha256:d6b56f27651b1c9c0df675542f969e108839f1b9a5ad2ef0a8570897bb75207a",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -521,7 +521,7 @@
       "safe_summary": "Не допускаются засорение и загрязнение озелененных территорий бытовыми и промышленными отходами или сточными водами. Вид материала и происхождение жидкости не следует определять без подтверждения.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:376dfc66e27088b7dbf3aa52ec9865913ce70fa06785bc3c3129a4f41c4a96ba",
+      "card_hash": "sha256:ea9e883934197fae1fdbf375132fde193819a25db90aca4c04fcf3392c2bc8d1",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -542,7 +542,7 @@
       "safe_summary": "Не допускаются добыча сока, надрезы, надписи, размещение рекламы, объявлений, знаков, проводов, крючков и гвоздей на деревьях. Фотография должна показывать способ крепления и дерево целиком.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:b227b0fbb17857e2c8e6e78c75ded2962e88393d7031dd6ebbdb84216e304ac4",
+      "card_hash": "sha256:d5bfe0ad5f2fc897f800bf4ac105c789272ef968c6b7ccf1c8bbad4706c66c30",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -563,7 +563,7 @@
       "safe_summary": "На озелененных территориях не допускаются мойка транспорта и парковка на газонах или травянистом покрове. Для сигнала фиксируются транспорт, покрытие, координаты и время; водитель и вина не устанавливаются.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:13cc2b89bb1c9bd56c1d7dbfcbe2e541776d6cd7e41cdd8e6ac96a75c32faa91",
+      "card_hash": "sha256:e7b382cfbbbc3125051e5648252092b2c01e8ca9994932c61ea666f23bc049d2",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -584,7 +584,7 @@
       "safe_summary": "Не допускаются складирование грузов, включая стройматериалы, и снега, содержащего химические реагенты. Наличие реагентов нельзя выводить только по внешнему виду снега.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:2087bacc4c615e6b9b67f24e821e5762684494479b614d24199cb692bd1fba9b",
+      "card_hash": "sha256:d8683331857504524ebda01a32fdeed9268c00e18c6c6d8be8634051707d0534",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -605,7 +605,7 @@
       "safe_summary": "Не допускаются срез и вывоз плодородного слоя, закрытие корневой шейки и основания ствола, а также прокладка сетей с нарушением установленных расстояний. Каждый признак требует отдельной проверки и измерений.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:d6f723542e0ee44cfcd3436ef448224006aed0a0c731c23b1527c54d7541f02d",
+      "card_hash": "sha256:aba78080910c64a44a2bf933611f95aef4f861ab6855554691c11638dc3253b6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -626,7 +626,7 @@
       "safe_summary": "При невозможности сохранения насаждений вырубка производится по разрешению уполномоченного органа и в предусмотренных Правилами случаях. Полевое наблюдение не доказывает отсутствие разрешения; его следует запросить.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:1436e4dc33896a2038974a2aa227287ae8fc1812d648f81b37bea43340f313ab",
+      "card_hash": "sha256:e9f472acfa5746baa604b46a7b8279f179b516d37f70e9dbf8f60f0b1cf0ddaa",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -647,7 +647,7 @@
       "safe_summary": "Вынужденная вырубка подтверждается актом аварийно-спасательных служб с последующим уведомлением уполномоченного органа в течение трех рабочих дней. Наличие акта и соблюдение срока проверяются документально.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:9d6e88e238dde39769ab73b1a3f054e0658496a63aff07df4d93c7640be82e84",
+      "card_hash": "sha256:04edb81639956dcf5eb6e422c26d2ce79f77b14001194048105362d20c2292de",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -668,7 +668,7 @@
       "safe_summary": "Разрешенная вырубка предусматривает предварительный выезд специалиста, сверку с реестром и акт обследования. В обращении можно просить предоставить реквизиты разрешения и акта.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:6d41bda738337fb6ab909f9ea0f451dc2e37721012f355e4d8a45792e93900fa",
+      "card_hash": "sha256:c9e6839e585be379054fc43e71574ca9c8cbe54619bfc63e1ffda8a47f80b164",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -689,7 +689,7 @@
       "safe_summary": "Складирование и хранение срубленных насаждений и порубочных остатков на месте работ не допускается; они вывозятся на переработку. Важно различать краткую технологическую операцию и хранение.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:2f43561be1a690981d5ff4ca64d5a8be48697eee98f22aabc1d014dda24cf20f",
+      "card_hash": "sha256:7328f725bc16a123683cc85428a8b6e3d5d1993258631fd0cca3c9bba618af6c",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -710,7 +710,7 @@
       "safe_summary": "Деревья, определенные к пересадке материалами инвентаризации и лесопатологического обследования, пересаживаются на согласованные участки. Нужны материалы учета и письменное согласование.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:52166bd9726ac7c91a3a7d9b82d499881cb2910d4cf3720ddd95f8317fbbeb67",
+      "card_hash": "sha256:41fe1641eddf7de0dd874027fccebe2b3ed955c8f603a523a78d474f77f595fd",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -731,7 +731,7 @@
       "safe_summary": "Для насаждений из установленного Перечня сначала оценивается возможность пересадки; если она невозможна, рассматривается сохранение на месте с корректировкой проекта. Вид растения и включение в Перечень подтверждает специалист.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:ac1d87501bef80099f5fc4787c6f33b76669f95b2fc25f89823f38cf96185c99",
+      "card_hash": "sha256:7022f98333f63002deb173dc8f7745adfc295d961edc0223054fc81681b1db8b",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -752,7 +752,7 @@
       "safe_summary": "При разрешенной вырубке производится десятикратная компенсационная посадка за счет лица, в интересах которого проведена вырубка. Количество и исполнение проверяются по разрешению и плану посадки.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:921ecfa664d02af02b8cb963f8974d7dbe89abeb953fdbf0112ce53121be319f",
+      "card_hash": "sha256:d75998bbec430543ab377b968a767092951d630eaf89ecd5e3aa2036c26e99c6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -773,7 +773,7 @@
       "safe_summary": "При установленной незаконной вырубке Правила предусматривают ответственность по статье 381-1 КоАП и компенсационную посадку в пятидесятикратном размере. Незаконность и субъект устанавливаются органом.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:b3c1c5a54be9d8407cd06f88660689b23a3476301f9bddae4d52de28581c2c66",
+      "card_hash": "sha256:7b4c5689eac5121176fc7ba7417079cc3fd1a111e2926a16782a9ac78675b9cc",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -794,7 +794,7 @@
       "safe_summary": "При установленной незаконной вырубке насаждений из Перечня редких и исчезающих видов предусмотрена стократная компенсационная посадка. Требуются ботаническая идентификация и проверка правового статуса.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:5e7fc1ec84dedf52d929819e325136d0a2f129c74eb8931e7be89d226e0b3a07",
+      "card_hash": "sha256:94e7ac5ef622ccde14f1071409ac5c617e3fab7f9ab76639e585109397bea33f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -815,7 +815,7 @@
       "safe_summary": "При механическом повреждении или уничтожении насаждений из-за ДТП, строительства или прокладки сетей Правила предусматривают пятикратную компенсационную посадку виновной стороной. Причинную связь устанавливает проверка.",
       "source_id": "kz-almaty-green-rules-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
-      "card_hash": "sha256:ef46d2e54580c5ed9a5074306497d4aeb3c97cf3e78d130837a4873d5fd39615",
+      "card_hash": "sha256:2e8a98f27505bfb10af7afb40567ad504cbbad3f60b4727622fde3be62d54179",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -836,7 +836,7 @@
       "safe_summary": "Норма охватывает нарушение конкретных санитарно-эпидемиологических или экологических требований. Она не применяется без указания проверяемого требования и факта его нарушения.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:7957844ce7055a25c2739a081b51b3fabac4d1b67d59446c221a9021a889bd44",
+      "card_hash": "sha256:d417bfa1f41afcc24174df44b7fe7d571a075dfa4fa8c78e633421ef848615ee",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -857,7 +857,7 @@
       "safe_summary": "Норма относится к несоблюдению требований охраны воздуха и пожарной безопасности при складировании или сжигании отходов. Нужно подтвердить, что материал является отходами, и установить применимое требование.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:1e1704ac6445a120525bbab603fbd14cdfa3401fadb96b9636882afa3da8940c",
+      "card_hash": "sha256:721b6a13300e193c631c8a6943e4c6ce86c3698a31ba464c292f938992190863",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -878,7 +878,7 @@
       "safe_summary": "Норма относится к уничтожению или незаконному снятию плодородного слоя почвы. Наличие земляных работ само по себе недостаточно: проверяются характер слоя, законность и предусмотренные исключения.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:1c576e337ab6e99142de7ae4122e6c6f89fa59534cf4e0971fcd1573e736a327",
+      "card_hash": "sha256:c6ed3db63e978a48dc15e1e1316155fa00af74ecd76a4228aed97f9badea7352",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -899,7 +899,7 @@
       "safe_summary": "Норма требует загрязнения или иной порчи земли указанными веществами и последствия в виде деградации либо ухудшения плодородия. Состав вещества и последствия требуют лабораторных или экспертных данных.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:3ea75805be5e8224e4be726e17a98e8fe5c8f2f0836c8b5fa8593dda84a2473d",
+      "card_hash": "sha256:21d702703094ba1de5ff88d3e8f60e75fb7e9ec00d6f12f9f4e766a351428286",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -920,7 +920,7 @@
       "safe_summary": "Норма может применяться к невыполнению собственником или землепользователем установленных законом мероприятий по охране земель. Сначала нужно установить правообладателя и конкретную обязанность.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:b4874aab330edb0fa7bae156735601c9d4292afe4ff3356f39f607fc4dd9d189",
+      "card_hash": "sha256:7c3df6f1327dcac590180df3294b3ac9d8807ec04ddd4a0d64139ba75f8d7f7f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -941,7 +941,7 @@
       "safe_summary": "Норма касается незаконной порубки, уничтожения или повреждения запрещенных к порубке деревьев и кустарников вне лесного фонда при ущербе до 50 МРП, с установленными исключениями. Категорию земли, запрет и ущерб определяет орган.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:1d639afa8981732b2d15d3474420ce81864bf236e741fd37b9dfe7e7466db2b3",
+      "card_hash": "sha256:bd817925c6ca701812be11c476826d29b66ee01734c0456e2b58dccc5947a0b1",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -962,7 +962,7 @@
       "safe_summary": "Норма касается незаконной порубки, уничтожения или повреждения деревьев и кустарников лесного фонда при ущербе до 50 МРП. Принадлежность к лесному фонду и размер ущерба требуют официальных данных.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:55317221885b74beff4238547f8693883330676b73d92c3584b267b0b88b66fa",
+      "card_hash": "sha256:f538c0cf5d96146d6adfeeb7d6aa8e98e71f887502e6d57aacb7ca4cc9551834",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -983,7 +983,7 @@
       "safe_summary": "Норма усиливает ответственность за деяния из частей 1 или 2, совершенные на особо охраняемой природной территории либо повторно. Координаты могут дать сигнал об ООПТ, но границы и повторность проверяет орган.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:c36e0e31035eeca664d157bbf412e948ebc1e2aa05a7148ec1c4d8c572d5f393",
+      "card_hash": "sha256:2bb980b605a5cfc53b535cf7897ec86dee9d490fff355cc05093057d36ade13f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1004,7 +1004,7 @@
       "safe_summary": "Статья 386 является бланкетной: требуется указать конкретный пункт действующих местных Правил и доказать его нарушение. Случаи статьи 381-1 из нее исключены.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:9c18bc7abe82b69501eaefefbe405b467beb053e1ae7dc6c9ae0eda4c4e04ee8",
+      "card_hash": "sha256:4df909f2a48fc26aabb3130c34096c476a0c434333d8b5230fb7b00975f5d156",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1025,7 +1025,7 @@
       "safe_summary": "Норма применяется к нарушению конкретного требования пожарной безопасности в перечисленных местах и объектах. Дым или огонь на фото являются сигналом, но применимое требование и субъект проверяются.",
       "source_id": "kz-koap-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000235",
-      "card_hash": "sha256:563e1f777ab80cc6693076338d9255696b0db60578ccfb4d2cd6e55022470522",
+      "card_hash": "sha256:85ea02ef4995df57a3df7dd873b482705f4c5798a59a63d4f671c10ba5f9b8bb",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1046,7 +1046,7 @@
       "safe_summary": "Это только сигнал для проверки при возможном незаконном уничтожении редкого или исчезающего вида растения либо места его обитания. ALMA не делает уголовной квалификации; вид, статус, действие и субъект устанавливают компетентные органы.",
       "source_id": "kz-criminal-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000226",
-      "card_hash": "sha256:fbd1083dba15d2e4b5297ba62ee5a44b92110674220bb89a106afaa8f8c6c0eb",
+      "card_hash": "sha256:6ae731673418decab969bc4b4028cb0597c4865b4ba167da175945f93ece2956",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1067,7 +1067,7 @@
       "safe_summary": "Норма требует незаконной порубки, уничтожения или повреждения определенных деревьев вне лесного фонда и значительного ущерба. Размер ущерба и все элементы состава не выводятся из фотографии.",
       "source_id": "kz-criminal-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000226",
-      "card_hash": "sha256:19d9f60988c75159a51d8d541e350fa1bdafd325c68fc0d2a573c5bd90f2a0ca",
+      "card_hash": "sha256:30c7d9e499af96898a6218ff0f1000937a325e55091016f081cfa90287808f9f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1088,7 +1088,7 @@
       "safe_summary": "Карточка служит только для эскалации, если событие может относиться к лесному фонду, ООПТ, крупному ущербу или иным квалифицирующим признакам. Гражданское наблюдение не устанавливает преступление.",
       "source_id": "kz-criminal-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000226",
-      "card_hash": "sha256:098f74b50edca662b043058aafad8b134e59e9429a4f35eabf44a52d4df19b8d",
+      "card_hash": "sha256:a1da6b85b8dc33afd127becc9514c5ff99cbb63953da0c1fc465f8e138e9bfa0",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1109,7 +1109,7 @@
       "safe_summary": "Статья охватывает крупный ущерб от неосторожного обращения с огнем и умышленное уничтожение или повреждение деревьев путем поджога, загрязнения или отходов. Причина, умысел и ущерб требуют расследования.",
       "source_id": "kz-criminal-2014",
       "official_url": "https://adilet.zan.kz/rus/docs/K1400000226",
-      "card_hash": "sha256:cbdbd7bd6a44bf452d2cb9dc6100589726c2362a82a0a951f6c4b7f7a568a504",
+      "card_hash": "sha256:f19b124870110d237e0f78154ca887c4bb14c619380111f498be2a8857cacba6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1130,7 +1130,7 @@
       "safe_summary": "Охране подлежат растительный мир и места произрастания; охрана включает предупреждение и пресечение повреждения или уничтожения видов, популяций и сообществ. Это общая основа, а не самостоятельное установление нарушения.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:a7b10bda676d1a701801baabdf2158ff1c24bda0f4c02a069a0c4a519244e95e",
+      "card_hash": "sha256:aaa5feef14704eccfeb34546a10719be9c843a1ec6f71659baa7d03d4936870a",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1151,7 +1151,7 @@
       "safe_summary": "Охрану осуществляют местные исполнительные органы, кроме случаев, когда она законом возложена на собственников, землепользователей, водопользователей или пользователей растительного мира. Ответственного определяют по статусу земли и специальным нормам.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:cd461e80c5d86ebd60f07eaaf90d3f9ac14615cac59388a0d3fe6c9fabf808b5",
+      "card_hash": "sha256:c73034134d21d1e0fa732a6c24a634711dd8ede28a0fd08c2ac6bee1d2a4ce91",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1172,7 +1172,7 @@
       "safe_summary": "При пожаре в местах произрастания растений перечисленные органы и правообладатели принимают незамедлительные меры по локализации и тушению. Чтобы оценивать бездействие, нужны время сообщения, компетенция и фактические меры.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:18f45751c89b000b620d9ba04e83d1d4d5f9ae6ba1b36b608632c0e6f2cda2f7",
+      "card_hash": "sha256:0c89d3c86f9dee0105a3df9f31201624f9fa438eea195e98828055a62fa0243b",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1193,7 +1193,7 @@
       "safe_summary": "В период высокого класса пожарной опасности в лесах на землях всех категорий запрещено выжигание сухой растительности, кроме узкого исключения. Нужно подтвердить период пожарной опасности, место и характер работ.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:a2e9ef650fd1e5a407b0be84b9aeb1c849e559246a0a03a3ddde7b4192fd7346",
+      "card_hash": "sha256:7bcab16e9d75cb859e14e11bb9b0e86b0a023ac4a162262e13b1bd476140a0e0",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1214,7 +1214,7 @@
       "safe_summary": "Местные органы, собственники и землепользователи должны обеспечивать мониторинг, профилактику, безопасную борьбу с вредителями и своевременное информирование. Болезнь и невыполнение мер требуют заключения специалиста.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:2a7002292c3eb52623c86dd13a2b4427b3afc1a373e7de836200573e182d2cc8",
+      "card_hash": "sha256:6da41dbb1eaf8b27901cfea1bfb2dab0b1eaf3263b9a789166a54143b4b4d894",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1235,7 +1235,7 @@
       "safe_summary": "Собственники и пользователи участков должны обеспечивать сохранение произрастающих на них редких и исчезающих видов в соответствии с законодательством. Вид и его статус подтверждаются официальными данными и специалистом.",
       "source_id": "kz-plant-world-2023",
       "official_url": "https://adilet.zan.kz/rus/docs/Z2300000183",
-      "card_hash": "sha256:db54154ba77e5968ca309070f8ac55b8cc29e957f1395b9f28d31579aebae4aa",
+      "card_hash": "sha256:8d2e83260533be3ba71012b05ade71a85079fea665cfa04cf6572caabf4000fb",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1256,7 +1256,7 @@
       "safe_summary": "На землях особо охраняемых природных территорий запрещена деятельность, не соответствующая их целевому назначению, кроме мероприятий гражданской защиты. Необходимо точно подтвердить границы, категорию земли и назначение деятельности.",
       "source_id": "kz-oopt-2006",
       "official_url": "https://adilet.zan.kz/rus/docs/Z060000175_",
-      "card_hash": "sha256:41386b1294f5f872485367d0bcdde4ea708cc7d8fb489fe3909692be0f0403db",
+      "card_hash": "sha256:7a0c7893c9681f6c5b40b7868fe7eae07a47a37eb33d0ceda68a3129479f5cf1",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1277,7 +1277,7 @@
       "safe_summary": "В заповедной зоне запрещены хозяйственная деятельность и рекреационное использование, кроме регулируемого экотуризма; в зоне экологической стабилизации действуют близкие ограничения. Требуется официальная карта функционального зонирования.",
       "source_id": "kz-oopt-2006",
       "official_url": "https://adilet.zan.kz/rus/docs/Z060000175_",
-      "card_hash": "sha256:25098d8eeefd2eb85f000a02329015f5a22fe1b5b558c5af83d6538729c4d503",
+      "card_hash": "sha256:a8ec24a0f82c651d79fc59140cfb9cb9fd6982c40734eb719430fdd90cfb22d3",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1298,7 +1298,7 @@
       "safe_summary": "Туризм в соответствующей зоне национального парка допускается регулируемо и с учетом рекреационных нагрузок; во всех зонах проводятся меры охраны и восстановления по плану управления. Оценка требует плана парка и зоны.",
       "source_id": "kz-oopt-2006",
       "official_url": "https://adilet.zan.kz/rus/docs/Z060000175_",
-      "card_hash": "sha256:4e3b6a2655954222c251e5a47b101f4e15d9a6a313e45cee89dc15f1281019df",
+      "card_hash": "sha256:50853d4502cec5af5f6a9a2628f2f02fc3517a8b677caa6f316781f250cdefe1",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1319,7 +1319,7 @@
       "safe_summary": "В охранной зоне национального парка запрещены вредно воздействующие объекты и выброс или сброс загрязняющих веществ и сточных вод. Нужны точные границы охранной зоны, источник и подтверждение вещества.",
       "source_id": "kz-oopt-2006",
       "official_url": "https://adilet.zan.kz/rus/docs/Z060000175_",
-      "card_hash": "sha256:1bcb346a5830d6f5539eb69322e5fb795ceacac4f54bd1f620753a0323553e2b",
+      "card_hash": "sha256:c113815ff141e37ea578ccc9d2704201e1d340449231ed6cdc05ab9726b247fc",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1340,7 +1340,7 @@
       "safe_summary": "В охранной зоне нацпарка запрещены захоронение промышленных отходов, вредное изменение гидрологического режима, интродукция чужеродных видов и иная вредная деятельность. Каждый признак проверяется отдельно.",
       "source_id": "kz-oopt-2006",
       "official_url": "https://adilet.zan.kz/rus/docs/Z060000175_",
-      "card_hash": "sha256:89cac51dcabe13c819a9fb5912206e72289aa69d0dfcef11ee53e8be94811ac1",
+      "card_hash": "sha256:66ac4ac9b0f3807d157ecfa81c113ce89c396feb707c3ccea5e9b6ff8ac475ee",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1361,7 +1361,7 @@
       "safe_summary": "Физические лица в государственном лесном фонде должны соблюдать пожарные правила, не допускать порубок, повреждений и засорения леса и собирать ресурсы без ущерба воспроизводству. Сначала подтверждается принадлежность к лесному фонду.",
       "source_id": "kz-forest-2003",
       "official_url": "https://adilet.zan.kz/rus/docs/K030000477_",
-      "card_hash": "sha256:599861f60af65493631646c980a4242ad6d27c9572769d2cddb906f30d6cfccb",
+      "card_hash": "sha256:4351cfbc73708c2d38c162eaa3458410561c919cca5a9885802fbad04391592c",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1382,7 +1382,7 @@
       "safe_summary": "В городских лесах запрещены рубки главного пользования и иные виды лесопользования, несовместимые с назначением этих лесов. Статус городского леса и вид рубки подтверждаются официально.",
       "source_id": "kz-forest-2003",
       "official_url": "https://adilet.zan.kz/rus/docs/K030000477_",
-      "card_hash": "sha256:22f2c73d2a68a31fea2297e86a65c903611d1457ca19286984e5fc5d517df2b6",
+      "card_hash": "sha256:823431d712b439dd269abcd1333d21bf48c59a3e1b0b84e11e9c78e35edee35b",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1403,7 +1403,7 @@
       "safe_summary": "К нарушениям отнесены самовольные постройки и склады, повреждение и незаконная порубка, засорение или повреждение леса отходами и сточными водами, а также вредно воздействующие объекты. Карточка требует выбора конкретного подпункта после проверки фактов.",
       "source_id": "kz-forest-2003",
       "official_url": "https://adilet.zan.kz/rus/docs/K030000477_",
-      "card_hash": "sha256:2e98e23d96f28c89dc35af4ce0dcd436ad02b0f4bc1e695e71a62e263b5f051a",
+      "card_hash": "sha256:84c4f04775f9af5bb0dfef13c388b7d7daebd3c06c4b2cd8baab5ae8ce446b6d",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1424,7 +1424,7 @@
       "safe_summary": "Водным объектом является постоянное или временное сосредоточение вод в естественном или искусственном рельефе либо в недрах, имеющее границы и водный режим; накопитель сточных вод исключен. Для применения нужна проверка вида и официальных границ объекта.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:65906941cc3ce40141a072596edcbd1e741750629b9967bd149445c876d4e393",
+      "card_hash": "sha256:6e3f5b5843693f1e81b18f4894b117cc9e82cb46e4056fd4a927e4b2cba4c64f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1445,7 +1445,7 @@
       "safe_summary": "Водопользователь обязан бережно относиться к водным объектам и водохозяйственным сооружениям и не допускать вреда. Сначала требуется установить статус водопользователя, объект и причинную связь с наблюдаемым воздействием.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:69272299c3cec772f1934ad5eecc20ff37947fe3007f53079d226c6e36cc5235",
+      "card_hash": "sha256:19b5fb5eac55b2c560eaba747e7eba7d3fdaf3dd25d2f7a3dd0e258dea2d4db1",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1466,7 +1466,7 @@
       "safe_summary": "Водопользователь обязан осуществлять водоохранные мероприятия. Какие именно меры требовались и были ли они выполнены, проверяется по разрешению, проекту и документам компетентного органа.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:34aa9abdd18a8152cc4643957432fc603821621b948fb05a83c0b07732c1e448",
+      "card_hash": "sha256:c3bdb42858a0247524ace31fe2c00570abec9af9ffe6ec1fcd3dfc0c899519a8",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1487,7 +1487,7 @@
       "safe_summary": "Водопользователь не должен допускать сброс вредных веществ сверх установленных нормативов, кроме специального исключения для ликвидации аварийных разливов нефти. Превышение подтверждается разрешением и лабораторными данными, а не фотографией.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:ec19ce4b1a9b5d88c3c51eb35adf70ec258a536aa9249e27fc9a771580076934",
+      "card_hash": "sha256:bea91019a75370bff564747b9346a42e7f90bc9ee0c045663194695f4d9dd50f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1508,7 +1508,7 @@
       "safe_summary": "Водопользователь обязан обеспечивать соблюдение установленного режима хозяйственной и иной деятельности в водоохранных зонах и полосах. Нужны официальные границы зоны, статус лица и конкретное действие.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:c4ce1464c17bdaef6da669f8d71a07246f03bffea2255453eff7b642c621feb5",
+      "card_hash": "sha256:61b0d8a82cfec3026c1824146189e8f84197a7d930395d6b1e3334722d90d043",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1529,7 +1529,7 @@
       "safe_summary": "Граждане, НКО и иные уполномоченные субъекты могут осуществлять общественный контроль в установленном законом порядке. Карточка подтверждает право на сигнал и оценку общественного интереса, но не заменяет процедуру и полномочия государственного контроля.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:e2f205f8d0febb16e2b8e2d3bbd892fae890e8cd54cd604cae1a8009f060fa1c",
+      "card_hash": "sha256:6b4970b4ce01bdb4c5f07503c84b7a42860fe313da7f1ce2f7f9d5dbba31da48",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1550,7 +1550,7 @@
       "safe_summary": "Водные объекты подлежат охране от загрязнения, засорения и истощения. Наблюдение фиксирует возможный вид воздействия; окончательная категория определяется после проверки состава, источника и состояния водного объекта.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:14e60b9ad579acf4be2b4131b03a663ddfd2362bfbb78e9f048a073cda3a58f5",
+      "card_hash": "sha256:15f201b3e215e3531550c784a5430d6cc3b075269838de91e22582d7ee2e7c90",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1571,7 +1571,7 @@
       "safe_summary": "Центральные и местные исполнительные органы принимают меры по предотвращению загрязнения, засорения и истощения вод и ликвидации последствий. Проект обращения может просить проверить сигнал и сообщить о принятых мерах.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:cc257dfe43cff69f90391e2f7d3656f052f730db4ffc6d5228505f81af391b3b",
+      "card_hash": "sha256:03ae2bcb9a6495ca7becaa879092d2d5838a99179ae493606e81bd6983402952",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1592,7 +1592,7 @@
       "safe_summary": "Лица, деятельность которых влияет на состояние водных объектов, обязаны соблюдать законодательство и проводить необходимые охранные мероприятия. Принадлежность деятельности конкретному лицу и требуемый набор мер должны быть установлены органом.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:12eb9eba31c4bc91b01fb1675e35053298698db84bc94b847b89f68c517d903e",
+      "card_hash": "sha256:5a7e0539b55daf1037561bbcd34b1d016ff01479296b93f242f884e38fb74ef9",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1613,7 +1613,7 @@
       "safe_summary": "Загрязнение означает сброс или иное поступление загрязняющих веществ, ухудшающее качество воды и затрудняющее использование объекта. Изменение цвета, запаха или пленка являются сигналами для отбора проб, но сами не доказывают состав и источник.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:7d6577116c7daf3fd8d4d29b735546edd554524df87beb5f9ae1d2550f07ef37",
+      "card_hash": "sha256:471af39a8697ac30992b270b13934c6c498420ff290e3eef08fda73b4b15b596",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1634,7 +1634,7 @@
       "safe_summary": "Сброс очищенных сточных вод в поверхностный объект допускается при наличии разрешения на специальное водопользование и очистке до установленных пределов. Наличие разрешения и соответствие очистки проверяются по документам и анализам.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:f0f81d55da136103b40339eaac169ec27623776b59323a0d06e24b7ab4b767ab",
+      "card_hash": "sha256:4b88aac2fbf3b3b3fd193a135d1cb54ac7bb34d3f7b2538a1dde25b3835e734c",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1655,7 +1655,7 @@
       "safe_summary": "Сброс очищенных сточных вод в поверхностные водные объекты с природными лечебными свойствами или благоприятные для лечебно-профилактических целей запрещен. Сначала подтверждаются официальный статус объекта и факт сброса.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:611a02597f9696de98359397c4e1d1597cc7e4bcfa7bbe827a238d690c0185d4",
+      "card_hash": "sha256:47636f928726e75f933553c87ee6c73a63d487f74b5642618d31b7c639b10d90",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1676,7 +1676,7 @@
       "safe_summary": "Засорение — попадание твердых и нерастворимых отходов, которое ухудшает или может ухудшить гидрологическое состояние и затрудняет водопользование. Фото отходов является сильным сигналом, но объект и последствия подлежат проверке.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:a5b042f7a2209177bfb0a8a46113e887978509f0839c24f260073c8a9e7b0289",
+      "card_hash": "sha256:ff37ddb38bfbb6ae971d69da8380d15fdcb34620e46a29df89b4060730c81884",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1697,7 +1697,7 @@
       "safe_summary": "Засорение поверхностных водных объектов и захоронение в них отходов запрещены. Для обращения достаточно зафиксировать отходы, координаты и состояние воды и просить орган проверить источник, действие и ответственных лиц.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1e5eee48bf5174289d627677359d5828ad81b23bb5d7d0b59dd5367075cf185d",
+      "card_hash": "sha256:3274974e91485a7c8174d7618b998535ea1b5fa2fde33b2e28a5dbb31d240178",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1718,7 +1718,7 @@
       "safe_summary": "Истощение определяется как устойчивое снижение стока рек или запасов подземных вод либо устойчивое сокращение акватории. Одно наблюдение низкого уровня недостаточно: требуется временной ряд и данные мониторинга.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:aee8254a7b86cbe99eaa913be12580166bd31fdd87f8f8485cecf2d34293cca4",
+      "card_hash": "sha256:fedc09b7348b6523c34555f4f72ba9f20c2901299fed34153da0ed87ff89cd70",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1739,7 +1739,7 @@
       "safe_summary": "Ограничения в водоохранных зонах и полосах малых водных объектов и меры против загрязнения, засорения и истощения устанавливаются местными исполнительными органами по согласованию с уполномоченными органами. Нужно запросить действующий локальный режим.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:93c5a832e6d46c25d2023e6851d47128d11b24fa42a004dfe2572fcf0fe58114",
+      "card_hash": "sha256:b4ed8324527604fe1c8b8668c748b66f04f267d10112164be404cb4ce8581c1a",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1760,7 +1760,7 @@
       "safe_summary": "Местные исполнительные органы должны предусматривать комплекс мер по защите и восстановлению малых водных объектов. Наблюдение может обосновать запрос о наличии, исполнении и результатах таких мер.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:58f8f8e50aa2c1beb11c650e8f67d8fb7868b863637be5b8ca2158042012a708",
+      "card_hash": "sha256:77cdcdc26348ab82f90e0a9e4e7c9db142362434a1fb30a18167a59a0c6a6d8a",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1781,7 +1781,7 @@
       "safe_summary": "На малых реках запрещены проектирование и строительство водоудерживающих глухих плотин без донных водовыпусков и водосбросов для паводковых вод. По фото можно зафиксировать сооружение, но конструкцию и законность проверяет орган.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:cbfec3c0deee833434578c94705b1e12f77c8a5aa138f8cf4fcad439f77df123",
+      "card_hash": "sha256:ef3a9a84284ae719ea22131a807866123c4c7fb3631f843552657b258fe4deb7",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1802,7 +1802,7 @@
       "safe_summary": "Лица, чья хозяйственная деятельность влияет на малый водный объект, обязаны проводить согласованные меры по защите, восстановлению и сохранению чистоты воды. Нужны сведения о деятельности, согласовании и фактическом воздействии.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:2fd494405570fcd216c89cb079b3f84ecfa40cef85b5ea8c158ed9a8eba36655",
+      "card_hash": "sha256:13fb4b39d4858dc5357f0c165e96a376eaa1c1dc40bf23f71dd2ac7dc6f54911",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1823,7 +1823,7 @@
       "safe_summary": "Режим охраны территорий государственного лесного фонда у водных объектов должен поддерживать санитарные и экологические требования и предотвращать загрязнение, засорение и истощение поверхностных вод. Сначала подтверждается категория земли.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:aff78af99aa1e94fb44d3997e16fce288fb591a1bc624557d5f82f8ee4d7e66e",
+      "card_hash": "sha256:125b78a693d0e0bb0b60f1f898451be0c70e52f3908f5b7c21eb05e9a90876d6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1844,7 +1844,7 @@
       "safe_summary": "Для водного объекта особого государственного значения предусматривается защита территории водосборного бассейна от отходов и иных загрязняющих веществ. Требуется подтвердить специальный статус объекта и границы бассейна.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:d40639b529c88a5d5a3d4da0b55257228875b5a874dab1c442bae7e224186974",
+      "card_hash": "sha256:9d7e4e6dd754ea3b7074d978933ac32af002118fef2e9fce97ae6b263e7d4a1e",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1865,7 +1865,7 @@
       "safe_summary": "На водно-болотных угодьях запрещены загрязнение и засорение отходами, нефтепродуктами, ядохимикатами и другими вредными веществами. Нужны официальный статус угодья, координаты и проверка вещества.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:752a26e6c4dba4ff764f870b33bddca6966d6e0b17c721c741da1845d460050e",
+      "card_hash": "sha256:82954541eebf4e981891c508253dda527878001a6b066ef65678359534fe0c3b",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1886,7 +1886,7 @@
       "safe_summary": "Осушение или иное использование водно-болотных угодий либо их частей запрещено. Изменение гидрологии является сигналом; границы угодья, характер работ и причинную связь устанавливает компетентный орган.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:9bd533a76b2985632a5a42062ffb50a98a65d5615cdefb1beaff6097593acf17",
+      "card_hash": "sha256:532e8e47d76a21391c51a584791b7bbec0a605db1cf31848df2dac2255a89d5d",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1907,7 +1907,7 @@
       "safe_summary": "Запрещены несанкционированный сброс сточных вод и загрязнение ледников или снежников отходами, нефтепродуктами, ядохимикатами и другими вредными веществами. Наблюдение должно точно фиксировать место, материал и возможный источник.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:c81bb2a25ddd192c5aa5c2a27a51e8411514a86eac124d43e5a3d020bf688d0a",
+      "card_hash": "sha256:19a68fd14ce7cc6f9e66a42e1ff0e84b6c9a0e8ed5fa6fa9bddbbfd631363646",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1928,7 +1928,7 @@
       "safe_summary": "Забор льда из ледников не должен негативно влиять на водные объекты или приводить к истощению вод. Сам факт работ не равен нарушению: требуются объемы, разрешительные документы и оценка воздействия.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:26b0d133809b0daf84ed28c03414bf8f0594dd37c56a3e99438401f1b335924e",
+      "card_hash": "sha256:ab7d7f23dee50f987289d15a1de25bced197d79438e89546da532e832c33b8a6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1949,7 +1949,7 @@
       "safe_summary": "Водоохранные зоны и полосы устанавливаются для предотвращения загрязнения, засорения и истощения воды и сохранения живой природы. Карточка является контекстом; конкретный запрет выбирается только после подтверждения границ и действия.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:674d61d5e74cca8fd6abb744b8b58e95c6bc2ca8901cc93ff5d121b4d056e3db",
+      "card_hash": "sha256:fab600bd3af31b9b6d4c71311e44a724a33273955844d95f3c750e93bd9e7cc4",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1970,7 +1970,7 @@
       "safe_summary": "Границы водоохранных зон и полос определяются проектной документацией и координатами, обозначаются знаками и публикуются как пространственные данные. ALMA должна использовать официальный слой, а не рассчитывать границу только по фотографии или береговой линии.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:091453c37f2a4b878c8c2b8e3909eef85edf466995fbf8bf23bf31dc2094226f",
+      "card_hash": "sha256:559fa7d77e3b7a02fdb1e8f97d63a9266a8a496c4c83e1314f15b09d3fcca5f8",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -1991,7 +1991,7 @@
       "safe_summary": "На поверхностных водных объектах запрещено загрязнение и засорение радиоактивными и токсичными веществами, отходами, ядохимикатами, удобрениями, нефтяными и химическими продуктами. Вид материала и его попадание в воду проверяются отдельно.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:99e80a30f6a04c7908989313c21a35d2e260d44cd0e157f8d4d021bcda1c02bd",
+      "card_hash": "sha256:7ccd8dae31f102fd01ccb8834d6934b0924fb9c33edfded1c647c35a20b7e59f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2012,7 +2012,7 @@
       "safe_summary": "На поверхностных водных объектах запрещен сброс сточных вод, не очищенных до нормативов допустимых сбросов. В карточке учитывается принятая, но еще не вступившая в силу поправка; применение требует актуальной редакции, проб и разрешения.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:f2d50547a253ffa95024c14a5c8224ed27f38c06dd4afb7b297f9240ce49ec3b",
+      "card_hash": "sha256:1c1f7e154bbd1aba01960309775fe53dfeb726cc8c73927be3022742027e7508",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2033,7 +2033,7 @@
       "safe_summary": "На поверхностных водных объектах запрещены купание и санитарная обработка сельскохозяйственных животных. Нужно зафиксировать действие и подтвердить, что место относится к поверхностному водному объекту.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:2a968df882b02f0ee3d97220292dec081347287299135b792bfc9643c3a37d91",
+      "card_hash": "sha256:da9e1cb8fd1063d9970ffc23618586b04424186a036dd9c72e5342cc26fab3fc",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2054,7 +2054,7 @@
       "safe_summary": "Строительные, сельскохозяйственные, буровые, санационные и иные работы на поверхностном водном объекте требуют согласования с бассейновой водной инспекцией. Волонтер фиксирует работы; наличие согласования проверяется по документам.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:9089fd5b6c46bbce6a9e94b127e9ae1552bba38e29634d1d4dc0c74410866de9",
+      "card_hash": "sha256:d92ee1300085ef288e821c109937cae1634678c2fab28c17740bd8456f9a91d6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2075,7 +2075,7 @@
       "safe_summary": "На поверхностных водных объектах запрещено захоронение выведенных из эксплуатации или поврежденных судов, плавучих средств, транспортных средств, их механизмов и частей. Брошенный объект является сигналом, но захоронение и статус подтверждаются проверкой.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:68df8a9617596a27c98e10d6f4913f6fbab2989c2e1b9096f0e6348b92491059",
+      "card_hash": "sha256:69344422163f11cfb8f4f88866517d479cd43228fda322396f391dca398ad392",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2096,7 +2096,7 @@
       "safe_summary": "В пределах водоохранной полосы хозяйственная деятельность в общем случае запрещена, кроме прямо перечисленных видов. Сначала проверяются официальная граница, вид деятельности и наличие законного исключения.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:c6f4caf177f89154f258f6ecf9e479f61ea10716f4a2f3f4b1029c5cf33f316c",
+      "card_hash": "sha256:95b3654730c9c415379273e90cea8d0977194add271776576bef174ae6b232c2",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2117,7 +2117,7 @@
       "safe_summary": "В водоохранной зоне запрещен ввод новых и реконструированных объектов без устройств, предотвращающих загрязнение и засорение воды, зоны и полосы. Наблюдение объекта не доказывает ввод или отсутствие устройств — требуются документы и осмотр.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:3295109fad7c148de3f245ec8972e540ccd27af3049919e4eef041c75b6958ad",
+      "card_hash": "sha256:eb4761ceb085ddfa23081f5e00d7c858700c14a1d8cae8e4d9fe1d048e806eff",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2138,7 +2138,7 @@
       "safe_summary": "В водоохранной зоне запрещены размещение и строительство АЗС, складов нефтепродуктов, пунктов техосмотра, ремонта, обслуживания и мойки транспорта и сельхозтехники. Ключевы официальная граница зоны и назначение объекта.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:8758d453bd15bff605017f21516c909f97af8ab4ee8b4fe037bfb9d2d16622f0",
+      "card_hash": "sha256:a710ae3217a4faa0246f0dd4eac039be77b92b6d5284c9dc3f197258c6b4f760",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2159,7 +2159,7 @@
       "safe_summary": "В водоохранной зоне запрещены склады и площадки для удобрений, пестицидов, ядохимикатов и навоза, а также их применение, кроме узкого исключения для вынужденной санитарной обработки. Материал и исключение проверяются.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:24c11c7eaa9fcff3b3b0bbd0af39f78b31290b0c506dbcbd305b6204a12f8301",
+      "card_hash": "sha256:4535f2625dde30d5d18f443b17762f1a62abe42a3e5039e3a8170be1a9d30bf6",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2180,7 +2180,7 @@
       "safe_summary": "В водоохранной зоне запрещено размещение и устройство свалок твердых бытовых и промышленных отходов. Для сигнала важны координаты и устойчивое складирование; границу зоны и характер объекта подтверждает орган.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:a9685e4009687419f53f6473e1724df66ff9b1c9bdf123d1356c31f654ec450c",
+      "card_hash": "sha256:19353a31f690f2612939bbe0eb6ecd5b33fc33e4e948c3871d7ca41e128a4c27",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2201,7 +2201,7 @@
       "safe_summary": "Размещение кладбищ в водоохранной зоне запрещено. По наблюдению нельзя определить границы и дату размещения; необходимы официальный слой зоны, землеустроительные и разрешительные документы.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:7a3f161ad5c20a8b3faaf775d5b1b9b1a49371b7506307999e99ba82a1e3c219",
+      "card_hash": "sha256:7f3ea95e4ff6a27cab403f42193e052c93defcf43af30322a4e5284a1983a24e",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2222,7 +2222,7 @@
       "safe_summary": "В водоохранной зоне запрещены перечисленные животноводческие объекты, скотомогильники и специальные хранилища пестицидов; выпас запрещен при превышении нормы нагрузки. Вид объекта и превышение нормы проверяются отдельно.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:25dea9c095032b3b96263c36919f4dc166e776979ed82454e4b0354c569cf705",
+      "card_hash": "sha256:683472a4c7fcd79eb8fdf0dff8a1e4d51c01111198da33ef43995e8a48d1d054",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2243,7 +2243,7 @@
       "safe_summary": "В водоохранной зоне запрещены накопители и поля орошения сточными водами и другие объекты, создающие опасность загрязнения поверхностных или подземных вод. Опасность и назначение объекта требуют технической проверки.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:baa2b5757448d55a6c33c2910fadd92d587fd0efc0a033945d1732d6971c77ab",
+      "card_hash": "sha256:8f73a4fe9b0b7286c306f9d72d2e22eebeef2683b3298326b6cd6a3878a94b36",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2264,7 +2264,7 @@
       "safe_summary": "Объекты, допустимые в зоне, должны иметь бессточные системы либо сооружения и устройства против загрязнения, засорения, истощения и вредного воздействия вод. Отсутствие таких систем нельзя надежно установить по общему фото.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:8a5b687c5562be04e3cf243c611ad0cd24ac779de673eb9f52c1f082d17e782c",
+      "card_hash": "sha256:6a33c0a881952f3b816ba4784e368ec2b8e2d32db04ae3bcc0cb211665240d85",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2285,7 +2285,7 @@
       "safe_summary": "Земля в водоохранной полосе может предоставляться во временное пользование только при соблюдении требований статьи 86. Для оценки нужны документы о землепользовании, официальная граница и фактический вид деятельности.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1473caae085f389eb0d8345a4ad74528c9f689784ade8088ea04531379c471db",
+      "card_hash": "sha256:ac347ffcc257cbc7609edba8abe5adbaf413ec71851b7ee2814a936f1b54ad57",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2306,7 +2306,7 @@
       "safe_summary": "Запрещен ввод новых и реконструируемых объектов без устройств против вредного воздействия, загрязнения, засорения и истощения вод и без средств измерения забора и сброса. Это документарная проверка, а не вывод по виду здания.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:8f8fde96ca7f04c0991a1cdc9bd0e2b9c2dcc3969db44c1e375c6e11c740ff17",
+      "card_hash": "sha256:2eb728ee038702ecbdd072fe56629492607bf08b3d9b5a76f13768993a2bda0f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2327,7 +2327,7 @@
       "safe_summary": "Запрещен ввод животноводческих ферм и производственных комплексов, сбрасывающих сточные воды в воду или на рельеф без очистных сооружений. Нужно подтвердить ввод, путь сброса и наличие очистки.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:cfa45ce2a64083bf4001c683c2307d04aac206716ec087eb962a4dd733159698",
+      "card_hash": "sha256:db8e105101abfb1a579a666510e7141253cfcf192941e2fdff1e8fcca1212c83",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2348,7 +2348,7 @@
       "safe_summary": "Запрещен ввод сооружений для транспортировки и хранения нефтяных, химических и иных вредных веществ без средств предотвращения загрязнения вод и утвержденных аварийных планов. Документы и оснащение проверяет орган.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:3ac2be1b75476c8c697f62e150ec198b8e0bcefc5ea903592948c36fc729de4c",
+      "card_hash": "sha256:4f0d70d33cbc0656d9ff4c872ec32844b7a220f4885a70bdd8407540c04c8c8a",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2369,7 +2369,7 @@
       "safe_summary": "Лица, чья деятельность может ухудшить подземные воды, обязаны вести мониторинг и принимать меры против загрязнения, истощения и вредного воздействия. Нужны данные о деятельности, мониторинге и состоянии вод.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:c03b6d3bad6e90945e27637a3660e90efc51a3c0568711786e5e6321aa931201",
+      "card_hash": "sha256:d5ad60cbec6100b179a445876a3341852e04a959eb573fcb755848794ce200bc",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2390,7 +2390,7 @@
       "safe_summary": "Запрещено орошение неочищенными сточными водами, если оно влияет или может повлиять на подземные воды. Волонтер фиксирует способ полива и источник воды; состав и возможное влияние оцениваются по пробам и гидрогеологии.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1d48990317a4cf50b51ce10e3807490f1620814d7b58105b01d7928edb65630b",
+      "card_hash": "sha256:0135078e8b4f0a15aaeea9a6631524197e8fa60c37e32a3af6f8ead9a0030b05",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2411,7 +2411,7 @@
       "safe_summary": "Непригодные, самоизливающиеся, разведочные и прекращенные в использовании гидрогеологические скважины должны быть законсервированы или ликвидированы. Состояние и владелец скважины требуют проверки.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1853a7450332a94123f4129905157d77b2eef940a6deb8625e00891a38b3c30e",
+      "card_hash": "sha256:6c319faa00e86da2de4a83257cd081b7d9ce875a5d836e07727c2e6b2f5c05b9",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2432,7 +2432,7 @@
       "safe_summary": "В контурах подземных вод для питьевого водоснабжения запрещены, среди прочего, свалки, кладбища, скотомогильники и захоронения радиоактивных или химических отходов. Нужны официальные контуры и назначение объекта.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:c42e0791caa7776e5526a46c70528600202a338c309fdd3d9da9765f3a2add6f",
+      "card_hash": "sha256:40898ac267626bb9cf3f8fd89d304bab78e478caa23ba71ede1d224298aceb61",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2453,7 +2453,7 @@
       "safe_summary": "Эксплуатанты водозаборных сооружений должны контролировать уровень и качество подземных вод и организовывать санитарные зоны на утвержденных питьевых месторождениях. Выполнение проверяется по журналам и проектам.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:9518448089ac793dffc8f38f20f206ea7e2cb3b55deb0e7b61e6c0347cc7ff16",
+      "card_hash": "sha256:36aabc531550c173ed257f14fbb1673e2bb9f5e43c29985332ead948d96818b8",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2474,7 +2474,7 @@
       "safe_summary": "Для питьевого водоснабжения используются защищенные от загрязнения и засорения источники с соответствующим качеством воды и специальным режимом охраны. Сначала подтверждаются назначение источника, режим и результаты контроля.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:e35f61826f187f63891992a6ba04b6ad1f978d7e4a33fdfec4f09466c0834343",
+      "card_hash": "sha256:caf3404ad4f855e0b4f5524b6adeab3facf1ff0ce92075ddf44630ac1da2318f",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2495,7 +2495,7 @@
       "safe_summary": "Самовольное присоединение к ливневой канализации и несанкционированный сброс вод в нее запрещены. Труба или поток являются сигналом; отсутствие разрешения и источник сброса проверяются у владельца системы.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:2b9fccbb66d3c51dc6d8d6fb88110a426f5206ee0c64d00f1e86a6c70542c76e",
+      "card_hash": "sha256:6e0c62d157dcc6a17b9e2a9a9c9d6ba5c5a66c02c4c1082e05cce8871c986540",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2516,7 +2516,7 @@
       "safe_summary": "Сточные воды ИП и юридических лиц принимаются в централизованную систему при соблюдении допустимых концентраций; при несоответствии требуется локальная очистка. Нужны пробы, технические условия и статус лица.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1ef52fd121c3936b74c697ce1b49a9ba8896bf130e7cbc81e3b971bbbe27b70b",
+      "card_hash": "sha256:7fa7ee4ee4eb411b6b845b85f2902a5f769af299e04e2c58ace26d01dc47fe19",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2537,7 +2537,7 @@
       "safe_summary": "Водопотребитель не должен сбрасывать сточные воды с загрязнениями сверх допустимых концентраций. Наблюдение фиксирует возможный сброс, но превышение определяется лабораторно и по применимым правилам.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:e9122a5411c5a6fd1becf10eb7eaf6124080e96c6288a3f787341514cf89a99f",
+      "card_hash": "sha256:c085e0fbb671cfa57cb511e343ecc638147f4d64e279fa91089493e1f23ada91",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
@@ -2558,7 +2558,7 @@
       "safe_summary": "Водопотребитель не должен сбрасывать ливневые и дренажные воды в систему хозяйственно-бытовых сточных вод. Для оценки нужны схема сетей, точка подключения и сведения владельца системы.",
       "source_id": "kz-water-code-2025",
       "official_url": "https://adilet.zan.kz/rus/docs/K2500000178",
-      "card_hash": "sha256:1bdb53349cbbe9b35134c4377a405b7d31e2aa9dbac0ca61c41258e384bdc31d",
+      "card_hash": "sha256:3fd83b481979c49a15f9e3e9a9b07fbba15c1ff6d911377b09dca93a9e3d4462",
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",

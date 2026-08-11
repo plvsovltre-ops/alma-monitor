@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
-import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,15 +10,25 @@ from pathlib import Path
 from legal_core import (
     CardBlockedError,
     FactState,
+    IntegrityError,
     LegalCoreCatalog,
     SourceChangedError,
     UnknownRuleError,
     normalize_fact_state,
 )
 from legal_core.catalog import DEFAULT_RELEASE
+from scripts.export_legal_core import ReleaseMetadata, write_release
 
 
 RELEASE_DIR = DEFAULT_RELEASE.parent
+METADATA = ReleaseMetadata(
+    release_id="kz-0.1.0-rc1",
+    review_date="2026-08-11",
+    review_view_version="1.2",
+    source_spreadsheet_id="test-sheet",
+    source_review_view="ALMA Legal Review — Kazakhstan v1.2",
+    expected_card_count=122,
+)
 
 
 class LegalCoreReleaseTests(unittest.TestCase):
@@ -28,8 +37,15 @@ class LegalCoreReleaseTests(unittest.TestCase):
         cls.document = json.loads(DEFAULT_RELEASE.read_text(encoding="utf-8"))
         cls.cards = cls.document["cards"]
 
+    def write_modified_release(self, directory: str, cards: list[dict]) -> Path:
+        output = Path(directory) / "release"
+        write_release(cards, output, METADATA)
+        return output / "cards.json"
+
     def test_release_has_accepted_unique_cards(self):
+        catalog = LegalCoreCatalog()
         self.assertEqual(122, len(self.cards))
+        self.assertEqual(122, len(catalog.rule_ids()))
         self.assertEqual(len(self.cards), len({card["rule_id"] for card in self.cards}))
         for card in self.cards:
             self.assertRegex(card["rule_id"], r"^kz-[a-z0-9-]+$")
@@ -65,17 +81,102 @@ class LegalCoreReleaseTests(unittest.TestCase):
                 use_case="public_legal_release",
             )
 
+    def test_public_release_requires_lawyer_approval(self):
+        changed = copy.deepcopy(self.cards)
+        changed[0]["review"]["public_release_status"] = (
+            "PUBLIC_LEGAL_RELEASE_APPROVED"
+        )
+        changed[0]["review"]["lawyer_status"] = "LAWYER_REVIEW_PENDING"
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, changed)
+            catalog = LegalCoreCatalog(path)
+            with self.assertRaises(CardBlockedError):
+                catalog.require_card(
+                    changed[0]["rule_id"],
+                    use_case="public_legal_release",
+                )
+
+    def test_public_release_allows_dual_approval_and_current_source(self):
+        changed = copy.deepcopy(self.cards)
+        changed[0]["review"]["public_release_status"] = (
+            "PUBLIC_LEGAL_RELEASE_APPROVED"
+        )
+        changed[0]["review"]["lawyer_status"] = "LAWYER_REVIEW_APPROVED"
+        changed[0]["review"]["source_change_status"] = "UNCHANGED"
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, changed)
+            catalog = LegalCoreCatalog(path)
+            card = catalog.require_card(
+                changed[0]["rule_id"],
+                use_case="public_legal_release",
+            )
+        self.assertEqual(changed[0]["rule_id"], card["rule_id"])
+
     def test_changed_source_blocks_card(self):
-        changed = copy.deepcopy(self.document)
-        changed["cards"][0]["review"]["source_change_status"] = (
+        changed = copy.deepcopy(self.cards)
+        changed[0]["review"]["source_change_status"] = (
             "SOURCE_CHANGED_UNREVIEWED"
         )
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "cards.json"
-            path.write_text(json.dumps(changed, ensure_ascii=False), encoding="utf-8")
+            path = self.write_modified_release(directory, changed)
             catalog = LegalCoreCatalog(path)
             with self.assertRaises(SourceChangedError):
-                catalog.require_card(catalog.rule_ids()[0])
+                catalog.require_card(changed[0]["rule_id"])
+
+    def test_unknown_source_status_blocks_card(self):
+        changed = copy.deepcopy(self.cards)
+        changed[0]["review"]["source_change_status"] = "UNRECOGNIZED"
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, changed)
+            catalog = LegalCoreCatalog(path)
+            with self.assertRaises(SourceChangedError):
+                catalog.require_card(changed[0]["rule_id"])
+
+    def test_missing_source_status_blocks_card(self):
+        changed = copy.deepcopy(self.cards)
+        del changed[0]["review"]["source_change_status"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, changed)
+            catalog = LegalCoreCatalog(path)
+            with self.assertRaises(SourceChangedError):
+                catalog.require_card(changed[0]["rule_id"])
+
+    def test_tampered_release_fails_checksum_verification(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, copy.deepcopy(self.cards))
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["cards"][0]["safe_summary"] = "TAMPERED AFTER MANIFEST"
+            path.write_text(json.dumps(document, ensure_ascii=False), encoding="utf-8")
+            with self.assertRaisesRegex(IntegrityError, "checksum mismatch"):
+                LegalCoreCatalog(path)
+
+    def test_card_hash_blocks_tamper_even_if_bundle_checksums_are_rebuilt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_modified_release(directory, copy.deepcopy(self.cards))
+            release_dir = path.parent
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["cards"][0]["safe_summary"] = "TAMPERED AND RECHECKSUMMED"
+            path.write_text(
+                json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            manifest_path = release_dir / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["artifacts"]["cards.json"] = hashlib.sha256(path.read_bytes()).hexdigest()
+            manifest_path.write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            checksums = {
+                name: hashlib.sha256((release_dir / name).read_bytes()).hexdigest()
+                for name in ("cards.json", "manifest.json", "sources.json")
+            }
+            (release_dir / "SHA256SUMS").write_text(
+                "".join(f"{checksums[name]}  {name}\n" for name in sorted(checksums)),
+                encoding="ascii",
+            )
+            with self.assertRaisesRegex(IntegrityError, "card hash mismatch"):
+                LegalCoreCatalog(path)
 
     def test_unknown_fact_stays_unknown(self):
         self.assertEqual(FactState.UNKNOWN, normalize_fact_state(None))
