@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alma.eco/schemas/legal-card.schema.json",
+  "title": "ALMA Legal Core card",
+  "type": "object",
+  "required": [
+    "rule_id",
+    "jurisdiction",
+    "provision",
+    "safe_summary",
+    "source_id",
+    "official_url",
+    "card_hash",
+    "review"
+  ],
+  "properties": {
+    "rule_id": {"type": "string", "pattern": "^kz-[a-z0-9-]+$"},
+    "jurisdiction": {"const": "KZ"},
+    "provision": {"type": "string", "minLength": 1},
+    "safe_summary": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "official_url": {
+      "type": "string",
+      "pattern": "^https://(www\\.)?adilet\\.zan\\.kz/"
+    },
+    "card_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "editorial_comment": {"type": ["string", "null"]},
+    "source_sheet_row": {"type": "integer", "minimum": 6},
+    "review": {
+      "type": "object",
+      "required": [
+        "owner_status",
+        "pilot_status",
+        "lawyer_status",
+        "public_release_status",
+        "source_change_status",
+        "source_checked_at"
+      ],
+      "properties": {
+        "owner_status": {"enum": ["OWNER_ACCEPTED", "OWNER_REVIEW_REQUIRED"]},
+        "pilot_status": {"enum": ["PILOT_ELIGIBLE", "PILOT_BLOCKED"]},
+        "lawyer_status": {"enum": ["LAWYER_REVIEW_PENDING", "LAWYER_REVIEW_APPROVED"]},
+        "public_release_status": {
+          "enum": ["PUBLIC_LEGAL_RELEASE_BLOCKED", "PUBLIC_LEGAL_RELEASE_APPROVED"]
+        },
+        "source_change_status": {
+          "enum": ["MANUAL_BASELINE_ONLY", "UNCHANGED", "SOURCE_CHANGED_UNREVIEWED"]
+        },
+        "sheet_status": {"type": "string"},
+        "review_view_version": {"type": "string"},
+        "source_checked_at": {"type": "string", "format": "date"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
