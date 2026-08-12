@@ -130,10 +130,12 @@ secret containers before the first image exists. All later changes use a normal
 - A spatially quarantined incident is checked again when its point or exact field
   signal changes, even if the reviewed catalog itself is unchanged. Unchanged
   input remains quarantined without a Gemini call.
-- The first catalog release intentionally routes only the `waste` field signal
-  to the reviewed Almaty land-resources recipient. Other signal types remain
-  quarantined until their recipient and short request are separately reviewed;
-  the presence of a Legal Core mapping alone never selects an authority.
+- The active v0.2 catalog deterministically routes all five exact field signal
+  types: `waste` and `soil_damage` to Almaty land-resources control, `logging`
+  to the Almaty Ecology and Environment Department, `construction` to Almaty
+  Urban Planning Control, and `water_pollution` to the Balkhash-Alakol Basin
+  Inspection. The presence of a Legal Core mapping alone never selects an
+  authority.
 - Volunteer-facing emails do not contain internal Legal Core citations, reviewer
   names, GIS source terminology, or a long list of unknown circumstances. Those
   audit details remain in the private Cloud Storage incident card. Every email
@@ -147,14 +149,12 @@ secret containers before the first image exists. All later changes use a normal
   After reviewing a future exact diff, the author can bind a new private-pilot
   approval with
   `python scripts/approve_territory_catalog.py --catalog config/territory_catalog.json --approval config/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
-- The separate `kz-almaty-orchard-routes-0.2.0` proposal expands deterministic
-  routing to all five reviewed field signal types. It remains inactive while
-  `config/territory_catalog.v0.2.approval.json` says
-  `AUTHOR_REVIEW_REQUIRED`. Tests prove that the pending proposal cannot be
-  loaded by the runtime. After exact author/legal review, the same approval
-  command can bind the proposal hash; only then may a separate release step
-  promote it to the runtime catalog. The proposed matrix and its official
-  sources are recorded in `docs/COMPETENT_AUTHORITY_ROUTING.md`.
+- The `kz-almaty-orchard-routes-0.2.0` catalog is the active controlled-pilot
+  routing release. Its approval sidecar binds the author/legal decision to the
+  exact catalog SHA-256; a changed, pending, missing, or differently reviewed
+  catalog blocks the worker before registry writes or Gemini calls. The routing
+  matrix and its official sources are recorded in
+  `docs/COMPETENT_AUTHORITY_ROUTING.md`.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
   email delivery and Google Sheets rows. A delivered result can restore a
   missing registry row without sending the email again.

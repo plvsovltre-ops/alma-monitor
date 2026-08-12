@@ -11,16 +11,8 @@ from territory_catalog import (
     TerritoryCatalogError,
 )
 
-PROPOSED_CATALOG = (
-    Path(__file__).resolve().parents[1]
-    / "config"
-    / "territory_catalog.v0.2.proposal.json"
-)
-PROPOSED_APPROVAL = (
-    Path(__file__).resolve().parents[1]
-    / "config"
-    / "territory_catalog.v0.2.approval.json"
-)
+PROPOSED_CATALOG = DEFAULT_CATALOG
+PROPOSED_APPROVAL = DEFAULT_APPROVAL
 
 
 class TerritoryCatalogTests(unittest.TestCase):
@@ -70,7 +62,7 @@ class TerritoryCatalogTests(unittest.TestCase):
         catalog = TerritoryCatalog()
 
         self.assertEqual(
-            "68bb08dabda87343286879be6cb699cda26dfc2bf5d072208a75dbdfa2d5a32a",
+            "735a42c23a711df15c12193d85f0bfa89d3476193500e87097c10fcbc1b2e26c",
             catalog.sha256,
         )
         self.assertEqual(
@@ -122,7 +114,7 @@ class TerritoryCatalogTests(unittest.TestCase):
         ):
             catalog.request_for("invented_type")
 
-    def test_unreviewed_incident_route_fails_closed(self):
+    def test_unknown_incident_route_fails_closed(self):
         temp_dir, catalog_path, approval_path = self._approved_files()
         self.addCleanup(temp_dir.cleanup)
         catalog = TerritoryCatalog(catalog_path, approval_path)
@@ -134,7 +126,7 @@ class TerritoryCatalogTests(unittest.TestCase):
             TerritoryCatalogError,
             "no reviewed authority route",
         ):
-            catalog.route_context(territory, "logging")
+            catalog.route_context(territory, "invented_type")
 
     def test_unapproved_catalog_fails_closed(self):
         temp_dir, catalog_path, approval_path = self._approved_files(
@@ -193,15 +185,37 @@ class TerritoryCatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(TerritoryCatalogError, "date is invalid"):
             TerritoryCatalog(catalog_path, approval_path)
 
-    def test_v02_proposal_is_hash_bound_but_not_approved(self):
+    def test_v02_catalog_is_hash_bound_and_author_approved(self):
         proposal_hash = hashlib.sha256(PROPOSED_CATALOG.read_bytes()).hexdigest()
-        pending = json.loads(PROPOSED_APPROVAL.read_text(encoding="utf-8"))
+        approval = json.loads(PROPOSED_APPROVAL.read_text(encoding="utf-8"))
 
-        self.assertEqual(proposal_hash, pending["catalog_sha256"])
-        self.assertEqual("AUTHOR_REVIEW_REQUIRED", pending["decision"])
-        self.assertIsNone(pending["reviewer"])
+        self.assertEqual(proposal_hash, approval["catalog_sha256"])
+        self.assertEqual("CONTROLLED_PILOT_APPROVED", approval["decision"])
+        self.assertEqual(
+            {
+                "name": "Yernar Sailybayev",
+                "capacity": "AUTHOR_AND_LEGAL_EDITOR",
+            },
+            approval["reviewer"],
+        )
+        self.assertEqual("2026-08-13", approval["reviewed_on"])
+        self.assertEqual(proposal_hash, TerritoryCatalog().sha256)
+
+    def test_v02_pending_decision_cannot_activate(self):
+        temp_dir, catalog_path, approval_path = self._approved_files(
+            catalog_source=PROPOSED_CATALOG,
+            approval_source=PROPOSED_APPROVAL,
+            approval_mutator=lambda value: value.update(
+                {
+                    "decision": "AUTHOR_REVIEW_REQUIRED",
+                    "reviewer": None,
+                    "reviewed_on": None,
+                }
+            ),
+        )
+        self.addCleanup(temp_dir.cleanup)
         with self.assertRaisesRegex(TerritoryCatalogError, "not approved"):
-            TerritoryCatalog(PROPOSED_CATALOG, PROPOSED_APPROVAL)
+            TerritoryCatalog(catalog_path, approval_path)
 
     def test_v02_proposal_routes_all_five_reviewed_signal_types(self):
         temp_dir, catalog_path, approval_path = self._approved_files(

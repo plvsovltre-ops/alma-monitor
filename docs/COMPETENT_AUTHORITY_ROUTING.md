@@ -1,8 +1,8 @@
 # Competent Authority Routing — controlled proposal
 
-Status: author and legal editor review required. The proposal is not active in
-the runtime until its exact SHA-256 is approved by Yernar Sailybayev for the
-private controlled pilot.
+Status: approved by Yernar Sailybayev as author and legal editor for the private
+controlled pilot and active in the runtime. The approval is bound to exact
+SHA-256 `735a42c23a711df15c12193d85f0bfa89d3476193500e87097c10fcbc1b2e26c`.
 
 ## Deterministic routing matrix
 
