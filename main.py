@@ -6,13 +6,13 @@ warnings.filterwarnings("ignore")
 
 import os
 import glob
+import hashlib
 import sys
 import json
 import math
 import logging
 import smtplib
 import shutil
-import time
 import pandas as pd
 import geopandas as gpd
 from datetime import datetime, timezone
@@ -31,7 +31,7 @@ import gspread
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
-from mergin import MerginClient, ClientError # Добавили импорт ошибки
+from mergin import MerginClient
 
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
@@ -67,7 +67,24 @@ DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
 STATE_OBJECT = "state/last-scanned-version.json"
 LOCK_OBJECT = "locks/alma-monitor.lock"
 LOCK_TTL_SECONDS = 30 * 60
-STATE_SCHEMA_VERSION = 2
+STATE_SCHEMA_VERSION = 3
+INCIDENT_STATE_SCHEMA_VERSION = 1
+INCIDENT_STATE_PREFIX = "state/incidents"
+
+INCIDENT_STATUS_PROCESSING = "processing"
+INCIDENT_STATUS_READY = "ready"
+INCIDENT_STATUS_DELIVERY_STARTED = "delivery_started"
+INCIDENT_STATUS_DELIVERED = "delivered"
+INCIDENT_STATUS_COMPLETED = "completed"
+INCIDENT_STATUS_DELIVERY_UNCERTAIN = "delivery_uncertain"
+INCIDENT_STATUSES = {
+    INCIDENT_STATUS_PROCESSING,
+    INCIDENT_STATUS_READY,
+    INCIDENT_STATUS_DELIVERY_STARTED,
+    INCIDENT_STATUS_DELIVERED,
+    INCIDENT_STATUS_COMPLETED,
+    INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+}
 
 
 def model_candidates():
@@ -132,6 +149,8 @@ def read_last_scanned_version(bucket):
     except (json.JSONDecodeError, TypeError, ValueError) as e:
         raise RuntimeError("The ALMA Monitor state object is invalid") from e
 
+    if not isinstance(state, dict):
+        raise RuntimeError("The ALMA Monitor state object is invalid")
     if state.get("schema_version") != STATE_SCHEMA_VERSION:
         LOG.info("Watcher state schema changed; a full scan is required")
         return None
@@ -151,6 +170,91 @@ def write_last_scanned_version(bucket, version):
         content_type="application/json",
     )
     LOG.info("Recorded scanned Mergin Maps version: %s", version)
+
+
+def read_downloaded_project_version(project_path=PROJECT_PATH):
+    metadata_path = os.path.join(project_path, ".mergin", "mergin.json")
+    try:
+        with open(metadata_path, encoding="utf-8") as metadata_file:
+            metadata = json.load(metadata_file)
+    except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+        raise RuntimeError("Downloaded Mergin Maps metadata is invalid") from e
+
+    if not isinstance(metadata, dict):
+        raise RuntimeError("Downloaded Mergin Maps metadata is invalid")
+    version = metadata.get("version")
+    if not version:
+        raise RuntimeError("Downloaded Mergin Maps project has no version")
+    return str(version)
+
+
+def incident_storage_key(uid):
+    """Return an opaque filesystem- and object-name-safe incident key."""
+    return hashlib.sha256(uid.encode("utf-8")).hexdigest()
+
+
+def incident_state_object(uid):
+    """Return an opaque object name without exposing a field ID in a path."""
+    return f"{INCIDENT_STATE_PREFIX}/{incident_storage_key(uid)}.json"
+
+
+def read_incident_state(bucket, uid):
+    try:
+        state = json.loads(
+            bucket.blob(incident_state_object(uid)).download_as_text()
+        )
+    except NotFound:
+        return None
+    except (json.JSONDecodeError, TypeError, ValueError) as e:
+        raise RuntimeError(f"Incident state is invalid: {uid}") from e
+
+    if not isinstance(state, dict):
+        raise RuntimeError(f"Incident state is invalid: {uid}")
+    if state.get("schema_version") != INCIDENT_STATE_SCHEMA_VERSION:
+        raise RuntimeError(f"Incident state schema is unsupported: {uid}")
+    if state.get("incident_id") != uid:
+        raise RuntimeError(f"Incident state ID does not match: {uid}")
+    if state.get("status") not in INCIDENT_STATUSES:
+        raise RuntimeError(f"Incident state status is unsupported: {uid}")
+    return state
+
+
+def write_incident_state(bucket, uid, status, previous=None, **values):
+    if status not in INCIDENT_STATUSES:
+        raise ValueError(f"Incident state status is unsupported: {status}")
+    state = dict(previous or {})
+    state.update(values)
+    state.update(
+        {
+            "schema_version": INCIDENT_STATE_SCHEMA_VERSION,
+            "incident_id": uid,
+            "status": status,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    bucket.blob(incident_state_object(uid)).upload_from_string(
+        json.dumps(state, ensure_ascii=False),
+        content_type="application/json",
+    )
+    LOG.info("Recorded incident state: %s -> %s", uid, status)
+    return state
+
+
+def incident_requires_processing(row, state):
+    if state:
+        return state.get("status") not in {
+            INCIDENT_STATUS_DELIVERY_STARTED,
+            INCIDENT_STATUS_DELIVERED,
+            INCIDENT_STATUS_COMPLETED,
+            INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+        }
+
+    # Before Sync Safety, completed results were written back to the field
+    # GeoPackage. Treat them as migrated history without mutating that file.
+    try:
+        return int(normalize_sheet_value(row.get("is_sent")) or 0) != 1
+    except (TypeError, ValueError):
+        return True
 
 
 def _delete_stale_lock(bucket):
@@ -283,10 +387,37 @@ def log_to_google_sheet(data_row):
         LOG.info("Incident written to Google Sheets")
         return True
     except Exception as e:
-        # The GeoPackage and Mergin Maps are the system of record. The registry is
-        # a secondary log, so a registry failure must not cause duplicate emails.
+        # Cloud Storage keeps delivery state. The registry is a secondary log,
+        # so a registry failure must not cause duplicate emails.
         LOG.exception("Google Sheets registry update failed: %s", e)
         return False
+
+
+def registry_row_from_state(state):
+    return [
+        state.get("processed_at"),
+        state.get("incident_id"),
+        state.get("cadastre_id"),
+        state.get("incident_type"),
+        state.get("coordinates"),
+        state.get("response_ru"),
+        state.get("response_kz"),
+        ", ".join(state.get("photo_names") or []),
+    ]
+
+
+def complete_delivered_incident(bucket, state):
+    if not log_to_google_sheet(registry_row_from_state(state)):
+        return False
+
+    write_incident_state(
+        bucket,
+        state["incident_id"],
+        INCIDENT_STATUS_COMPLETED,
+        previous=state,
+        completed_at=datetime.now(timezone.utc).isoformat(),
+    )
+    return True
 
 
 def get_coordinates(row, source_crs):
@@ -308,6 +439,9 @@ def get_coordinates(row, source_crs):
 
 def reconcile_google_sheet(incidents):
     try:
+        if "is_sent" not in incidents.columns:
+            LOG.info("No legacy Mergin Maps delivery state to reconcile")
+            return True
         sheet = open_registry_sheet()
         existing_ids = {str(value).strip() for value in sheet.col_values(2)[1:]}
         processed = incidents[incidents["is_sent"] == 1]
@@ -441,23 +575,7 @@ def send_email_with_attachments(to_email, subject, body, attachment_paths):
     except Exception as e:
         raise RuntimeError(f"Email delivery failed for {subject}") from e
 
-def sync_project_safely(mc, project_path):
-    """Пытается отправить изменения. Если версия устарела, обновляет и пробует снова."""
-    try:
-        mc.push_project(project_path)
-    except ClientError as e:
-        if "There is a new version" in str(e):
-            LOG.warning("Mergin Maps project changed. Pulling and retrying push.")
-            try:
-                mc.pull_project(project_path) # Скачиваем изменения (v93)
-                mc.push_project(project_path) # Отправляем наши изменения поверх
-                LOG.info("Mergin Maps synchronization restored")
-            except Exception as e2:
-                raise RuntimeError("Mergin Maps synchronization recovery failed") from e2
-        else:
-            raise RuntimeError("Mergin Maps push failed") from e
-
-def process_project(mc):
+def process_project(mc, bucket):
     if os.path.exists(PROJECT_PATH): shutil.rmtree(PROJECT_PATH)
     try:
         mc.download_project(MERGIN_PROJECT, PROJECT_PATH)
@@ -470,12 +588,54 @@ def process_project(mc):
     except Exception as e:
         raise RuntimeError("Could not read Mergin Maps GeoPackage files") from e
 
-    if 'is_sent' not in incidents.columns: incidents['is_sent'] = 0
-    incidents['is_sent'] = incidents['is_sent'].fillna(0).astype(int)
     registry_ok = reconcile_google_sheet(incidents)
-    new_recs = incidents[incidents['is_sent'] == 0]
+
+    pending_incidents = []
+    seen_incident_ids = set()
+    for _, row in incidents.iterrows():
+        uid = str(normalize_sheet_value(row.get("unique-id"))).strip()
+        if not uid:
+            try:
+                legacy_completed = int(
+                    normalize_sheet_value(row.get("is_sent")) or 0
+                ) == 1
+            except (TypeError, ValueError):
+                legacy_completed = False
+            if legacy_completed:
+                LOG.warning("Skipping completed legacy incident without an ID")
+                continue
+            raise ValueError("Unprocessed incident ID is required")
+        if uid in seen_incident_ids:
+            raise ValueError(f"Duplicate incident ID: {uid}")
+        seen_incident_ids.add(uid)
+        state = read_incident_state(bucket, uid)
+
+        if state and state.get("status") == INCIDENT_STATUS_DELIVERED:
+            registry_ok = complete_delivered_incident(bucket, state) and registry_ok
+            continue
+        if state and state.get("status") == INCIDENT_STATUS_DELIVERY_STARTED:
+            write_incident_state(
+                bucket,
+                uid,
+                INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+                previous=state,
+                reason="Worker stopped after email delivery started",
+            )
+            LOG.error(
+                "Incident delivery is uncertain; manual review is required: %s",
+                uid,
+            )
+            continue
+        if state and state.get("status") == INCIDENT_STATUS_DELIVERY_UNCERTAIN:
+            LOG.error(
+                "Incident delivery remains uncertain; manual review is required: %s",
+                uid,
+            )
+            continue
+        if incident_requires_processing(row, state):
+            pending_incidents.append((row, state))
     
-    if new_recs.empty: 
+    if not pending_incidents:
         LOG.info("No new incidents")
         return registry_ok
 
@@ -505,15 +665,28 @@ def process_project(mc):
             if any(k in os.path.basename(f).lower() for k in GARDEN_KEYWORDS):
                 garden_files.append(f)
 
-    LOG.info("New incidents: %s", len(new_recs))
+    LOG.info("New incidents: %s", len(pending_incidents))
+    source_project_version = read_downloaded_project_version()
 
-    for idx, row in new_recs.iterrows():
+    for row, state in pending_incidents:
         uid = require_incident_id(row.get('unique-id'))
         LOG.info("Processing incident: %s", uid)
+        state = write_incident_state(
+            bucket,
+            uid,
+            INCIDENT_STATUS_PROCESSING,
+            previous=state,
+            source_project_version=source_project_version,
+            started_at=datetime.now(timezone.utc).isoformat(),
+        )
         
         # --- ФОТО ---
         attachments = []
-        incident_photo_dir = os.path.join(ARCHIVE_PATH, "PHOTOS", f"{datetime.now().strftime('%Y-%m-%d')}_{uid}")
+        incident_photo_dir = os.path.join(
+            ARCHIVE_PATH,
+            "PHOTOS",
+            f"{datetime.now().strftime('%Y-%m-%d')}_{incident_storage_key(uid)}",
+        )
         os.makedirs(incident_photo_dir, exist_ok=True)
 
         rel_photos = photos_gdf[photos_gdf['external_pk'] == uid]
@@ -601,35 +774,42 @@ def process_project(mc):
         # language generation or delivery fails.
         email_subject = f"ALMA: {cad_id}"
         email_body = f"РУССКИЙ\n\n{responses['RU']}\n\n{'=' * 72}\n\nҚАЗАҚША\n\n{responses['KZ']}"
+        processed_at = datetime.now(timezone.utc).isoformat()
+        result_values = {
+            "cadastre_id": cad_id,
+            "incident_type": normalize_sheet_value(row.get("incident_type")),
+            "coordinates": coords_str,
+            "response_ru": responses["RU"],
+            "response_kz": responses["KZ"],
+            "processed_at": processed_at,
+            "photo_names": [os.path.basename(path) for path in attachments],
+            "volunteer_email": normalize_sheet_value(row.get("volunteer_email")),
+        }
+        state = write_incident_state(
+            bucket,
+            uid,
+            INCIDENT_STATUS_READY,
+            previous=state,
+            **result_values,
+        )
+        state = write_incident_state(
+            bucket,
+            uid,
+            INCIDENT_STATUS_DELIVERY_STARTED,
+            previous=state,
+            delivery_started_at=datetime.now(timezone.utc).isoformat(),
+        )
         send_email_with_attachments(
             row.get('volunteer_email'), email_subject, email_body, attachments
         )
-        time.sleep(2)
-
-        # The primary result is first written back to the source GeoPackage and
-        # synchronised to Mergin Maps. This preserves successful work if a later
-        # incident fails and causes Cloud Run to retry the job.
-        incidents.at[idx, 'cadastre_id'] = cad_id
-        incidents.at[idx, 'ai_complaint'] = responses["RU"]
-        incidents.at[idx, 'ai_complaint_kz'] = responses["KZ"]
-        incidents.at[idx, 'processed_at'] = datetime.now(timezone.utc).isoformat()
-        incidents.at[idx, 'is_sent'] = 1
-
-        incidents.to_file(os.path.join(PROJECT_PATH, INCIDENTS_FILE), driver="GPKG")
-        sync_project_safely(mc, PROJECT_PATH)
-
-        # --- GOOGLE SHEETS ---
-        sheet_row = [
-            datetime.now().strftime("%Y-%m-%d %H:%M"),
-            uid, 
-            cad_id, 
-            row.get('incident_type'), 
-            coords_str,
-            responses["RU"], 
-            responses["KZ"], 
-            os.path.abspath(incident_photo_dir)
-        ]
-        registry_ok = log_to_google_sheet(sheet_row) and registry_ok
+        state = write_incident_state(
+            bucket,
+            uid,
+            INCIDENT_STATUS_DELIVERED,
+            previous=state,
+            delivered_at=datetime.now(timezone.utc).isoformat(),
+        )
+        registry_ok = complete_delivered_incident(bucket, state) and registry_ok
 
     LOG.info("ALMA Monitor completed successfully")
     return registry_ok
@@ -671,15 +851,15 @@ def main():
             LOG.info("Mergin Maps version was already scanned: %s", current_version)
             return
 
-        registry_ok = process_project(mc)
+        registry_ok = process_project(mc, bucket)
         if not registry_ok:
             raise RuntimeError("Google Sheets registry synchronization is incomplete")
 
-        # Record the version that this execution selected for scanning. The
-        # worker can create a newer version when it writes results. Keeping the
-        # selected version forces one safe follow-up scan, which also catches an
-        # incident that was synchronised while this execution was running.
-        write_last_scanned_version(bucket, current_version)
+        # Read the version from the downloaded project itself. If a field edit
+        # arrived after that download, its newer server version will still
+        # trigger the next watcher execution.
+        scanned_version = read_downloaded_project_version()
+        write_last_scanned_version(bucket, scanned_version)
     finally:
         release_watcher_lock(lock)
 
