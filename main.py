@@ -82,6 +82,7 @@ INCIDENT_STATUS_COMPLETED = "completed"
 INCIDENT_STATUS_DELIVERY_UNCERTAIN = "delivery_uncertain"
 INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED = "draft_review_required"
 INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED = "spatial_review_required"
+INCIDENT_STATUS_INPUT_REVIEW_REQUIRED = "input_review_required"
 INCIDENT_STATUSES = {
     INCIDENT_STATUS_PROCESSING,
     INCIDENT_STATUS_READY,
@@ -91,6 +92,7 @@ INCIDENT_STATUSES = {
     INCIDENT_STATUS_DELIVERY_UNCERTAIN,
     INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
     INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+    INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
 }
 
 
@@ -283,6 +285,7 @@ def incident_requires_processing(row, state):
             INCIDENT_STATUS_DELIVERY_UNCERTAIN,
             INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
             INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
         }
 
     # Before Sync Safety, completed results were written back to the field
@@ -930,6 +933,24 @@ def process_project(mc, bucket):
                 state.get("status"),
             )
             continue
+        if state and state.get("status") == INCIDENT_STATUS_INPUT_REVIEW_REQUIRED:
+            current_type = str(
+                normalize_sheet_value(row.get("incident_type"))
+            ).strip().lower()
+            if current_type == str(
+                state.get("input_incident_type") or ""
+            ).strip().lower():
+                LOG.error(
+                    "Incident remains quarantined for input review: %s",
+                    uid,
+                )
+                continue
+            LOG.info(
+                "Incident input changed; re-evaluating incident: %s",
+                uid,
+            )
+            pending_incidents.append((row, state))
+            continue
         if state and state.get("status") == INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED:
             routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
             catalog_unchanged = (
@@ -963,12 +984,48 @@ def process_project(mc, bucket):
         LOG.info("No new incidents")
         return registry_ok
 
-    # Resolve all legal mappings before using Gemini or changing incident
-    # state. One unapproved policy or unsupported field value blocks the batch.
+    # Resolve all legal mappings before using Gemini. A missing or unsupported
+    # volunteer field quarantines only that incident; it never causes the model
+    # to guess a legal category and never blocks unrelated valid observations.
     legal_selections = {}
-    for row, _state in pending_incidents:
+    legally_routable_incidents = []
+    for row, state in pending_incidents:
         uid = require_incident_id(row.get("unique-id"))
-        legal_selections[uid] = legal_policy.select(row.get("incident_type"))
+        try:
+            legal_selections[uid] = legal_policy.select(
+                normalize_sheet_value(row.get("incident_type"))
+            )
+        except UnsupportedIncidentTypeError:
+            raw_type = str(
+                normalize_sheet_value(row.get("incident_type"))
+            ).strip().lower()
+            write_incident_state(
+                bucket,
+                uid,
+                INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
+                previous=state,
+                source_project_version=read_downloaded_project_version(),
+                input_rejection_code=(
+                    "missing_incident_type"
+                    if not raw_type
+                    else "unsupported_incident_type"
+                ),
+                input_incident_type=raw_type,
+                input_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            LOG.error(
+                "Incident requires volunteer input review: %s (%s)",
+                uid,
+                "missing_incident_type"
+                if not raw_type
+                else "unsupported_incident_type",
+            )
+            continue
+        legally_routable_incidents.append((row, state))
+
+    if not legally_routable_incidents:
+        LOG.info("No incidents with a reviewed legal mapping")
+        return registry_ok
     LOG.info(
         "Runtime Legal Core policy approved: %s (%s)",
         legal_policy.policy_id,
@@ -988,7 +1045,7 @@ def process_project(mc, bucket):
 
     source_project_version = read_downloaded_project_version()
     routed_incidents = []
-    for row, state in pending_incidents:
+    for row, state in legally_routable_incidents:
         uid = require_incident_id(row.get("unique-id"))
         routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
         territory = resolve_territory_context(
@@ -1101,14 +1158,30 @@ def process_project(mc, bucket):
         observed_at = get_observation_time(rel_photos)
         if not rel_photos.empty:
             for _, p_row in rel_photos.iterrows():
-                original = p_row.get('photo')
+                original = str(
+                    normalize_sheet_value(p_row.get('photo'))
+                ).strip()
                 if original:
-                    possible_paths = [os.path.join(PROJECT_PATH, original), os.path.join(PROJECT_PATH, os.path.basename(original))]
+                    possible_paths = [
+                        os.path.join(PROJECT_PATH, original),
+                        os.path.join(PROJECT_PATH, os.path.basename(original)),
+                    ]
                     src = next((p for p in possible_paths if os.path.exists(p)), None)
                     if src:
                         dst = os.path.join(incident_photo_dir, os.path.basename(src))
                         shutil.copy2(src, dst)
                         attachments.append(dst)
+                    else:
+                        LOG.warning(
+                            "Incident photo file is unavailable: %s (%s)",
+                            uid,
+                            os.path.basename(original),
+                        )
+                else:
+                    LOG.warning(
+                        "Incident photo reference is empty and was skipped: %s",
+                        uid,
+                    )
 
         # --- КООРДИНАТЫ ---
         coords_str = get_coordinates(row, incidents.crs)
