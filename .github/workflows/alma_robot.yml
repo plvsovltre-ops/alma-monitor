@@ -17,6 +17,7 @@ jobs:
         run: |
           docker run --rm \
             --volume "$PWD/tests:/app/tests:ro" \
+            --volume "$PWD/scripts:/app/scripts:ro" \
             --workdir /app \
             alma-monitor:check \
             python -m unittest discover -s tests -v

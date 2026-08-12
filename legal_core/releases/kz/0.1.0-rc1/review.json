@@ -1,0 +1,18 @@
+{
+  "release_id": "kz-0.1.0-rc1",
+  "card_count": 122,
+  "decision": "CONTROLLED_PILOT_APPROVED",
+  "scope": "CONTROLLED_PILOT_ONLY",
+  "reviewed_on": "2026-08-12",
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_artifacts": {
+    "cards.json": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4",
+    "sources.json": "15db8df513aa562a8b495dbaef2a6c2441ffc9a4dc5d98988c1e30f0489d60be"
+  },
+  "independent_lawyer_review_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
+  "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+  "statement": "The reviewer approved the reviewed cards for controlled use by ALMA during a private pilot. This is not an independent legal review or approval for a public legal release."
+}

@@ -1,0 +1,16 @@
+{
+  "release_id": "kz-0.1.0-rc1",
+  "status": "CONTROLLED_PILOT_APPROVED",
+  "card_count": 122,
+  "source_count": 9,
+  "owner_review_status": "OWNER_ACCEPTED",
+  "legal_editor_review_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+  "legal_reviewer_name": "Yernar Sailybayev",
+  "independent_lawyer_review_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
+  "public_legal_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+  "artifacts": {
+    "cards.json": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4",
+    "sources.json": "15db8df513aa562a8b495dbaef2a6c2441ffc9a4dc5d98988c1e30f0489d60be",
+    "review.json": "2620b2115af63db76550b20e5cbd3940faa525ab55f56c04b1107b200a81cf63"
+  }
+}

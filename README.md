@@ -136,3 +136,22 @@ secret containers before the first image exists. All later changes use a normal
 See [the readiness note](docs/UN_CITIZEN_SCIENCE_READINESS.md). It defines the
 minimum documentation, privacy controls, and quality evidence needed before a
 public release.
+
+## Kazakhstan Legal Core
+
+The versioned Kazakhstan Legal Core release candidate is documented in
+[`legal_core/README.md`](legal_core/README.md). It contains 122 owner-accepted
+cards from `ALMA Legal Review — Kazakhstan v1.2`, their official Adilet links,
+a source registry, an author/legal-editor review record, a manifest, and checksums.
+The catalog verifies these artifacts and every reviewed card hash before a
+citation can be returned.
+
+Yernar Sailybayev approved the reviewed cards as author and legal editor only
+for a private controlled pilot. Independent lawyer review remains pending and
+public legal release is blocked. The
+current `main.py` still uses the legacy text knowledge folder; connecting the
+new deterministic card catalog to incident processing is intentionally deferred
+to a separate reviewed change.
+
+ALMA was initiated and originally designed by Yernar Sailybayev in Almaty,
+Kazakhstan.
