@@ -22,6 +22,7 @@ RUN python -m pip install --upgrade pip \
 
 COPY main.py ./
 COPY laws ./laws
+COPY legal_core ./legal_core
 
 RUN useradd --create-home --uid 10001 alma \
     && chown -R alma:alma /app
