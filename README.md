@@ -3,18 +3,23 @@
 ALMA Monitor receives new field incidents from a private Mergin Maps project.
 It checks the incident location against orchard layers. It uses Gemini to prepare
 a bilingual draft response. It sends one email with Russian and Kazakh text. It
-then records the completed result in Mergin Maps and Google Sheets.
+then records the result in private Cloud Storage state and Google Sheets.
+
+The worker treats the Mergin Maps project as read-only. It never writes generated
+text or delivery fields back to a field GeoPackage and never pushes the downloaded
+project. This boundary prevents the cloud worker from conflicting with mobile
+survey edits.
 
 The monitor is designed to run as a scheduled Google Cloud Run Job. It does not
 need a personal computer after deployment.
 
 ## System boundary
 
-- **Mergin Maps Cloud** is the source of GIS data and incident status.
+- **Mergin Maps Cloud** is the read-only source of field observations and media.
 - **Cloud Run Job** is the processing worker.
 - **Cloud Scheduler** starts the watcher every minute.
-- **Cloud Storage** keeps the last scanned Mergin Maps version and an atomic
-  execution lock.
+- **Cloud Storage** keeps per-incident processing and delivery state, the last
+  scanned Mergin Maps version, and an atomic execution lock.
 - **Secret Manager** stores credentials.
 - **Google Sheets** is a secondary registry. A Sheets failure does not resend a
   completed email.
@@ -92,7 +97,8 @@ The prepared Terraform configuration is in `infra/`. It uses the project ID
    ```
 
 6. In Google Cloud Console, run `alma-monitor` once. Add one test incident in
-   Mergin Maps and verify the email, Mergin Maps update, and Google Sheets row.
+   Mergin Maps and verify the email, Cloud Storage incident state, and Google
+   Sheets row. Verify that the worker did not create a new Mergin Maps version.
 
 The first Terraform command uses `-target` only to create the registry and empty
 secret containers before the first image exists. All later changes use a normal
@@ -106,12 +112,17 @@ secret containers before the first image exists. All later changes use a normal
   Gemini.
 - If the version changed, the worker downloads and scans the project. It calls
   Gemini only when it finds an unsent incident.
-- The worker uses the incident ID to prevent duplicate Google Sheets rows. A
-  full project scan also restores a missing registry row for an incident that
-  Mergin Maps already marks as sent.
+- The worker uses the incident ID and Cloud Storage state to prevent duplicate
+  email delivery and Google Sheets rows. A delivered result can restore a
+  missing registry row without sending the email again.
+- A worker interruption after email delivery starts is quarantined as
+  `delivery_uncertain`; it requires manual review and is never resent
+  automatically.
+- Legacy `is_sent=1` rows remain readable during migration, but all new runtime
+  state is kept outside the field GeoPackage.
 - Configure an alert for failed Cloud Run Job executions.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
-  executions from processing the same Mergin Maps project.
+  executions from processing the same Mergin Maps version.
 - Update the Gemini model before a published model shutdown date.
 - Review generated legal drafts before they are used as official submissions.
 

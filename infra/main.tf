@@ -110,7 +110,7 @@ resource "google_cloud_run_v2_job" "monitor" {
       service_account = google_service_account.monitor.email
       timeout         = "840s"
       # The application uses an atomic Cloud Storage lock. It prevents
-      # overlapping executions from editing the same Mergin Maps project.
+      # overlapping executions from processing the same field version.
       max_retries     = 1
 
       containers {

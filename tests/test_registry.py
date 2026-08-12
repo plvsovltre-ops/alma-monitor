@@ -30,9 +30,15 @@ class _Column(list):
         return _Column(_type(value) for value in self)
 
 
+class _Row(dict):
+    @property
+    def geometry(self):
+        return self.get("geometry")
+
+
 class _Frame:
     def __init__(self, rows, crs="EPSG:4326"):
-        self.rows = [dict(row) for row in rows]
+        self.rows = [_Row(row) for row in rows]
         self.crs = crs
 
     @property
@@ -81,19 +87,24 @@ class _Sheet:
 
 
 class _Blob:
-    def __init__(self, text):
+    def __init__(self, text=None):
         self.text = text
 
     def download_as_text(self):
+        if self.text is None:
+            raise main.NotFound("missing")
         return self.text
+
+    def upload_from_string(self, text, **_kwargs):
+        self.text = text
 
 
 class _Bucket:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, text=None):
+        self.blobs = {main.STATE_OBJECT: _Blob(text)} if text is not None else {}
 
-    def blob(self, _name):
-        return _Blob(self.text)
+    def blob(self, name):
+        return self.blobs.setdefault(name, _Blob())
 
 
 def _install_import_stubs():
@@ -106,7 +117,9 @@ def _install_import_stubs():
 
     google = types.ModuleType("google")
     genai = types.ModuleType("google.genai")
-    genai.types = types.SimpleNamespace(GenerateContentConfig=object)
+    genai.types = types.SimpleNamespace(
+        GenerateContentConfig=lambda **kwargs: types.SimpleNamespace(**kwargs)
+    )
     google.genai = genai
     google.auth = types.ModuleType("google.auth")
 
@@ -222,6 +235,7 @@ class RegistryTests(unittest.TestCase):
         incidents = _Frame([{"is_sent": 1, "unique-id": "case-1"}])
         photos = _Frame([])
         client = mock.Mock()
+        bucket = _Bucket()
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
             main.gpd,
             "read_file",
@@ -231,10 +245,221 @@ class RegistryTests(unittest.TestCase):
             main,
             "get_env",
         ) as get_env, mock.patch.object(main, "send_email_with_attachments") as send_email:
-            self.assertTrue(main.process_project(client))
+            self.assertTrue(main.process_project(client, bucket))
 
         get_env.assert_not_called()
         send_email.assert_not_called()
+
+    def test_completed_legacy_incident_without_id_is_ignored(self):
+        incidents = _Frame([{"is_sent": 1, "unique-id": None}])
+        photos = _Frame([])
+        client = mock.Mock()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertTrue(main.process_project(client, _Bucket()))
+
+        send_email.assert_not_called()
+
+    def test_successful_incident_is_completed_without_mergin_write(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-1",
+                    "incident_type": "waste",
+                    "description": "field observation",
+                    "volunteer_email": "volunteer@example.com",
+                    "geometry": None,
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+        mergin_client = mock.Mock(spec=["download_project", "project_info"])
+        model_client = mock.Mock()
+        model_client.models.generate_content.side_effect = [
+            types.SimpleNamespace(text="available"),
+            types.SimpleNamespace(text="RU result"),
+            types.SimpleNamespace(text="KZ result"),
+        ]
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
+            main.genai,
+            "Client",
+            return_value=model_client,
+            create=True,
+        ), mock.patch.object(
+            main,
+            "get_project_version",
+            return_value="v125",
+        ), mock.patch.object(
+            main,
+            "get_coordinates",
+            return_value="43.197466, 76.937677",
+        ), mock.patch.object(
+            main,
+            "load_knowledge_base",
+            return_value="approved test knowledge",
+        ), mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email, mock.patch.object(
+            main,
+            "log_to_google_sheet",
+            return_value=True,
+        ):
+            self.assertTrue(main.process_project(mergin_client, bucket))
+
+        send_email.assert_called_once()
+        state = main.read_incident_state(bucket, "case-1")
+        self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
+        self.assertEqual(state["response_ru"], "RU result")
+        self.assertEqual(state["response_kz"], "KZ result")
+        self.assertFalse(hasattr(mergin_client, "push_project"))
+
+    def test_incident_state_uses_opaque_path_and_round_trips(self):
+        bucket = _Bucket()
+        uid = "{private-field-id}"
+
+        state = main.write_incident_state(
+            bucket,
+            uid,
+            main.INCIDENT_STATUS_PROCESSING,
+            source_project_version="v125",
+        )
+
+        object_name = main.incident_state_object(uid)
+        self.assertNotIn(uid, object_name)
+        self.assertEqual(main.read_incident_state(bucket, uid), state)
+
+    def test_invalid_incident_state_is_not_treated_as_new_work(self):
+        bucket = _Bucket()
+        uid = "case-1"
+        bucket.blob(main.incident_state_object(uid)).text = "not json"
+
+        with self.assertRaisesRegex(RuntimeError, "Incident state is invalid"):
+            main.read_incident_state(bucket, uid)
+
+    def test_unknown_incident_state_status_fails_closed(self):
+        bucket = _Bucket()
+        uid = "case-1"
+        bucket.blob(main.incident_state_object(uid)).text = main.json.dumps(
+            {
+                "schema_version": main.INCIDENT_STATE_SCHEMA_VERSION,
+                "incident_id": uid,
+                "status": "mystery",
+            }
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "status is unsupported"):
+            main.read_incident_state(bucket, uid)
+
+    def test_delivery_started_is_quarantined_without_resending_email(self):
+        incidents = _Frame([{"is_sent": 0, "unique-id": "case-1"}])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_DELIVERY_STARTED,
+        )
+        client = mock.Mock()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertFalse(main.process_project(client, bucket))
+
+        send_email.assert_not_called()
+        state = main.read_incident_state(bucket, "case-1")
+        self.assertEqual(state["status"], main.INCIDENT_STATUS_DELIVERY_UNCERTAIN)
+
+    def test_completed_incident_does_not_resend_email(self):
+        incidents = _Frame([{"is_sent": 0, "unique-id": "case-1"}])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_COMPLETED,
+        )
+        client = mock.Mock()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertTrue(main.process_project(client, bucket))
+
+        send_email.assert_not_called()
+
+    def test_unprocessed_incident_without_id_fails_closed(self):
+        incidents = _Frame([{"is_sent": 0, "unique-id": None}])
+        photos = _Frame([])
+        client = mock.Mock()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True):
+            with self.assertRaisesRegex(ValueError, "Unprocessed incident ID is required"):
+                main.process_project(client, _Bucket())
+
+    def test_duplicate_incident_id_fails_closed(self):
+        incidents = _Frame(
+            [
+                {"is_sent": 0, "unique-id": "case-1"},
+                {"is_sent": 0, "unique-id": "case-1"},
+            ]
+        )
+        photos = _Frame([])
+        client = mock.Mock()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True):
+            with self.assertRaisesRegex(ValueError, "Duplicate incident ID"):
+                main.process_project(client, _Bucket())
+
+    def test_sync_safety_source_contains_no_mergin_write_calls(self):
+        with open(main.__file__, encoding="utf-8") as source_file:
+            source = source_file.read()
+
+        self.assertNotIn("push_project(", source)
+        self.assertNotIn("incidents.to_file(", source)
 
     def test_invalid_watcher_state_is_not_treated_as_success(self):
         with self.assertRaisesRegex(RuntimeError, "state object is invalid"):
