@@ -130,6 +130,14 @@ secret containers before the first image exists. All later changes use a normal
 - A spatially quarantined incident is checked again when its point or exact field
   signal changes, even if the reviewed catalog itself is unchanged. Unchanged
   input remains quarantined without a Gemini call.
+- Field mode requires a non-empty signal type and at least one readable image
+  explicitly related to the incident. The mobile QGIS form makes the image,
+  relation, and signal type mandatory and stores attachment paths under `DCIM/`.
+  The cloud worker independently verifies that the path stays inside the Mergin
+  project and that the file is a readable image. Incomplete evidence is kept as
+  `evidence_review_required`; it consumes no Gemini tokens and sends no email.
+  The incident is retried automatically only after its related photo fields
+  change.
 - The active v0.2 catalog deterministically routes all five exact field signal
   types: `waste` and `soil_damage` to Almaty land-resources control, `logging`
   to the Almaty Ecology and Environment Department, `construction` to Almaty
@@ -173,6 +181,9 @@ secret containers before the first image exists. All later changes use a normal
 - Legacy `is_sent=1` rows remain readable during migration, but all new runtime
   state is kept outside the field GeoPackage.
 - Configure an alert for failed Cloud Run Job executions.
+- Apply the field form safeguards to a cloned Mergin project with
+  `python scripts/configure_field_project.py /path/to/alma_bot.qgz`, inspect the
+  resulting QGIS form, and then synchronise that project through Mergin Maps.
 - The recorded source version comes from the downloaded project's own Mergin
   metadata, not from a later server lookup.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
