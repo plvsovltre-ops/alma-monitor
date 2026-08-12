@@ -198,6 +198,20 @@ main = importlib.import_module("main")
 
 
 class RegistryTests(unittest.TestCase):
+    def setUp(self):
+        self.territory_catalog_patch = mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=mock.Mock(
+                catalog_id="test-territories",
+                sha256="test-territory-sha256",
+            ),
+        )
+        self.territory_catalog_patch.start()
+
+    def tearDown(self):
+        self.territory_catalog_patch.stop()
+
     def test_normalize_replaces_missing_and_non_finite_values(self):
         values = [
             None,
@@ -276,6 +290,36 @@ class RegistryTests(unittest.TestCase):
         get_env.assert_not_called()
         send_email.assert_not_called()
 
+    def test_unapproved_territory_catalog_blocks_even_without_new_incident(self):
+        incidents = _Frame([{"is_sent": 1, "unique-id": "case-1"}])
+        photos = _Frame([])
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            side_effect=main.TerritoryCatalogError("author review required"),
+        ), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+        ) as reconcile, mock.patch.object(main, "get_env") as get_env:
+            with self.assertRaisesRegex(
+                main.TerritoryCatalogError,
+                "author review required",
+            ):
+                main.process_project(mock.Mock(), _Bucket())
+
+        reconcile.assert_not_called()
+        get_env.assert_not_called()
+
     def test_completed_legacy_incident_without_id_is_ignored(self):
         incidents = _Frame([{"is_sent": 1, "unique-id": None}])
         photos = _Frame([])
@@ -316,6 +360,14 @@ class RegistryTests(unittest.TestCase):
             types.SimpleNamespace(text="RU result"),
             types.SimpleNamespace(text="KZ result"),
         ]
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="test-territory-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+        territory_catalog.request_for.return_value = self._request_template()
+        territory = self._territory()
+        territory_catalog.route_context.return_value = territory
 
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
             main.gpd,
@@ -345,6 +397,14 @@ class RegistryTests(unittest.TestCase):
             return_value=_ApprovedLegalPolicy(),
         ), mock.patch.object(
             main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=territory,
+        ), mock.patch.object(
+            main,
             "send_email_with_attachments",
         ) as send_email, mock.patch.object(
             main,
@@ -358,9 +418,11 @@ class RegistryTests(unittest.TestCase):
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
         self.assertEqual(state["source_project_version"], "v125")
-        self.assertTrue(state["response_ru"].startswith("RU result"))
-        self.assertTrue(state["response_kz"].startswith("KZ result"))
-        self.assertIn("КоАП РК, часть 2 статьи 344", state["response_ru"])
+        self.assertIn("ЧТО ЗАФИКСИРОВАНО\nRU result", state["response_ru"])
+        self.assertIn("НЕ ТІРКЕЛДІ\nKZ result", state["response_kz"])
+        self.assertIn("Земельная инспекция Алматы", state["response_ru"])
+        self.assertNotIn("КоАП РК", state["response_ru"])
+        self.assertNotIn("Yernar Sailybayev", state["response_ru"])
         self.assertEqual(
             ["kz-koap-344-2-storage"],
             state["legal_rule_ids"],
@@ -369,7 +431,45 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual("test-policy", state["legal_policy_id"])
         self.assertEqual("test-policy-sha256", state["legal_policy_sha256"])
         self.assertEqual("Yernar Sailybayev", state["legal_reviewer"])
+        self.assertEqual("remizovka", state["territory_id"])
+        self.assertEqual("almaty_land_resources", state["authority_route_id"])
         self.assertFalse(hasattr(mergin_client, "push_project"))
+
+    @staticmethod
+    def _territory():
+        return {
+            "territory_id": "remizovka",
+            "source_file": "Сады_в_Ремизовке_на_проверке_2024.gpkg",
+            "source_reference": "032-287",
+            "public_name_ru": "сад в Ремизовке",
+            "public_name_kz": "Ремизовкадағы бақ",
+            "purpose_ru": "сохранение садовой территории",
+            "purpose_kz": "бақ аумағын сақтау",
+            "route_ids_by_incident_type": {"waste": "almaty_land_resources"},
+            "route_id": "almaty_land_resources",
+            "catalog_id": "test-territories",
+            "catalog_sha256": "territory-sha256",
+            "authority": {
+                "display_name_ru": "Земельная инспекция Алматы",
+                "display_name_kz": "Алматы қаласының жер инспекциясы",
+                "official_name_ru": "РГУ «Департамент по управлению земельными ресурсами города Алматы»",
+                "official_name_kz": "Алматы қаласының жер ресурстарын басқару департаменті",
+                "official_source_url": "https://www.gov.kz/example",
+                "competence_source_url": "https://adilet.zan.kz/example",
+                "verified_on": "2026-08-13",
+                "forwarding_ru": "Если вопрос относится к компетенции другого государственного органа, прошу направить обращение по компетенции.",
+                "forwarding_kz": "Егер мәселе басқа мемлекеттік органның құзыретіне жатса, өтінішті құзыреті бойынша жолдауды сұраймын.",
+            },
+        }
+
+    @staticmethod
+    def _request_template():
+        return {
+            "subject_ru": "Размещение материалов на садовой территории",
+            "subject_kz": "Бақ аумағында материалдардың орналасуы",
+            "request_ru": "Прошу проверить допустимость размещения материалов. О результате прошу сообщить.",
+            "request_kz": "Материалдарды орналастыруға жол берілетінін тексеруді сұраймын.",
+        }
 
     def test_pending_legal_policy_blocks_before_gemini_or_incident_state(self):
         incidents = _Frame(
@@ -426,6 +526,13 @@ class RegistryTests(unittest.TestCase):
             types.SimpleNamespace(text="available"),
             types.SimpleNamespace(text="Применяется статья 505."),
         ]
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="test-territory-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+        territory_catalog.request_for.return_value = self._request_template()
+        territory_catalog.route_context.return_value = self._territory()
 
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
             main.gpd,
@@ -453,6 +560,14 @@ class RegistryTests(unittest.TestCase):
             main,
             "load_runtime_legal_policy",
             return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=self._territory(),
         ), mock.patch.object(
             main,
             "send_email_with_attachments",
@@ -569,7 +684,7 @@ class RegistryTests(unittest.TestCase):
             row,
             selection,
             "43.197466, 76.937677",
-            "garden layer name",
+            self._territory(),
             2,
         )
         prompt = main.get_legal_prompt("RU", packet)
@@ -580,22 +695,219 @@ class RegistryTests(unittest.TestCase):
         self.assertNotIn("КоАП РК", prompt)
         self.assertNotIn("adilet.zan.kz", prompt)
         self.assertIn("непроверенное сообщение пользователя", prompt)
-        self.assertIn("нельзя\nназывать кадастровым номером", prompt)
+        self.assertIn("не называй кадастровым номером", prompt)
+        self.assertIn("сад в Ремизовке", prompt)
+        self.assertIn("сохранение садовой территории", prompt)
+        self.assertNotIn("gis_context_unverified", prompt)
+        self.assertNotIn("unknown_facts_requiring_authority_check", prompt)
         self.assertNotIn("ПРОЕКТ ОБРАЩЕНИЯ", prompt)
         self.assertIn("Не составляй адресат или просительную часть", prompt)
+        self.assertIn("описание без заголовка", prompt)
 
-    def test_fixed_verification_request_does_not_select_an_authority(self):
-        ru = main.verification_request_block("RU")
-        kz = main.verification_request_block("KZ")
+    def test_fixed_request_uses_reviewed_authority_and_short_template(self):
+        territory = self._territory()
+        request = self._request_template()
+        ru = main.verification_request_block(
+            "RU",
+            territory,
+            request,
+            "Размещены строительные блоки среди растительности.",
+            "43.197466, 76.937677",
+            "2026-08-12T11:51:56.590Z",
+        )
+        kz = main.verification_request_block(
+            "KZ",
+            territory,
+            request,
+            "Өсімдіктер арасында құрылыс блоктары орналасқан.",
+            "43.197466, 76.937677",
+            "2026-08-12T11:51:56.590Z",
+        )
 
-        self.assertIn("компетентный государственный", ru)
-        self.assertIn("Құзыретті мемлекеттік", kz)
-        for text in (ru, kz):
-            self.assertNotRegex(
-                text.lower(),
-                r"\b(?:акимат|әкімдік|суд|сот|маслихат|мәслихат|"
-                r"министерство|министрлік)\b",
-            )
+        self.assertIn("КУДА НАПРАВИТЬ", ru)
+        self.assertIn("Земельная инспекция Алматы", ru)
+        self.assertIn("Для выбора в eOtinish", ru)
+        self.assertIn("Прошу проверить допустимость размещения материалов", ru)
+        self.assertIn("43.197466, 76.937677", ru)
+        self.assertIn("12.08.2026", ru)
+        self.assertIn("Размещены строительные блоки", ru)
+        self.assertIn("ҚАЙДА ЖІБЕРУ КЕРЕК", kz)
+        self.assertNotIn("установить применимые границы", ru)
+        self.assertNotIn("определить применимость правовых требований", ru)
+        self.assertNotIn("Yernar Sailybayev", ru)
+
+    def test_unsuitable_volunteer_phrasing_is_quarantined(self):
+        for draft in (
+            "По фотографии нельзя достоверно определить назначение участка.",
+            "Указан контур пространственного слоя ALMA.",
+            "Использован GIS-источник ALMA.",
+        ):
+            with self.subTest(draft=draft), self.assertRaisesRegex(
+                main.ModelDraftRejectedError,
+                "unsuitable_volunteer_output",
+            ):
+                main.validate_model_draft(draft, "RU")
+
+    def test_no_reviewed_territory_stops_before_gemini(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-outside",
+                    "incident_type": "waste",
+                    "geometry": None,
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="test-territory-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v126",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=None,
+        ), mock.patch.object(main, "get_env") as get_env, mock.patch.object(
+            main.genai,
+            "Client",
+            create=True,
+        ) as gemini_client:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        gemini_client.assert_not_called()
+        state = main.read_incident_state(bucket, "case-outside")
+        self.assertEqual(main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED, state["status"])
+        self.assertEqual("no_reviewed_territory_match", state["spatial_rejection_code"])
+
+    def test_spatial_quarantine_retries_only_after_catalog_change(self):
+        row = {
+            "is_sent": 0,
+            "unique-id": "case-spatial",
+            "incident_type": "waste",
+            "geometry": None,
+        }
+        incidents = _Frame([row])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-spatial",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            territory_catalog_sha256="old-sha256",
+        )
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="new-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v127",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=None,
+        ) as resolve, mock.patch.object(main, "get_env") as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        resolve.assert_called_once()
+        get_env.assert_not_called()
+        state = main.read_incident_state(bucket, "case-spatial")
+        self.assertEqual("new-sha256", state["territory_catalog_sha256"])
+
+    def test_spatial_quarantine_does_not_retry_same_catalog(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-spatial",
+                    "incident_type": "waste",
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-spatial",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            territory_catalog_sha256="same-sha256",
+        )
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="same-sha256",
+        )
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+        ) as resolve, mock.patch.object(main, "get_env") as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        resolve.assert_not_called()
+        get_env.assert_not_called()
 
     def test_incident_state_uses_opaque_path_and_round_trips(self):
         bucket = _Bucket()

@@ -1,12 +1,14 @@
 # ALMA Monitor
 
 ALMA Monitor receives new field incidents from a private Mergin Maps project.
-It reads location context from orchard layers, but the separate spatial Evidence
-Gate is not implemented yet. It uses Gemini to describe facts and prepare a
-bilingual draft request for verification. Deterministically selected Legal Core
-references are appended by the application, not selected by Gemini. The worker
-sends one email with Russian and Kazakh text, then records the result in private
-Cloud Storage state and Google Sheets.
+It resolves a reviewed territory and authority route from orchard layers before
+Gemini is used. Gemini describes only observable facts. The recipient, subject,
+short request, territory name, and monitoring purpose come from the local
+reviewed `config/territory_catalog.json`; the catalog causes no API call and no
+Gemini token use. Deterministically selected Legal Core references remain in the
+private incident state and are not shown in the volunteer-facing email. The
+worker sends one email with Russian and Kazakh text, then records the result in
+private Cloud Storage state and Google Sheets.
 
 The worker treats the Mergin Maps project as read-only. It never writes generated
 text or delivery fields back to a field GeoPackage and never pushes the downloaded
@@ -120,6 +122,26 @@ secret containers before the first image exists. All later changes use a normal
   A pending, changed, missing, or differently reviewed policy blocks processing.
 - The exact field value `incident_type` selects a reviewed rule list. Free text,
   photos, coordinates, and model output never select article numbers.
+- Before Gemini is called, the incident point must intersect an exact GeoPackage
+  filename listed in the reviewed territory catalog. An unknown or unmatched
+  layer is quarantined as `spatial_review_required`; no recipient is guessed and
+  no Gemini tokens are spent. The catalog, not Gemini, supplies the public
+  territory name, purpose, exact authority route, and short request template.
+- The first catalog release intentionally routes only the `waste` field signal
+  to the reviewed Almaty land-resources recipient. Other signal types remain
+  quarantined until their recipient and short request are separately reviewed;
+  the presence of a Legal Core mapping alone never selects an authority.
+- Volunteer-facing emails do not contain internal Legal Core citations, reviewer
+  names, GIS source terminology, or a long list of unknown circumstances. Those
+  audit details remain in the private Cloud Storage incident card.
+- The first territory catalog with SHA-256
+  `68bb08dabda87343286879be6cb699cda26dfc2bf5d072208a75dbdfa2d5a32a` was
+  approved by Yernar Sailybayev on 2026-08-13 as author and legal editor, only
+  for the private controlled pilot. A changed catalog invalidates its separate
+  approval record and blocks the worker before registry writes or Gemini calls.
+  After reviewing a future exact diff, the author can bind a new private-pilot
+  approval with
+  `python scripts/approve_territory_catalog.py --catalog config/territory_catalog.json --approval config/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
   email delivery and Google Sheets rows. A delivered result can restore a
   missing registry row without sending the email again.
