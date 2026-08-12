@@ -595,8 +595,8 @@ def legal_reference_block(lang, selection, policy):
             notice,
             (
                 f"ALMA Legal Core {policy.legal_release_id}; "
-                f"policy {policy.policy_id}; reviewed by {policy.reviewer_name} "
-                f"on {policy.reviewed_on}."
+                f"policy {policy.policy_id}; SHA-256 {policy.policy_sha256}; "
+                f"reviewed by {policy.reviewer_name} on {policy.reviewed_on}."
             ),
         ]
     )
@@ -865,6 +865,7 @@ def process_project(mc, bucket):
             "volunteer_email": normalize_sheet_value(row.get("volunteer_email")),
             "legal_release_id": legal_policy.legal_release_id,
             "legal_policy_id": legal_policy.policy_id,
+            "legal_policy_sha256": legal_policy.policy_sha256,
             "legal_rule_ids": legal_selection["rule_ids"],
             "legal_reviewer": legal_policy.reviewer_name,
             "legal_reviewed_on": legal_policy.reviewed_on,

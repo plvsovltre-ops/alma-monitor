@@ -1,17 +1,23 @@
 {
   "schema_version": "1.0",
   "policy_id": "kz-alma-field-signals-0.1.0-rc1",
-  "decision": "AUTHOR_LEGAL_REVIEW_REQUIRED",
+  "decision": "CONTROLLED_PILOT_APPROVED",
   "required_reviewer": {
     "name": "Yernar Sailybayev",
     "capacity": "AUTHOR_AND_LEGAL_EDITOR"
   },
-  "reviewer": null,
-  "reviewed_on": null,
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-12",
   "policy_sha256": "dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6",
   "legal_release_artifacts": {
     "cards.json": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4",
     "review.json": "2620b2115af63db76550b20e5cbd3940faa525ab55f56c04b1107b200a81cf63"
   },
-  "statement": "The runtime mapping must not be used until Yernar Sailybayev reviews and approves this exact policy for the private controlled pilot."
+  "approval_scope": "PRIVATE_CONTROLLED_PILOT_ONLY",
+  "independent_lawyer_review_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
+  "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+  "statement": "Yernar Sailybayev approved the exact policy identified by policy_sha256 in the capacity of author and legal editor for a private controlled pilot only. This is not an independent legal review, public legal release, final legal qualification, or legal advice."
 }

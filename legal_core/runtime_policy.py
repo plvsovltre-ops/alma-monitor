@@ -17,6 +17,7 @@ DEFAULT_POLICY = POLICY_DIR / "policy.json"
 DEFAULT_APPROVAL = POLICY_DIR / "approval.json"
 AUTHORIZED_REVIEWER = "Yernar Sailybayev"
 AUTHORIZED_CAPACITY = "AUTHOR_AND_LEGAL_EDITOR"
+IMMUTABLE_POLICY_STATUS = "AUTHOR_LEGAL_REVIEW_REQUIRED"
 SUPPORTED_INCIDENT_TYPES = {
     "construction",
     "logging",
@@ -89,6 +90,15 @@ class RuntimeLegalPolicy:
             "capacity": AUTHORIZED_CAPACITY,
         }:
             raise IntegrityError("Runtime legal policy reviewer is not authorized")
+        if approval.get("approval_scope") != "PRIVATE_CONTROLLED_PILOT_ONLY":
+            raise IntegrityError("Runtime legal approval scope is invalid")
+        if (
+            approval.get("independent_lawyer_review_status")
+            != "INDEPENDENT_LAWYER_REVIEW_PENDING"
+        ):
+            raise IntegrityError("Runtime legal independent review status is invalid")
+        if approval.get("public_release_status") != "PUBLIC_LEGAL_RELEASE_BLOCKED":
+            raise IntegrityError("Runtime legal public release status is invalid")
 
         expected_policy_hash = hashlib.sha256(self.policy_path.read_bytes()).hexdigest()
         if approval.get("policy_sha256") != expected_policy_hash:
@@ -142,10 +152,12 @@ class RuntimeLegalPolicy:
             # card blocks the entire policy before any incident is processed.
             self.catalog.citations(rule_ids, use_case="controlled_pilot")
 
-        if self.policy.get("status") != "CONTROLLED_PILOT_APPROVED":
-            raise RuntimePolicyBlockedError(
-                "Runtime legal policy awaits author/legal-editor review"
-            )
+        # The policy is the immutable object that the reviewer approved. Its
+        # original proposal marker remains unchanged so its SHA-256 stays the
+        # exact value cited in the approval. The separate approval record is
+        # the only object that can unlock controlled-pilot use.
+        if self.policy.get("status") != IMMUTABLE_POLICY_STATUS:
+            raise IntegrityError("Runtime legal policy marker is invalid")
         if approval.get("decision") != "CONTROLLED_PILOT_APPROVED":
             raise RuntimePolicyBlockedError(
                 "Runtime legal policy awaits author/legal-editor approval"
@@ -175,6 +187,10 @@ class RuntimeLegalPolicy:
     @property
     def legal_release_id(self) -> str:
         return self.policy["legal_release_id"]
+
+    @property
+    def policy_sha256(self) -> str:
+        return self.approval["policy_sha256"]
 
     @property
     def reviewer_name(self) -> str:

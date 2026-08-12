@@ -109,6 +109,7 @@ class _Bucket:
 
 class _ApprovedLegalPolicy:
     policy_id = "test-policy"
+    policy_sha256 = "test-policy-sha256"
     legal_release_id = "test-release"
     reviewer_name = "Yernar Sailybayev"
     reviewed_on = "2026-08-12"
@@ -366,6 +367,7 @@ class RegistryTests(unittest.TestCase):
         )
         self.assertEqual("test-release", state["legal_release_id"])
         self.assertEqual("test-policy", state["legal_policy_id"])
+        self.assertEqual("test-policy-sha256", state["legal_policy_sha256"])
         self.assertEqual("Yernar Sailybayev", state["legal_reviewer"])
         self.assertFalse(hasattr(mergin_client, "push_project"))
 

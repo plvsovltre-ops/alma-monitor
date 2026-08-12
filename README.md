@@ -159,9 +159,12 @@ for a private controlled pilot. Independent lawyer review remains pending and
 public legal release is blocked.
 
 The runtime integration uses a separate five-row policy under
-`legal_core/policies/kz/0.1.0-rc1/`. Its checked-in status is
-`AUTHOR_LEGAL_REVIEW_REQUIRED`, so the worker fails before calling Gemini or
-sending email until Yernar Sailybayev reviews and approves that exact policy.
+`legal_core/policies/kz/0.1.0-rc1/`. The policy remains an immutable proposal
+artifact with SHA-256
+`dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6`.
+The separate approval record states that Yernar Sailybayev approved that exact
+artifact on 2026-08-12 as author and legal editor for the private controlled
+pilot only. Changing the policy invalidates the approval and blocks the worker.
 The model receives no article-selection interface. It prepares only the factual
 draft; the application validates that the draft contains no legal citations and
 then appends exact reviewed cards and official links.

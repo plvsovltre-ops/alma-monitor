@@ -70,9 +70,12 @@ exact Mergin Maps field values: `waste`, `logging`, `construction`,
 GIS context, and the language model cannot add or replace a `rule_id`.
 
 The separate `approval.json` binds the mapping to the exact policy file and the
-exact reviewed `cards.json` and `review.json`. The proposed policy is deliberately
-blocked with `AUTHOR_LEGAL_REVIEW_REQUIRED`. It must not be changed to
-`CONTROLLED_PILOT_APPROVED` until Yernar Sailybayev reviews the five mappings.
+exact reviewed `cards.json` and `review.json`. Yernar Sailybayev approved the
+exact policy SHA-256
+`dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6`
+on 2026-08-12 as author and legal editor for the private controlled pilot only.
+The policy keeps its original proposal marker so that the reviewed artifact
+remains byte-for-byte unchanged; the separate approval decision unlocks it.
 Changing the policy after approval invalidates its hash and stops processing.
 
 Gemini receives one shared fact object for Russian and Kazakh drafting. It does

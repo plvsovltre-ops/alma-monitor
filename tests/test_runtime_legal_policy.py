@@ -32,7 +32,6 @@ class RuntimeLegalPolicyTests(unittest.TestCase):
     def write_approved_policy(self, directory: str) -> tuple[Path, Path]:
         policy = json.loads(DEFAULT_POLICY.read_text(encoding="utf-8"))
         approval = json.loads(DEFAULT_APPROVAL.read_text(encoding="utf-8"))
-        policy["status"] = "CONTROLLED_PILOT_APPROVED"
 
         policy_path = Path(directory) / "policy.json"
         approval_path = Path(directory) / "approval.json"
@@ -54,9 +53,29 @@ class RuntimeLegalPolicyTests(unittest.TestCase):
         )
         return policy_path, approval_path
 
-    def test_checked_in_policy_is_blocked_pending_author_review(self):
-        with self.assertRaisesRegex(RuntimePolicyBlockedError, "awaits author"):
-            RuntimeLegalPolicy()
+    def test_checked_in_policy_records_exact_author_approval(self):
+        policy = RuntimeLegalPolicy()
+        self.assertEqual("Yernar Sailybayev", policy.reviewer_name)
+        self.assertEqual("2026-08-12", policy.reviewed_on)
+        self.assertEqual(
+            "dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6",
+            policy.policy_sha256,
+        )
+        self.assertEqual("waste", policy.select("waste")["incident_type"])
+
+    def test_pending_approval_blocks_the_exact_unchanged_policy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            policy_path = Path(directory) / "policy.json"
+            approval_path = Path(directory) / "approval.json"
+            policy_path.write_bytes(DEFAULT_POLICY.read_bytes())
+            approval = json.loads(DEFAULT_APPROVAL.read_text(encoding="utf-8"))
+            approval["decision"] = "AUTHOR_LEGAL_REVIEW_REQUIRED"
+            approval["reviewer"] = None
+            approval["reviewed_on"] = None
+            self.rewrite_json(approval_path, approval)
+
+            with self.assertRaisesRegex(RuntimePolicyBlockedError, "awaits author"):
+                RuntimeLegalPolicy(policy_path, approval_path)
 
     def test_approved_policy_resolves_all_five_exact_field_values(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -113,6 +132,17 @@ class RuntimeLegalPolicyTests(unittest.TestCase):
             with self.assertRaisesRegex(IntegrityError, "hash does not match"):
                 RuntimeLegalPolicy(policy_path, approval_path)
 
+    def test_policy_status_cannot_be_changed_after_exact_hash_approval(self):
+        with tempfile.TemporaryDirectory() as directory:
+            policy_path, approval_path = self.write_approved_policy(directory)
+            policy = json.loads(policy_path.read_text(encoding="utf-8"))
+            policy["status"] = "CONTROLLED_PILOT_APPROVED"
+            self.rewrite_json(policy_path, policy)
+            self.rebind_policy_hash(policy_path, approval_path)
+
+            with self.assertRaisesRegex(IntegrityError, "marker is invalid"):
+                RuntimeLegalPolicy(policy_path, approval_path)
+
     def test_different_reviewer_cannot_approve_runtime_policy(self):
         with tempfile.TemporaryDirectory() as directory:
             policy_path, approval_path = self.write_approved_policy(directory)
@@ -126,6 +156,22 @@ class RuntimeLegalPolicyTests(unittest.TestCase):
 
             with self.assertRaisesRegex(IntegrityError, "not authorized"):
                 RuntimeLegalPolicy(policy_path, approval_path)
+
+    def test_approval_cannot_escalate_beyond_private_controlled_pilot(self):
+        invalid_values = (
+            ("approval_scope", "PUBLIC_USE"),
+            ("independent_lawyer_review_status", "APPROVED"),
+            ("public_release_status", "PUBLIC_LEGAL_RELEASE_APPROVED"),
+        )
+        for field, value in invalid_values:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:
+                policy_path, approval_path = self.write_approved_policy(directory)
+                approval = json.loads(approval_path.read_text(encoding="utf-8"))
+                approval[field] = value
+                self.rewrite_json(approval_path, approval)
+
+                with self.assertRaisesRegex(IntegrityError, "status|scope"):
+                    RuntimeLegalPolicy(policy_path, approval_path)
 
     def test_policy_is_bound_to_exact_legal_release_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
