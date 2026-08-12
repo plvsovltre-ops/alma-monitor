@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0",
+  "catalog_id": "kz-almaty-orchard-routes-0.2.0",
+  "status": "AUTHOR_REVIEW_REQUIRED",
+  "selection_basis": "Exact reviewed incident_type plus an observation point intersecting an exact reviewed GeoPackage filename; Gemini never selects a territory or authority.",
+  "routes": {
+    "almaty_land_resources": {
+      "display_name_ru": "Земельная инспекция Алматы",
+      "display_name_kz": "Алматы қаласының жер инспекциясы",
+      "official_name_ru": "РГУ «Департамент по управлению земельными ресурсами города Алматы Комитета по управлению земельными ресурсами Министерства сельского хозяйства Республики Казахстан»",
+      "official_name_kz": "«Қазақстан Республикасы Ауыл шаруашылығы министрлігінің Жер ресурстарын басқару комитеті Алматы қаласының жер ресурстарын басқару департаменті» РММ",
+      "official_source_url": "https://www.gov.kz/memleket/entities/land/press/article/details/235871",
+      "competence_source_url": "https://adilet.zan.kz/rus/docs/K030000442_",
+      "verified_on": "2026-08-13",
+      "forwarding_ru": "Если вопрос относится к компетенции другого государственного органа, прошу направить обращение по компетенции.",
+      "forwarding_kz": "Егер мәселе басқа мемлекеттік органның құзыретіне жатса, өтінішті құзыреті бойынша жолдауды сұраймын."
+    },
+    "almaty_ecology_environment": {
+      "display_name_ru": "Управление экологии Алматы",
+      "display_name_kz": "Алматы қаласының Экология және қоршаған орта басқармасы",
+      "official_name_ru": "Управление экологии и окружающей среды города Алматы",
+      "official_name_kz": "Алматы қаласының Экология және қоршаған орта басқармасы",
+      "official_source_url": "https://www.gov.kz/memleket/entities/almaty-eco?lang=ru",
+      "competence_source_url": "https://adilet.zan.kz/rus/docs/V23R0001710",
+      "verified_on": "2026-08-13",
+      "forwarding_ru": "Если вопрос относится к компетенции другого государственного органа, прошу направить обращение по компетенции.",
+      "forwarding_kz": "Егер мәселе басқа мемлекеттік органның құзыретіне жатса, өтінішті құзыреті бойынша жолдауды сұраймын."
+    },
+    "almaty_urban_planning_control": {
+      "display_name_ru": "Градостроительный контроль Алматы",
+      "display_name_kz": "Алматы қаласының қала құрылысын бақылау басқармасы",
+      "official_name_ru": "Коммунальное государственное учреждение «Управление градостроительного контроля города Алматы»",
+      "official_name_kz": "«Алматы қаласы Қала құрылысын бақылау басқармасы» коммуналдық мемлекеттік мекемесі",
+      "official_source_url": "https://www.gov.kz/memleket/entities/almaty-ugask?lang=ru",
+      "competence_source_url": "https://www.gov.kz/memleket/entities/almaty/press/article/details/199984",
+      "verified_on": "2026-08-13",
+      "forwarding_ru": "Если вопрос относится к компетенции другого государственного органа, прошу направить обращение по компетенции.",
+      "forwarding_kz": "Егер мәселе басқа мемлекеттік органның құзыретіне жатса, өтінішті құзыреті бойынша жолдауды сұраймын."
+    },
+    "balkhash_alakol_water_inspection": {
+      "display_name_ru": "Балхаш-Алакольская бассейновая инспекция",
+      "display_name_kz": "Балқаш-Алакөл бассейндік инспекциясы",
+      "official_name_ru": "Республиканское государственное учреждение «Балхаш-Алакольская бассейновая инспекция по регулированию, охране и использованию водных ресурсов Комитета по регулированию, охране и использованию водных ресурсов Министерства водных ресурсов и ирригации Республики Казахстан»",
+      "official_name_kz": "«Қазақстан Республикасы Су ресурстары және ирригация министрлігі Су ресурстарын реттеу, қорғау және пайдалану комитетінің Балқаш-Алакөл бассейндік инспекциясы» республикалық мемлекеттік мекемесі",
+      "official_source_url": "https://www.gov.kz/memleket/entities/maidd/documents/details/744463",
+      "competence_source_url": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "verified_on": "2026-08-13",
+      "forwarding_ru": "Если вопрос относится к компетенции другого государственного органа, прошу направить обращение по компетенции.",
+      "forwarding_kz": "Егер мәселе басқа мемлекеттік органның құзыретіне жатса, өтінішті құзыреті бойынша жолдауды сұраймын."
+    }
+  },
+  "request_templates": {
+    "waste": {
+      "subject_ru": "Размещение материалов на садовой территории",
+      "subject_kz": "Бақ аумағында материалдардың орналасуы",
+      "request_ru": "Прошу проверить, допускается ли размещение зафиксированных материалов на этой территории с учетом ее назначения и требований по охране земель. Если размещение не допускается, прошу принять меры к освобождению территории и сохранению растительности. О результате прошу сообщить.",
+      "request_kz": "Осы аумақтың мақсаты мен жерді қорғау талаптарын ескере отырып, тіркелген материалдарды орналастыруға жол берілетінін тексеруді сұраймын. Егер орналастыруға жол берілмесе, аумақты босату және өсімдіктерді сақтау жөнінде шаралар қабылдауды сұраймын. Нәтижесі туралы хабарлауды сұраймын."
+    },
+    "logging": {
+      "subject_ru": "Состояние зеленых насаждений на садовой территории",
+      "subject_kz": "Бақ аумағындағы жасыл желектердің жай-күйі",
+      "request_ru": "Прошу проверить состояние зафиксированных зеленых насаждений, наличие предусмотренных документов на их вырубку, пересадку или повреждение и при необходимости принять меры для их сохранения. О результате прошу сообщить.",
+      "request_kz": "Тіркелген жасыл желектердің жай-күйін, оларды кесуге, қайта отырғызуға немесе зақымдауға қатысты көзделген құжаттардың бар-жоғын тексеруді және қажет болған жағдайда оларды сақтау жөнінде шаралар қабылдауды сұраймын. Нәтижесі туралы хабарлауды сұраймын."
+    },
+    "construction": {
+      "subject_ru": "Строительные или земляные работы на садовой территории",
+      "subject_kz": "Бақ аумағындағы құрылыс немесе жер жұмыстары",
+      "request_ru": "Прошу проверить законность зафиксированных работ и соблюдение требований по сохранению зеленых насаждений и растительного грунта. При необходимости прошу принять меры к прекращению вредного воздействия и восстановлению территории. О результате прошу сообщить.",
+      "request_kz": "Тіркелген жұмыстардың заңдылығын және жасыл желектер мен өсімдік қабатын сақтау талаптарының орындалуын тексеруді сұраймын. Қажет болған жағдайда зиянды әсерді тоқтату және аумақты қалпына келтіру жөнінде шаралар қабылдауды сұраймын. Нәтижесі туралы хабарлауды сұраймын."
+    },
+    "soil_damage": {
+      "subject_ru": "Состояние почвы на садовой территории",
+      "subject_kz": "Бақ аумағындағы топырақтың жай-күйі",
+      "request_ru": "Прошу проверить характер зафиксированного воздействия на почву, соблюдение требований по сохранению плодородного слоя и охране земель. При необходимости прошу принять меры к восстановлению территории. О результате прошу сообщить.",
+      "request_kz": "Топыраққа тіркелген әсердің сипатын, топырақтың құнарлы қабатын сақтау және жерді қорғау талаптарының орындалуын тексеруді сұраймын. Қажет болған жағдайда аумақты қалпына келтіру жөнінде шаралар қабылдауды сұраймын. Нәтижесі туралы хабарлауды сұраймын."
+    },
+    "water_pollution": {
+      "subject_ru": "Состояние воды на садовой территории",
+      "subject_kz": "Бақ аумағындағы судың жай-күйі",
+      "request_ru": "Прошу проверить, относится ли указанное место к водному объекту, состояние воды, источник зафиксированных веществ или предметов и необходимость отбора проб. При подтверждении вредного воздействия прошу принять меры по его прекращению и устранению последствий. О результате прошу сообщить.",
+      "request_kz": "Көрсетілген орынның су объектісіне жататынын, судың жай-күйін, тіркелген заттардың немесе бұйымдардың көзін және сынама алу қажеттігін тексеруді сұраймын. Зиянды әсер расталған жағдайда оны тоқтату және салдарын жою жөнінде шаралар қабылдауды сұраймын. Нәтижесі туралы хабарлауды сұраймын."
+    }
+  },
+  "territories": [
+    {
+      "territory_id": "almaty-remizovka-review-2024",
+      "source_file": "Сады_в_Ремизовке_на_проверке_2024.gpkg",
+      "public_name_ru": "сад в Ремизовке",
+      "public_name_kz": "Ремизовкадағы бақ",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["layer"],
+      "priority": 10
+    },
+    {
+      "territory_id": "almaty-remizovka-protected-2023",
+      "source_file": "Сады_в_Ремизовке_защищенные_в_суде_2023.gpkg",
+      "public_name_ru": "сад в Ремизовке",
+      "public_name_kz": "Ремизовкадағы бақ",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["layer"],
+      "priority": 20
+    },
+    {
+      "territory_id": "almaty-medeu-orchards-review-2025",
+      "source_file": "Сады_Медеуского_района_на_проверке_2025.gpkg",
+      "public_name_ru": "сады Медеуского района",
+      "public_name_kz": "Медеу ауданының бақтары",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["layer"],
+      "priority": 30
+    },
+    {
+      "territory_id": "almaty-kamenskoe-plateau-orchards-2025",
+      "source_file": "Сады_на_Каменском_плато_возвращенный_государству_2025.gpkg",
+      "public_name_ru": "сады на Каменском плато",
+      "public_name_kz": "Каменское үстіртіндегі бақтар",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["layer"],
+      "priority": 30
+    },
+    {
+      "territory_id": "almaty-alatau-novikov-orchards-2025",
+      "source_file": "Сады_сх_Алатау_Новиков_защишенные_в_суде_2025-2026.gpkg",
+      "public_name_ru": "сады в районе Новиков",
+      "public_name_kz": "Новиков ауданындағы бақтар",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["layer"],
+      "priority": 30
+    },
+    {
+      "territory_id": "almaty-bostandyk-surviving-orchards-2023",
+      "source_file": "Сохранившиеся_сады_Бостандыкский_р-н_2023.gpkg",
+      "public_name_ru": "сохранившиеся сады Бостандыкского района",
+      "public_name_kz": "Бостандық ауданының сақталған бақтары",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["id", "Region"],
+      "priority": 40
+    },
+    {
+      "territory_id": "almaty-medeu-surviving-orchards-2023",
+      "source_file": "Сохранившиеся_сады_Медеуский_р-н_2023.gpkg",
+      "public_name_ru": "сохранившиеся сады Медеуского района",
+      "public_name_kz": "Медеу ауданының сақталған бақтары",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["Name"],
+      "priority": 40
+    },
+    {
+      "territory_id": "almaty-nauryzbay-surviving-orchards-2023",
+      "source_file": "Сохранившиеся_сады_Наурызбайский_р-н_2023.gpkg",
+      "public_name_ru": "сохранившиеся сады Наурызбайского района",
+      "public_name_kz": "Наурызбай ауданының сақталған бақтары",
+      "purpose_ru": "сохранение садовой территории",
+      "purpose_kz": "бақ аумағын сақтау",
+      "route_ids_by_incident_type": {
+        "waste": "almaty_land_resources",
+        "logging": "almaty_ecology_environment",
+        "construction": "almaty_urban_planning_control",
+        "soil_damage": "almaty_land_resources",
+        "water_pollution": "balkhash_alakol_water_inspection"
+      },
+      "reference_fields": ["id", "Region"],
+      "priority": 40
+    }
+  ]
+}

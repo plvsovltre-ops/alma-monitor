@@ -11,10 +11,27 @@ from territory_catalog import (
     TerritoryCatalogError,
 )
 
+PROPOSED_CATALOG = (
+    Path(__file__).resolve().parents[1]
+    / "config"
+    / "territory_catalog.v0.2.proposal.json"
+)
+PROPOSED_APPROVAL = (
+    Path(__file__).resolve().parents[1]
+    / "config"
+    / "territory_catalog.v0.2.approval.json"
+)
+
 
 class TerritoryCatalogTests(unittest.TestCase):
-    def _approved_files(self, catalog_mutator=None, approval_mutator=None):
-        catalog = json.loads(DEFAULT_CATALOG.read_text(encoding="utf-8"))
+    def _approved_files(
+        self,
+        catalog_mutator=None,
+        approval_mutator=None,
+        catalog_source=DEFAULT_CATALOG,
+        approval_source=DEFAULT_APPROVAL,
+    ):
+        catalog = json.loads(Path(catalog_source).read_text(encoding="utf-8"))
         if catalog_mutator:
             catalog_mutator(catalog)
         catalog_text = json.dumps(
@@ -22,7 +39,7 @@ class TerritoryCatalogTests(unittest.TestCase):
             ensure_ascii=False,
             indent=2,
         ) + "\n"
-        approval = json.loads(DEFAULT_APPROVAL.read_text(encoding="utf-8"))
+        approval = json.loads(Path(approval_source).read_text(encoding="utf-8"))
         approval.update(
             {
                 "catalog_id": catalog["catalog_id"],
@@ -175,6 +192,72 @@ class TerritoryCatalogTests(unittest.TestCase):
 
         with self.assertRaisesRegex(TerritoryCatalogError, "date is invalid"):
             TerritoryCatalog(catalog_path, approval_path)
+
+    def test_v02_proposal_is_hash_bound_but_not_approved(self):
+        proposal_hash = hashlib.sha256(PROPOSED_CATALOG.read_bytes()).hexdigest()
+        pending = json.loads(PROPOSED_APPROVAL.read_text(encoding="utf-8"))
+
+        self.assertEqual(proposal_hash, pending["catalog_sha256"])
+        self.assertEqual("AUTHOR_REVIEW_REQUIRED", pending["decision"])
+        self.assertIsNone(pending["reviewer"])
+        with self.assertRaisesRegex(TerritoryCatalogError, "not approved"):
+            TerritoryCatalog(PROPOSED_CATALOG, PROPOSED_APPROVAL)
+
+    def test_v02_proposal_routes_all_five_reviewed_signal_types(self):
+        temp_dir, catalog_path, approval_path = self._approved_files(
+            catalog_source=PROPOSED_CATALOG,
+            approval_source=PROPOSED_APPROVAL,
+        )
+        self.addCleanup(temp_dir.cleanup)
+        catalog = TerritoryCatalog(catalog_path, approval_path)
+        expected_routes = {
+            "waste": "almaty_land_resources",
+            "logging": "almaty_ecology_environment",
+            "construction": "almaty_urban_planning_control",
+            "soil_damage": "almaty_land_resources",
+            "water_pollution": "balkhash_alakol_water_inspection",
+        }
+
+        for territory in catalog.catalog["territories"]:
+            self.assertEqual(
+                expected_routes,
+                territory["route_ids_by_incident_type"],
+            )
+            context = catalog.context_for_source(territory["source_file"])
+            for incident_type, route_id in expected_routes.items():
+                routed = catalog.route_context(context, incident_type)
+                self.assertEqual(route_id, routed["route_id"])
+                request = catalog.request_for(incident_type)
+                self.assertTrue(request["request_ru"].endswith("О результате прошу сообщить."))
+                self.assertTrue(request["request_kz"].endswith("Нәтижесі туралы хабарлауды сұраймын."))
+
+        with self.assertRaisesRegex(
+            TerritoryCatalogError,
+            "no reviewed authority route",
+        ):
+            catalog.route_context(context, "срубили деревья")
+
+    def test_v02_proposal_uses_only_reviewed_official_sources(self):
+        temp_dir, catalog_path, approval_path = self._approved_files(
+            catalog_source=PROPOSED_CATALOG,
+            approval_source=PROPOSED_APPROVAL,
+        )
+        self.addCleanup(temp_dir.cleanup)
+        catalog = TerritoryCatalog(catalog_path, approval_path)
+
+        self.assertEqual(
+            {
+                "almaty_land_resources",
+                "almaty_ecology_environment",
+                "almaty_urban_planning_control",
+                "balkhash_alakol_water_inspection",
+            },
+            set(catalog.catalog["routes"]),
+        )
+        for route in catalog.catalog["routes"].values():
+            self.assertTrue(route["official_source_url"].startswith("https://"))
+            self.assertTrue(route["competence_source_url"].startswith("https://"))
+            self.assertEqual("2026-08-13", route["verified_on"])
 
 
 if __name__ == "__main__":

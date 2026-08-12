@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "catalog_id": "kz-almaty-orchard-routes-0.2.0",
+  "catalog_sha256": "735a42c23a711df15c12193d85f0bfa89d3476193500e87097c10fcbc1b2e26c",
+  "approval_scope": "PRIVATE_CONTROLLED_PILOT_ONLY",
+  "decision": "AUTHOR_REVIEW_REQUIRED",
+  "reviewer": null,
+  "reviewed_on": null
+}

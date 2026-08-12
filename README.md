@@ -147,6 +147,14 @@ secret containers before the first image exists. All later changes use a normal
   After reviewing a future exact diff, the author can bind a new private-pilot
   approval with
   `python scripts/approve_territory_catalog.py --catalog config/territory_catalog.json --approval config/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
+- The separate `kz-almaty-orchard-routes-0.2.0` proposal expands deterministic
+  routing to all five reviewed field signal types. It remains inactive while
+  `config/territory_catalog.v0.2.approval.json` says
+  `AUTHOR_REVIEW_REQUIRED`. Tests prove that the pending proposal cannot be
+  loaded by the runtime. After exact author/legal review, the same approval
+  command can bind the proposal hash; only then may a separate release step
+  promote it to the runtime catalog. The proposed matrix and its official
+  sources are recorded in `docs/COMPETENT_AUTHORITY_ROUTING.md`.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
   email delivery and Google Sheets rows. A delivered result can restore a
   missing registry row without sending the email again.
