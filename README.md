@@ -117,10 +117,15 @@ secret containers before the first image exists. All later changes use a normal
   missing registry row without sending the email again.
 - A worker interruption after email delivery starts is quarantined as
   `delivery_uncertain`; it requires manual review and is never resent
-  automatically.
+  automatically. Configure a Cloud Logging alert for
+  `manual review is required`. The durable quarantine lets the watcher record
+  the scanned field version instead of failing and downloading the same project
+  every minute.
 - Legacy `is_sent=1` rows remain readable during migration, but all new runtime
   state is kept outside the field GeoPackage.
 - Configure an alert for failed Cloud Run Job executions.
+- The recorded source version comes from the downloaded project's own Mergin
+  metadata, not from a later server lookup.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
   executions from processing the same Mergin Maps version.
 - Update the Gemini model before a published model shutdown date.

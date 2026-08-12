@@ -307,7 +307,7 @@ class RegistryTests(unittest.TestCase):
             create=True,
         ), mock.patch.object(
             main,
-            "get_project_version",
+            "read_downloaded_project_version",
             return_value="v125",
         ), mock.patch.object(
             main,
@@ -330,6 +330,7 @@ class RegistryTests(unittest.TestCase):
         send_email.assert_called_once()
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
+        self.assertEqual(state["source_project_version"], "v125")
         self.assertEqual(state["response_ru"], "RU result")
         self.assertEqual(state["response_kz"], "KZ result")
         self.assertFalse(hasattr(mergin_client, "push_project"))
@@ -349,10 +350,41 @@ class RegistryTests(unittest.TestCase):
         self.assertNotIn(uid, object_name)
         self.assertEqual(main.read_incident_state(bucket, uid), state)
 
+    def test_incident_storage_key_is_safe_for_untrusted_id(self):
+        key = main.incident_storage_key("../../field/incident\n")
+
+        self.assertEqual(len(key), 64)
+        self.assertNotIn("/", key)
+        self.assertNotIn("..", key)
+        self.assertNotIn("\n", key)
+
+    def test_downloaded_project_version_comes_from_local_metadata(self):
+        metadata = main.json.dumps({"version": "v125"})
+        with mock.patch("builtins.open", mock.mock_open(read_data=metadata)):
+            self.assertEqual(main.read_downloaded_project_version(), "v125")
+
+    def test_downloaded_project_version_rejects_missing_version(self):
+        with mock.patch("builtins.open", mock.mock_open(read_data="{}")):
+            with self.assertRaisesRegex(RuntimeError, "has no version"):
+                main.read_downloaded_project_version()
+
+    def test_downloaded_project_version_rejects_non_object_metadata(self):
+        with mock.patch("builtins.open", mock.mock_open(read_data="[]")):
+            with self.assertRaisesRegex(RuntimeError, "metadata is invalid"):
+                main.read_downloaded_project_version()
+
     def test_invalid_incident_state_is_not_treated_as_new_work(self):
         bucket = _Bucket()
         uid = "case-1"
         bucket.blob(main.incident_state_object(uid)).text = "not json"
+
+        with self.assertRaisesRegex(RuntimeError, "Incident state is invalid"):
+            main.read_incident_state(bucket, uid)
+
+    def test_non_object_incident_state_is_not_treated_as_new_work(self):
+        bucket = _Bucket()
+        uid = "case-1"
+        bucket.blob(main.incident_state_object(uid)).text = "[]"
 
         with self.assertRaisesRegex(RuntimeError, "Incident state is invalid"):
             main.read_incident_state(bucket, uid)
@@ -371,7 +403,11 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "status is unsupported"):
             main.read_incident_state(bucket, uid)
 
-    def test_delivery_started_is_quarantined_without_resending_email(self):
+    def test_unknown_incident_state_status_cannot_be_written(self):
+        with self.assertRaisesRegex(ValueError, "status is unsupported"):
+            main.write_incident_state(_Bucket(), "case-1", "mystery")
+
+    def test_delivery_started_is_quarantined_once_without_resending_email(self):
         incidents = _Frame([{"is_sent": 0, "unique-id": "case-1"}])
         photos = _Frame([])
         bucket = _Bucket()
@@ -391,11 +427,34 @@ class RegistryTests(unittest.TestCase):
             main,
             "send_email_with_attachments",
         ) as send_email:
-            self.assertFalse(main.process_project(client, bucket))
+            self.assertTrue(main.process_project(client, bucket))
 
         send_email.assert_not_called()
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_DELIVERY_UNCERTAIN)
+
+    def test_delivery_uncertain_does_not_fail_every_future_scan(self):
+        incidents = _Frame([{"is_sent": 0, "unique-id": "case-1"}])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+        )
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        send_email.assert_not_called()
 
     def test_completed_incident_does_not_resend_email(self):
         incidents = _Frame([{"is_sent": 0, "unique-id": "case-1"}])
@@ -465,6 +524,10 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "state object is invalid"):
             main.read_last_scanned_version(_Bucket("not valid json"))
 
+    def test_non_object_watcher_state_is_not_treated_as_success(self):
+        with self.assertRaisesRegex(RuntimeError, "state object is invalid"):
+            main.read_last_scanned_version(_Bucket("[]"))
+
     def test_main_does_not_advance_state_after_registry_failure(self):
         lock = (mock.Mock(), 7)
         with mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
@@ -499,6 +562,45 @@ class RegistryTests(unittest.TestCase):
                 main.main()
 
         write_state.assert_not_called()
+        release_lock.assert_called_once_with(lock)
+
+    def test_main_records_the_version_that_was_actually_downloaded(self):
+        lock = (mock.Mock(), 7)
+        with mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
+            main,
+            "MerginClient",
+            return_value=mock.Mock(),
+        ), mock.patch.object(
+            main,
+            "get_state_bucket",
+            return_value=mock.Mock(),
+        ), mock.patch.object(
+            main,
+            "get_project_version",
+            side_effect=["v2", "v2"],
+        ), mock.patch.object(
+            main,
+            "read_last_scanned_version",
+            side_effect=["v1", "v1"],
+        ), mock.patch.object(
+            main,
+            "acquire_watcher_lock",
+            return_value=lock,
+        ), mock.patch.object(
+            main,
+            "process_project",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v3",
+        ), mock.patch.object(
+            main,
+            "write_last_scanned_version",
+        ) as write_state, mock.patch.object(main, "release_watcher_lock") as release_lock:
+            main.main()
+
+        write_state.assert_called_once_with(mock.ANY, "v3")
         release_lock.assert_called_once_with(lock)
 
 

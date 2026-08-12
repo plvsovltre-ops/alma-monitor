@@ -149,6 +149,8 @@ def read_last_scanned_version(bucket):
     except (json.JSONDecodeError, TypeError, ValueError) as e:
         raise RuntimeError("The ALMA Monitor state object is invalid") from e
 
+    if not isinstance(state, dict):
+        raise RuntimeError("The ALMA Monitor state object is invalid")
     if state.get("schema_version") != STATE_SCHEMA_VERSION:
         LOG.info("Watcher state schema changed; a full scan is required")
         return None
@@ -170,10 +172,30 @@ def write_last_scanned_version(bucket, version):
     LOG.info("Recorded scanned Mergin Maps version: %s", version)
 
 
+def read_downloaded_project_version(project_path=PROJECT_PATH):
+    metadata_path = os.path.join(project_path, ".mergin", "mergin.json")
+    try:
+        with open(metadata_path, encoding="utf-8") as metadata_file:
+            metadata = json.load(metadata_file)
+    except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+        raise RuntimeError("Downloaded Mergin Maps metadata is invalid") from e
+
+    if not isinstance(metadata, dict):
+        raise RuntimeError("Downloaded Mergin Maps metadata is invalid")
+    version = metadata.get("version")
+    if not version:
+        raise RuntimeError("Downloaded Mergin Maps project has no version")
+    return str(version)
+
+
+def incident_storage_key(uid):
+    """Return an opaque filesystem- and object-name-safe incident key."""
+    return hashlib.sha256(uid.encode("utf-8")).hexdigest()
+
+
 def incident_state_object(uid):
     """Return an opaque object name without exposing a field ID in a path."""
-    digest = hashlib.sha256(uid.encode("utf-8")).hexdigest()
-    return f"{INCIDENT_STATE_PREFIX}/{digest}.json"
+    return f"{INCIDENT_STATE_PREFIX}/{incident_storage_key(uid)}.json"
 
 
 def read_incident_state(bucket, uid):
@@ -186,6 +208,8 @@ def read_incident_state(bucket, uid):
     except (json.JSONDecodeError, TypeError, ValueError) as e:
         raise RuntimeError(f"Incident state is invalid: {uid}") from e
 
+    if not isinstance(state, dict):
+        raise RuntimeError(f"Incident state is invalid: {uid}")
     if state.get("schema_version") != INCIDENT_STATE_SCHEMA_VERSION:
         raise RuntimeError(f"Incident state schema is unsupported: {uid}")
     if state.get("incident_id") != uid:
@@ -196,6 +220,8 @@ def read_incident_state(bucket, uid):
 
 
 def write_incident_state(bucket, uid, status, previous=None, **values):
+    if status not in INCIDENT_STATUSES:
+        raise ValueError(f"Incident state status is unsupported: {status}")
     state = dict(previous or {})
     state.update(values)
     state.update(
@@ -599,14 +625,12 @@ def process_project(mc, bucket):
                 "Incident delivery is uncertain; manual review is required: %s",
                 uid,
             )
-            registry_ok = False
             continue
         if state and state.get("status") == INCIDENT_STATUS_DELIVERY_UNCERTAIN:
             LOG.error(
                 "Incident delivery remains uncertain; manual review is required: %s",
                 uid,
             )
-            registry_ok = False
             continue
         if incident_requires_processing(row, state):
             pending_incidents.append((row, state))
@@ -642,6 +666,7 @@ def process_project(mc, bucket):
                 garden_files.append(f)
 
     LOG.info("New incidents: %s", len(pending_incidents))
+    source_project_version = read_downloaded_project_version()
 
     for row, state in pending_incidents:
         uid = require_incident_id(row.get('unique-id'))
@@ -651,13 +676,17 @@ def process_project(mc, bucket):
             uid,
             INCIDENT_STATUS_PROCESSING,
             previous=state,
-            source_project_version=get_project_version(mc),
+            source_project_version=source_project_version,
             started_at=datetime.now(timezone.utc).isoformat(),
         )
         
         # --- ФОТО ---
         attachments = []
-        incident_photo_dir = os.path.join(ARCHIVE_PATH, "PHOTOS", f"{datetime.now().strftime('%Y-%m-%d')}_{uid}")
+        incident_photo_dir = os.path.join(
+            ARCHIVE_PATH,
+            "PHOTOS",
+            f"{datetime.now().strftime('%Y-%m-%d')}_{incident_storage_key(uid)}",
+        )
         os.makedirs(incident_photo_dir, exist_ok=True)
 
         rel_photos = photos_gdf[photos_gdf['external_pk'] == uid]
@@ -826,9 +855,11 @@ def main():
         if not registry_ok:
             raise RuntimeError("Google Sheets registry synchronization is incomplete")
 
-        # The worker is read-only in Mergin Maps. Store exactly the version that
-        # was scanned; a newer field version will trigger the next execution.
-        write_last_scanned_version(bucket, current_version)
+        # Read the version from the downloaded project itself. If a field edit
+        # arrived after that download, its newer server version will still
+        # trigger the next watcher execution.
+        scanned_version = read_downloaded_project_version()
+        write_last_scanned_version(bucket, scanned_version)
     finally:
         release_watcher_lock(lock)
 
