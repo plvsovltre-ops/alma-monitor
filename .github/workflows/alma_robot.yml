@@ -16,8 +16,8 @@ jobs:
       - name: Run watcher and registry tests
         run: |
           docker run --rm \
-            --volume "$PWD:/src:ro" \
-            --workdir /src \
+            --volume "$PWD/tests:/app/tests:ro" \
+            --workdir /app \
             alma-monitor:check \
             python -m unittest discover -s tests -v
 
