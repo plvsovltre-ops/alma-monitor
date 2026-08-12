@@ -106,6 +106,9 @@ secret containers before the first image exists. All later changes use a normal
   Gemini.
 - If the version changed, the worker downloads and scans the project. It calls
   Gemini only when it finds an unsent incident.
+- The worker uses the incident ID to prevent duplicate Google Sheets rows. A
+  full project scan also restores a missing registry row for an incident that
+  Mergin Maps already marks as sent.
 - Configure an alert for failed Cloud Run Job executions.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
   executions from processing the same Mergin Maps project.
