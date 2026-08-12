@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "catalog_id": "kz-almaty-orchard-routes-0.1.0",
+  "catalog_sha256": "68bb08dabda87343286879be6cb699cda26dfc2bf5d072208a75dbdfa2d5a32a",
+  "approval_scope": "PRIVATE_CONTROLLED_PILOT_ONLY",
+  "decision": "CONTROLLED_PILOT_APPROVED",
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-13"
+}
