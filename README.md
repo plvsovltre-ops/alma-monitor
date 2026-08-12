@@ -1,9 +1,12 @@
 # ALMA Monitor
 
 ALMA Monitor receives new field incidents from a private Mergin Maps project.
-It checks the incident location against orchard layers. It uses Gemini to prepare
-a bilingual draft response. It sends one email with Russian and Kazakh text. It
-then records the result in private Cloud Storage state and Google Sheets.
+It reads location context from orchard layers, but the separate spatial Evidence
+Gate is not implemented yet. It uses Gemini to describe facts and prepare a
+bilingual draft request for verification. Deterministically selected Legal Core
+references are appended by the application, not selected by Gemini. The worker
+sends one email with Russian and Kazakh text, then records the result in private
+Cloud Storage state and Google Sheets.
 
 The worker treats the Mergin Maps project as read-only. It never writes generated
 text or delivery fields back to a field GeoPackage and never pushes the downloaded
@@ -112,6 +115,11 @@ secret containers before the first image exists. All later changes use a normal
   Gemini.
 - If the version changed, the worker downloads and scans the project. It calls
   Gemini only when it finds an unsent incident.
+- Before Gemini is called, the runtime Legal Core policy must match the exact
+  reviewed release and carry controlled-pilot approval by Yernar Sailybayev.
+  A pending, changed, missing, or differently reviewed policy blocks processing.
+- The exact field value `incident_type` selects a reviewed rule list. Free text,
+  photos, coordinates, and model output never select article numbers.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
   email delivery and Google Sheets rows. A delivered result can restore a
   missing registry row without sending the email again.
@@ -148,10 +156,15 @@ citation can be returned.
 
 Yernar Sailybayev approved the reviewed cards as author and legal editor only
 for a private controlled pilot. Independent lawyer review remains pending and
-public legal release is blocked. The
-current `main.py` still uses the legacy text knowledge folder; connecting the
-new deterministic card catalog to incident processing is intentionally deferred
-to a separate reviewed change.
+public legal release is blocked.
+
+The runtime integration uses a separate five-row policy under
+`legal_core/policies/kz/0.1.0-rc1/`. Its checked-in status is
+`AUTHOR_LEGAL_REVIEW_REQUIRED`, so the worker fails before calling Gemini or
+sending email until Yernar Sailybayev reviews and approves that exact policy.
+The model receives no article-selection interface. It prepares only the factual
+draft; the application validates that the draft contains no legal citations and
+then appends exact reviewed cards and official links.
 
 ALMA was initiated and originally designed by Yernar Sailybayev in Almaty,
 Kazakhstan.

@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "kz-alma-field-signals-0.1.0-rc1",
+  "legal_release_id": "kz-0.1.0-rc1",
+  "status": "AUTHOR_LEGAL_REVIEW_REQUIRED",
+  "selection_basis": "Exact normalized incident_type value only; description, photos, coordinates and model output never select rule IDs.",
+  "mappings": {
+    "waste": {
+      "label_ru": "Отходы или захламление",
+      "rule_ids": [
+        "kz-koap-344-2-storage",
+        "kz-koap-505-1-cleaning",
+        "kz-land-65-1-9",
+        "kz-eco-340-3"
+      ],
+      "unknowns_ru": [
+        "являются ли наблюдаемые предметы отходами, а не временно складированными материалами",
+        "назначение места и допустимость складирования",
+        "границы и правообладатель земельного участка",
+        "ответственное лицо, длительность состояния и статус отходов как бесхозяйных"
+      ]
+    },
+    "logging": {
+      "label_ru": "Вырубка или повреждение зеленых насаждений",
+      "rule_ids": [
+        "kz-almaty-green-p42-1-damage",
+        "kz-almaty-green-p48-50-felling-permit",
+        "kz-almaty-green-p54-inspection-act",
+        "kz-koap-386-green-rules"
+      ],
+      "unknowns_ru": [
+        "вид, количество и состояние зеленых насаждений до события",
+        "наличие и содержание разрешения на вырубку или пересадку",
+        "наличие акта обследования и сведений реестра",
+        "лицо, действие, причинная связь и размер вреда"
+      ]
+    },
+    "construction": {
+      "label_ru": "Строительные или земляные работы рядом с насаждениями",
+      "rule_ids": [
+        "kz-almaty-green-p13-construction-preservation",
+        "kz-almaty-green-p32-1-construction-fencing",
+        "kz-almaty-green-p32-8-topsoil",
+        "kz-almaty-green-p42-10-12-soil-networks"
+      ],
+      "unknowns_ru": [
+        "границы участка, стройплощадки и охраняемых насаждений",
+        "проект, дендроплан и предусмотренные меры сохранения",
+        "характер и законность изменения рельефа или плодородного слоя",
+        "лицо, выполняющее работы, разрешения и причинная связь"
+      ]
+    },
+    "soil_damage": {
+      "label_ru": "Повреждение земли или плодородного слоя",
+      "rule_ids": [
+        "kz-land-65-1-9",
+        "kz-almaty-green-p32-8-topsoil",
+        "kz-almaty-green-p42-10-12-soil-networks",
+        "kz-koap-337-1-topsoil"
+      ],
+      "unknowns_ru": [
+        "является ли затронутый слой плодородным",
+        "характер, объем и законность снятия, среза или перемещения грунта",
+        "границы и правообладатель земельного участка",
+        "последствия для почвы и связь с конкретными действиями"
+      ]
+    },
+    "water_pollution": {
+      "label_ru": "Загрязнение или засорение водного объекта",
+      "rule_ids": [
+        "kz-water-75-1-protection-directions",
+        "kz-water-76-1-pollution-definition",
+        "kz-water-77-1-clogging-definition",
+        "kz-water-77-2-clogging-burial",
+        "kz-water-86-1-2-surface-waste"
+      ],
+      "unknowns_ru": [
+        "относится ли место к поверхностному водному объекту и каковы его официальные границы",
+        "состав вещества или предметов и факт их попадания в воду",
+        "источник, действие, ответственное лицо и причинная связь",
+        "результаты отбора проб, лабораторного анализа и оценка последствий"
+      ]
+    }
+  }
+}

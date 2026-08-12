@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "kz-alma-field-signals-0.1.0-rc1",
+  "decision": "AUTHOR_LEGAL_REVIEW_REQUIRED",
+  "required_reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewer": null,
+  "reviewed_on": null,
+  "policy_sha256": "dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6",
+  "legal_release_artifacts": {
+    "cards.json": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4",
+    "review.json": "2620b2115af63db76550b20e5cbd3940faa525ab55f56c04b1107b200a81cf63"
+  },
+  "statement": "The runtime mapping must not be used until Yernar Sailybayev reviews and approves this exact policy for the private controlled pilot."
+}
