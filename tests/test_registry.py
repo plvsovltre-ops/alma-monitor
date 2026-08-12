@@ -421,6 +421,14 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("ЧТО ЗАФИКСИРОВАНО\nRU result", state["response_ru"])
         self.assertIn("НЕ ТІРКЕЛДІ\nKZ result", state["response_kz"])
         self.assertIn("Земельная инспекция Алматы", state["response_ru"])
+        self.assertIn(
+            "ALMA помогает подготовить сигнал для проверки",
+            state["response_ru"],
+        )
+        self.assertIn(
+            "ALMA тексеруге арналған хабарламаны дайындауға көмектеседі",
+            state["response_kz"],
+        )
         self.assertNotIn("КоАП РК", state["response_ru"])
         self.assertNotIn("Yernar Sailybayev", state["response_ru"])
         self.assertEqual(
@@ -748,6 +756,53 @@ class RegistryTests(unittest.TestCase):
             ):
                 main.validate_model_draft(draft, "RU")
 
+    def test_model_draft_with_legal_conclusion_is_quarantined(self):
+        for lang, draft in (
+            ("RU", "Иван является нарушителем и незаконно устроил свалку."),
+            ("RU", "Зафиксировано правонарушение и виновность владельца."),
+            ("KZ", "Учаске иесі кінәлі және материалдарды заңсыз орналастырған."),
+            ("KZ", "Бұл құқық бұзушылық болып табылады."),
+        ):
+            with self.subTest(lang=lang, draft=draft), self.assertRaisesRegex(
+                main.ModelDraftRejectedError,
+                "unapproved_legal_conclusion",
+            ):
+                main.validate_model_draft(draft, lang)
+
+    def test_scope_notice_is_fixed_and_bilingual(self):
+        self.assertEqual(
+            "ALMA помогает подготовить сигнал для проверки и не устанавливает "
+            "нарушение или виновность.",
+            main.alma_scope_notice("RU"),
+        )
+        self.assertEqual(
+            "ALMA тексеруге арналған хабарламаны дайындауға көмектеседі және "
+            "құқық бұзушылықты немесе кінәні анықтамайды.",
+            main.alma_scope_notice("KZ"),
+        )
+
+    def test_routing_input_fingerprint_changes_with_type_or_geometry(self):
+        point_a = types.SimpleNamespace(wkb_hex="01A")
+        point_b = types.SimpleNamespace(wkb_hex="01B")
+        original = _Row({"incident_type": "waste", "geometry": point_a})
+        moved = _Row({"incident_type": "waste", "geometry": point_b})
+        reclassified = _Row({"incident_type": "logging", "geometry": point_a})
+
+        original_hash = main.routing_input_fingerprint(original, "EPSG:4326")
+
+        self.assertEqual(
+            original_hash,
+            main.routing_input_fingerprint(original, "EPSG:4326"),
+        )
+        self.assertNotEqual(
+            original_hash,
+            main.routing_input_fingerprint(moved, "EPSG:4326"),
+        )
+        self.assertNotEqual(
+            original_hash,
+            main.routing_input_fingerprint(reclassified, "EPSG:4326"),
+        )
+
     def test_no_reviewed_territory_stops_before_gemini(self):
         incidents = _Frame(
             [
@@ -861,15 +916,13 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual("new-sha256", state["territory_catalog_sha256"])
 
     def test_spatial_quarantine_does_not_retry_same_catalog(self):
-        incidents = _Frame(
-            [
-                {
-                    "is_sent": 0,
-                    "unique-id": "case-spatial",
-                    "incident_type": "waste",
-                }
-            ]
-        )
+        row = {
+            "is_sent": 0,
+            "unique-id": "case-spatial",
+            "incident_type": "waste",
+            "geometry": types.SimpleNamespace(wkb_hex="01SAME"),
+        }
+        incidents = _Frame([row])
         photos = _Frame([])
         bucket = _Bucket()
         main.write_incident_state(
@@ -877,6 +930,10 @@ class RegistryTests(unittest.TestCase):
             "case-spatial",
             main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
             territory_catalog_sha256="same-sha256",
+            routing_input_sha256=main.routing_input_fingerprint(
+                _Row(row),
+                incidents.crs,
+            ),
         )
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
@@ -908,6 +965,75 @@ class RegistryTests(unittest.TestCase):
 
         resolve.assert_not_called()
         get_env.assert_not_called()
+
+    def test_spatial_quarantine_retries_after_incident_point_change(self):
+        old_row = _Row(
+            {
+                "unique-id": "case-spatial",
+                "incident_type": "waste",
+                "geometry": types.SimpleNamespace(wkb_hex="01OLD"),
+            }
+        )
+        new_row = {
+            "is_sent": 0,
+            "unique-id": "case-spatial",
+            "incident_type": "waste",
+            "geometry": types.SimpleNamespace(wkb_hex="01NEW"),
+        }
+        incidents = _Frame([new_row])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-spatial",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            territory_catalog_sha256="same-sha256",
+            routing_input_sha256=main.routing_input_fingerprint(
+                old_row,
+                incidents.crs,
+            ),
+        )
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="same-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v128",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=None,
+        ) as resolve, mock.patch.object(main, "get_env") as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        resolve.assert_called_once()
+        get_env.assert_not_called()
+        state = main.read_incident_state(bucket, "case-spatial")
+        self.assertEqual(
+            main.routing_input_fingerprint(_Row(new_row), incidents.crs),
+            state["routing_input_sha256"],
+        )
 
     def test_incident_state_uses_opaque_path_and_round_trips(self):
         bucket = _Bucket()

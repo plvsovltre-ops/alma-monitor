@@ -124,6 +124,16 @@ FORBIDDEN_MODEL_VOLUNTEER_OUTPUT = re.compile(
     r"контур\w*\s+пространственн\w*\s+сло\w*\s+alma|"
     r"gis[- ]источник\w*\s+alma|гис[- ]источник\w*\s+alma)"
 )
+FORBIDDEN_MODEL_LEGAL_CONCLUSION = re.compile(
+    r"(?i)(?:"
+    r"\b(?:незаконн\w*|противоправн\w*|нарушител\w*|виновн\w*|"
+    r"правонарушени\w*|нарушени\w*)\b|"
+    r"\b(?:является|являются|признан\w*|совершил\w*|допустил\w*)\s+"
+    r"(?:нарушени\w*|правонарушени\w*|виновн\w*)|"
+    r"(?:заңсыз\w*|құқық\s*бұзуш\w*|кінәлі\w*|кінәс\w*|"
+    r"заң\w*\s+бұз\w*)"
+    r")"
+)
 
 
 class ModelDraftRejectedError(RuntimeError):
@@ -478,6 +488,31 @@ def get_incident_point(row, source_crs):
         raise RuntimeError("Could not read incident geometry for routing") from exc
 
 
+def routing_input_fingerprint(row, source_crs):
+    """Hash only the deterministic incident fields that can change routing."""
+    point = get_incident_point(row, source_crs)
+    if point is None:
+        geometry = None
+    else:
+        geometry = getattr(point, "wkb_hex", None)
+        if not geometry:
+            wkb = getattr(point, "wkb", None)
+            geometry = wkb.hex() if hasattr(wkb, "hex") else str(point)
+    payload = {
+        "incident_type": str(
+            normalize_sheet_value(row.get("incident_type"))
+        ).strip().lower(),
+        "geometry_wgs84": geometry,
+    }
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def get_observation_time(related_photos):
     """Return the earliest recorded photo time as a deterministic field."""
     if "date" not in related_photos.columns:
@@ -696,6 +731,12 @@ def validate_model_draft(text, lang):
             "unsuitable_volunteer_output",
             volunteer_output_match.group(0),
         )
+    legal_conclusion_match = FORBIDDEN_MODEL_LEGAL_CONCLUSION.search(cleaned)
+    if legal_conclusion_match:
+        raise ModelDraftRejectedError(
+            "unapproved_legal_conclusion",
+            legal_conclusion_match.group(0),
+        )
     return cleaned
 
 
@@ -772,6 +813,21 @@ def observation_heading(lang):
         return "ЧТО ЗАФИКСИРОВАНО"
     if lang == "KZ":
         return "НЕ ТІРКЕЛДІ"
+    raise ValueError(f"Unsupported response language: {lang}")
+
+
+def alma_scope_notice(lang):
+    """State ALMA's limits in plain language in every volunteer result."""
+    if lang == "RU":
+        return (
+            "ALMA помогает подготовить сигнал для проверки и не устанавливает "
+            "нарушение или виновность."
+        )
+    if lang == "KZ":
+        return (
+            "ALMA тексеруге арналған хабарламаны дайындауға көмектеседі және "
+            "құқық бұзушылықты немесе кінәні анықтамайды."
+        )
     raise ValueError(f"Unsupported response language: {lang}")
 
 
@@ -875,16 +931,29 @@ def process_project(mc, bucket):
             )
             continue
         if state and state.get("status") == INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED:
-            if state.get("territory_catalog_sha256") == territory_catalog.sha256:
+            routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
+            catalog_unchanged = (
+                state.get("territory_catalog_sha256") == territory_catalog.sha256
+            )
+            routing_input_unchanged = (
+                state.get("routing_input_sha256") == routing_input_sha256
+            )
+            if catalog_unchanged and routing_input_unchanged:
                 LOG.error(
                     "Incident remains quarantined for spatial review: %s",
                     uid,
                 )
                 continue
-            LOG.info(
-                "Reviewed territory catalog changed; re-evaluating incident: %s",
-                uid,
-            )
+            if catalog_unchanged:
+                LOG.info(
+                    "Incident routing input changed; re-evaluating incident: %s",
+                    uid,
+                )
+            else:
+                LOG.info(
+                    "Reviewed territory catalog changed; re-evaluating incident: %s",
+                    uid,
+                )
             pending_incidents.append((row, state))
             continue
         if incident_requires_processing(row, state):
@@ -921,6 +990,7 @@ def process_project(mc, bucket):
     routed_incidents = []
     for row, state in pending_incidents:
         uid = require_incident_id(row.get("unique-id"))
+        routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
         territory = resolve_territory_context(
             get_incident_point(row, incidents.crs),
             territory_files,
@@ -936,6 +1006,7 @@ def process_project(mc, bucket):
                 spatial_rejection_code="no_reviewed_territory_match",
                 territory_catalog_id=territory_catalog.catalog_id,
                 territory_catalog_sha256=territory_catalog.sha256,
+                routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
             )
             LOG.error(
@@ -962,6 +1033,7 @@ def process_project(mc, bucket):
                 territory_id=territory["territory_id"],
                 territory_catalog_id=territory["catalog_id"],
                 territory_catalog_sha256=territory["catalog_sha256"],
+                routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
             )
             LOG.error(
@@ -969,7 +1041,9 @@ def process_project(mc, bucket):
                 uid,
             )
             continue
-        routed_incidents.append((row, state, territory, request_template))
+        routed_incidents.append(
+            (row, state, territory, request_template, routing_input_sha256)
+        )
 
     if not routed_incidents:
         LOG.info("No incidents with a reviewed territory and authority route")
@@ -995,7 +1069,13 @@ def process_project(mc, bucket):
 
     LOG.info("New routed incidents: %s", len(routed_incidents))
 
-    for row, state, territory, request_template in routed_incidents:
+    for (
+        row,
+        state,
+        territory,
+        request_template,
+        routing_input_sha256,
+    ) in routed_incidents:
         uid = require_incident_id(row.get('unique-id'))
         legal_selection = legal_selections[uid]
         LOG.info("Processing incident: %s", uid)
@@ -1073,7 +1153,8 @@ def process_project(mc, bucket):
                 responses[lang] = (
                     f"{observation_context_block(lang, territory, coords_str, observed_at)}\n\n"
                     f"{observation_heading(lang)}\n{clean_text}\n\n"
-                    f"{verification_request_block(lang, territory, request_template, clean_text, coords_str, observed_at)}"
+                    f"{verification_request_block(lang, territory, request_template, clean_text, coords_str, observed_at)}\n\n"
+                    f"{alma_scope_notice(lang)}"
                 )
             except ModelDraftRejectedError as e:
                 state = write_incident_state(
@@ -1130,6 +1211,7 @@ def process_project(mc, bucket):
             "territory_source_file": territory["source_file"],
             "territory_catalog_id": territory["catalog_id"],
             "territory_catalog_sha256": territory["catalog_sha256"],
+            "routing_input_sha256": routing_input_sha256,
             "authority_route_id": territory["route_id"],
             "authority_display_name_ru": territory["authority"]["display_name_ru"],
             "authority_display_name_kz": territory["authority"]["display_name_kz"],

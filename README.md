@@ -127,13 +127,18 @@ secret containers before the first image exists. All later changes use a normal
   layer is quarantined as `spatial_review_required`; no recipient is guessed and
   no Gemini tokens are spent. The catalog, not Gemini, supplies the public
   territory name, purpose, exact authority route, and short request template.
+- A spatially quarantined incident is checked again when its point or exact field
+  signal changes, even if the reviewed catalog itself is unchanged. Unchanged
+  input remains quarantined without a Gemini call.
 - The first catalog release intentionally routes only the `waste` field signal
   to the reviewed Almaty land-resources recipient. Other signal types remain
   quarantined until their recipient and short request are separately reviewed;
   the presence of a Legal Core mapping alone never selects an authority.
 - Volunteer-facing emails do not contain internal Legal Core citations, reviewer
   names, GIS source terminology, or a long list of unknown circumstances. Those
-  audit details remain in the private Cloud Storage incident card.
+  audit details remain in the private Cloud Storage incident card. Every email
+  includes a short fixed notice that ALMA helps prepare a signal for verification
+  and does not determine a violation or guilt.
 - The first territory catalog with SHA-256
   `68bb08dabda87343286879be6cb699cda26dfc2bf5d072208a75dbdfa2d5a32a` was
   approved by Yernar Sailybayev on 2026-08-13 as author and legal editor, only
