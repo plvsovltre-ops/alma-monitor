@@ -21,7 +21,6 @@ RUN python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt
 
 COPY main.py ./
-COPY laws ./laws
 COPY legal_core ./legal_core
 
 RUN useradd --create-home --uid 10001 alma \

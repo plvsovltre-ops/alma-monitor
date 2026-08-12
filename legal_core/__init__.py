@@ -9,6 +9,12 @@ from .catalog import (
 )
 from .facts import FactState, normalize_fact_state
 from .integrity import IntegrityError, canonical_card_hash
+from .runtime_policy import (
+    RuntimeLegalPolicy,
+    RuntimePolicyBlockedError,
+    RuntimePolicyError,
+    UnsupportedIncidentTypeError,
+)
 
 __all__ = [
     "CardBlockedError",
@@ -17,6 +23,10 @@ __all__ = [
     "LegalCoreError",
     "IntegrityError",
     "SourceChangedError",
+    "RuntimeLegalPolicy",
+    "RuntimePolicyBlockedError",
+    "RuntimePolicyError",
+    "UnsupportedIncidentTypeError",
     "UnknownRuleError",
     "canonical_card_hash",
     "normalize_fact_state",
