@@ -351,7 +351,14 @@ class RegistryTests(unittest.TestCase):
                 }
             ]
         )
-        photos = _Frame([])
+        photos = _Frame(
+            [
+                {
+                    "external_pk": "case-1",
+                    "photo": float("nan"),
+                }
+            ]
+        )
         bucket = _Bucket()
         mergin_client = mock.Mock(spec=["download_project", "project_info"])
         model_client = mock.Mock()
@@ -414,6 +421,7 @@ class RegistryTests(unittest.TestCase):
             self.assertTrue(main.process_project(mergin_client, bucket))
 
         send_email.assert_called_once()
+        self.assertEqual([], send_email.call_args.args[3])
         self.assertEqual("ALMA: наблюдение case-1", send_email.call_args.args[1])
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
@@ -442,6 +450,80 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual("remizovka", state["territory_id"])
         self.assertEqual("almaty_land_resources", state["authority_route_id"])
         self.assertFalse(hasattr(mergin_client, "push_project"))
+
+    def test_missing_incident_type_is_quarantined_before_gemini(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-missing-type",
+                    "incident_type": float("nan"),
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v126",
+        ), mock.patch.object(
+            main,
+            "get_env",
+        ) as get_env, mock.patch.object(
+            main.genai,
+            "Client",
+            create=True,
+        ) as gemini_client:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        gemini_client.assert_not_called()
+        state = main.read_incident_state(bucket, "case-missing-type")
+        self.assertEqual(main.INCIDENT_STATUS_INPUT_REVIEW_REQUIRED, state["status"])
+        self.assertEqual("missing_incident_type", state["input_rejection_code"])
+        self.assertEqual("", state["input_incident_type"])
+
+    def test_input_quarantine_retries_only_after_incident_type_changes(self):
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
+            input_incident_type="",
+            input_rejection_code="missing_incident_type",
+        )
+        incidents = _Frame(
+            [{"is_sent": 0, "unique-id": "case-1", "incident_type": float("nan")}]
+        )
+        photos = _Frame([])
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "get_env",
+        ) as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        self.assertEqual(
+            main.INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
+            main.read_incident_state(bucket, "case-1")["status"],
+        )
 
     @staticmethod
     def _territory():
