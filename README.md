@@ -129,6 +129,12 @@ secret containers before the first image exists. All later changes use a normal
   `manual review is required`. The durable quarantine lets the watcher record
   the scanned field version instead of failing and downloading the same project
   every minute.
+- A model draft containing an unapproved legal reference or a specific authority
+  is quarantined as `draft_review_required`. The rejected draft is not stored or
+  emailed, and scheduled executions do not call Gemini for that incident again.
+  An operator must review the reason and explicitly reset that incident's private
+  Cloud Storage state before another attempt. Configure a Cloud Logging alert for
+  `Incident draft requires manual review`.
 - Legacy `is_sent=1` rows remain readable during migration, but all new runtime
   state is kept outside the field GeoPackage.
 - Configure an alert for failed Cloud Run Job executions.

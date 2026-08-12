@@ -406,7 +406,7 @@ class RegistryTests(unittest.TestCase):
         gemini_client.assert_not_called()
         self.assertIsNone(main.read_incident_state(bucket, "case-1"))
 
-    def test_unapproved_model_reference_stops_before_email_delivery(self):
+    def test_unapproved_model_reference_is_quarantined_without_email(self):
         incidents = _Frame(
             [
                 {
@@ -457,22 +457,80 @@ class RegistryTests(unittest.TestCase):
             main,
             "send_email_with_attachments",
         ) as send_email:
-            with self.assertRaisesRegex(RuntimeError, "Could not process RU"):
-                main.process_project(mock.Mock(), bucket)
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
 
         send_email.assert_not_called()
         state = main.read_incident_state(bucket, "case-1")
-        self.assertEqual(main.INCIDENT_STATUS_PROCESSING, state["status"])
+        self.assertEqual(
+            main.INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+            state["status"],
+        )
+        self.assertEqual("unapproved_legal_reference", state["draft_rejection_code"])
+        self.assertEqual("RU", state["draft_rejection_language"])
+        self.assertEqual("статья", state["draft_rejection_term"])
+        self.assertNotIn("response_ru", state)
+        self.assertNotIn("Применяется статья 505", bucket.blob(
+            main.incident_state_object("case-1")
+        ).text)
+
+    def test_draft_review_quarantine_prevents_future_gemini_calls(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-1",
+                    "incident_type": "waste",
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+            draft_rejection_code="unapproved_legal_reference",
+        )
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main, "reconcile_google_sheet", return_value=True), mock.patch.object(
+            main,
+            "get_env",
+        ) as get_env, mock.patch.object(
+            main.genai,
+            "Client",
+            create=True,
+        ) as gemini_client, mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        gemini_client.assert_not_called()
+        send_email.assert_not_called()
+        self.assertEqual(
+            main.INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+            main.read_incident_state(bucket, "case-1")["status"],
+        )
 
     def test_model_draft_with_article_is_blocked_before_email(self):
         for lang, draft in (
             ("RU", "Применяется статья 505."),
+            ("RU", "Применяется ст. 505."),
+            ("RU", "Согласно ч. 2 и п. 1 требуется проверка."),
             ("KZ", "Кодекстің 505-бабы қолданылады."),
+            ("KZ", "ҚР 505-бабы бойынша тексеру қажет."),
+            ("KZ", "2-тармағы және 1-бөлігі қолданылады."),
             ("RU", "Источник: https://adilet.zan.kz/rus/docs/test"),
         ):
             with self.subTest(lang=lang, draft=draft), self.assertRaisesRegex(
-                RuntimeError,
-                "unapproved legal reference",
+                main.ModelDraftRejectedError,
+                "unapproved_legal_reference",
             ):
                 main.validate_model_draft(draft, lang)
 
@@ -480,12 +538,16 @@ class RegistryTests(unittest.TestCase):
         for lang, draft in (
             ("RU", "Прошу акимат проверить обстоятельства."),
             ("RU", "Материалы следует передать в земельную инспекцию."),
+            ("RU", "Направить в суд."),
+            ("RU", "Обратиться в маслихат."),
+            ("RU", "Передать городскому акиму."),
             ("KZ", "Өтінішті әкімдікке жіберу керек."),
+            ("KZ", "Істі сотқа немесе мәслихатқа жолдау керек."),
             ("KZ", "Министрлік осы мәселені тексеруге тиіс."),
         ):
             with self.subTest(lang=lang, draft=draft), self.assertRaisesRegex(
-                RuntimeError,
-                "unapproved authority reference",
+                main.ModelDraftRejectedError,
+                "unapproved_authority_reference",
             ):
                 main.validate_model_draft(draft, lang)
 
@@ -519,6 +581,21 @@ class RegistryTests(unittest.TestCase):
         self.assertNotIn("adilet.zan.kz", prompt)
         self.assertIn("непроверенное сообщение пользователя", prompt)
         self.assertIn("нельзя\nназывать кадастровым номером", prompt)
+        self.assertNotIn("ПРОЕКТ ОБРАЩЕНИЯ", prompt)
+        self.assertIn("Не составляй адресат или просительную часть", prompt)
+
+    def test_fixed_verification_request_does_not_select_an_authority(self):
+        ru = main.verification_request_block("RU")
+        kz = main.verification_request_block("KZ")
+
+        self.assertIn("компетентный государственный", ru)
+        self.assertIn("Құзыретті мемлекеттік", kz)
+        for text in (ru, kz):
+            self.assertNotRegex(
+                text.lower(),
+                r"\b(?:акимат|әкімдік|суд|сот|маслихат|мәслихат|"
+                r"министерство|министрлік)\b",
+            )
 
     def test_incident_state_uses_opaque_path_and_round_trips(self):
         bucket = _Bucket()

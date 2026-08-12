@@ -81,6 +81,7 @@ INCIDENT_STATUS_DELIVERY_STARTED = "delivery_started"
 INCIDENT_STATUS_DELIVERED = "delivered"
 INCIDENT_STATUS_COMPLETED = "completed"
 INCIDENT_STATUS_DELIVERY_UNCERTAIN = "delivery_uncertain"
+INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED = "draft_review_required"
 INCIDENT_STATUSES = {
     INCIDENT_STATUS_PROCESSING,
     INCIDENT_STATUS_READY,
@@ -88,6 +89,7 @@ INCIDENT_STATUSES = {
     INCIDENT_STATUS_DELIVERED,
     INCIDENT_STATUS_COMPLETED,
     INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+    INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
 }
 
 
@@ -99,16 +101,31 @@ def model_candidates():
 
 FORBIDDEN_MODEL_LEGAL_REFERENCE = re.compile(
     r"(?i)(коап|әкқбтк|\bкодекс\w*|\bcode\b|\barticle\b|"
-    r"стать[яиею]|\bпункт\w*|\bбап\w*|\bтармақ\w*|"
-    r"adilet\.zan\.kz|https?://|№)"
+    r"\bsection\b|\bparagraph\b|стать\w*|\bст\.?\s*\d+|"
+    r"\bчаст\w*\s*\d+|\bч\.?\s*\d+|подпункт\w*|\bподп\.?\s*\d+|"
+    r"\bпункт\w*|\bп\.?\s*\d+|\bбап\w*|\bбаб\w*|"
+    r"\bтарма[қғ]\w*|\bбөлік\w*|§|adilet\.zan\.kz|https?://|№)"
 )
 FORBIDDEN_MODEL_AUTHORITY_REFERENCE = re.compile(
-    r"(?i)\b(акимат\w*|әкімдік\w*|полици\w*|полиция\w*|"
+    r"(?i)\b(аким\w*|акимат\w*|әкім\w*|әкімдік\w*|"
+    r"суд\w*|сот\w*|маслихат\w*|мәслихат\w*|"
+    r"полици\w*|полиция\w*|"
     r"прокуратур\w*|министерств\w*|министрлік\w*|комитет\w*|"
     r"инспекци\w*|инспекция\w*|департамент\w*|басқарм\w*|"
+    r"администрац\w*|муниципал\w*|ведомств\w*|"
     r"akimat\w*|police\w*|prosecut\w*|ministry\w*|committee\w*|"
-    r"department\w*|inspection\w*|дузр|мэпр|мвд)\b"
+    r"department\w*|inspection\w*|court\w*|council\w*|mayor\w*|"
+    r"administration\w*|municipal\w*|agency\w*|дузр|мэпр|мвд)\b"
 )
+
+
+class ModelDraftRejectedError(RuntimeError):
+    """Raised when a model draft crosses the deterministic output boundary."""
+
+    def __init__(self, reason_code, matched_term):
+        self.reason_code = reason_code
+        self.matched_term = matched_term
+        super().__init__(f"{reason_code}: {matched_term}")
 
 os.makedirs(ARCHIVE_PATH, exist_ok=True)
 os.makedirs(os.path.join(ARCHIVE_PATH, "PHOTOS"), exist_ok=True)
@@ -247,6 +264,7 @@ def incident_requires_processing(row, state):
             INCIDENT_STATUS_DELIVERED,
             INCIDENT_STATUS_COMPLETED,
             INCIDENT_STATUS_DELIVERY_UNCERTAIN,
+            INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
         }
 
     # Before Sync Safety, completed results were written back to the field
@@ -498,15 +516,13 @@ def get_legal_prompt(lang, case_packet):
         language = "русском языке"
         structure = (
             "1. НАБЛЮДАЕМЫЕ ФАКТЫ\n"
-            "2. НЕИЗВЕСТНЫЕ ОБСТОЯТЕЛЬСТВА\n"
-            "3. ПРОЕКТ ОБРАЩЕНИЯ"
+            "2. НЕИЗВЕСТНЫЕ ОБСТОЯТЕЛЬСТВА"
         )
     elif lang == "KZ":
         language = "қазақ тілінде"
         structure = (
             "1. БАҚЫЛАНҒАН ФАКТІЛЕР\n"
-            "2. БЕЛГІСІЗ МӘН-ЖАЙЛАР\n"
-            "3. ӨТІНІШ ЖОБАСЫ"
+            "2. БЕЛГІСІЗ МӘН-ЖАЙЛАР"
         )
     else:
         raise ValueError(f"Unsupported response language: {lang}")
@@ -529,15 +545,13 @@ ALMA не является юридической консультацией и 
 1. Не выбирай и не называй законы, кодексы, статьи, пункты или номера норм.
    Проверенные правовые ссылки система добавит после твоего текста.
 2. Не добавляй ссылки, URL, названия государственных органов или должностных лиц.
-   Используй выражение «компетентный государственный или местный исполнительный орган».
+   Не составляй адресат или просительную часть: система добавит их сама.
 3. Не называй лицо нарушителем и не утверждай наличие состава правонарушения.
 4. Не превращай UNKNOWN, тип сигнала или непроверенное описание волонтера в
    установленный факт.
 5. Не называй стройматериалы отходами, жидкость загрязнителем или повреждение
    вырубкой без достаточного визуального основания; проси это проверить.
-6. Проси проверить факты, документы, границы, применимость правовых требований
-   и сообщить заявителю результат.
-7. Только обычный текст без Markdown.
+6. Только обычный текст без Markdown.
 
 СТРУКТУРА:
 {structure}
@@ -550,17 +564,40 @@ def validate_model_draft(text, lang):
     cleaned = text.replace("**", "").replace("##", "").replace("---", "").strip()
     match = FORBIDDEN_MODEL_LEGAL_REFERENCE.search(cleaned)
     if match:
-        raise RuntimeError(
-            f"Gemini inserted an unapproved legal reference in {lang}: "
-            f"{match.group(0)}"
+        raise ModelDraftRejectedError(
+            "unapproved_legal_reference",
+            match.group(0),
         )
     authority_match = FORBIDDEN_MODEL_AUTHORITY_REFERENCE.search(cleaned)
     if authority_match:
-        raise RuntimeError(
-            f"Gemini inserted an unapproved authority reference in {lang}: "
-            f"{authority_match.group(0)}"
+        raise ModelDraftRejectedError(
+            "unapproved_authority_reference",
+            authority_match.group(0),
         )
     return cleaned
+
+
+def verification_request_block(lang):
+    """Return a fixed neutral request; the model never selects its recipient."""
+    if lang == "RU":
+        return (
+            "ПРОЕКТ ПРОСЬБЫ О ПРОВЕРКЕ\n"
+            "Прошу компетентный государственный или местный исполнительный "
+            "орган проверить изложенные факты, установить применимые границы, "
+            "документы, разрешения и иные неизвестные обстоятельства, определить "
+            "применимость правовых требований и сообщить заявителю результат. "
+            "Настоящий текст не устанавливает нарушение или виновность лица."
+        )
+    if lang == "KZ":
+        return (
+            "ТЕКСЕРУ ТУРАЛЫ ӨТІНІШ ЖОБАСЫ\n"
+            "Құзыретті мемлекеттік немесе жергілікті атқарушы органнан баяндалған "
+            "фактілерді тексеруді, қолданылатын шекараларды, құжаттарды, рұқсаттарды "
+            "және өзге де белгісіз мән-жайларды анықтауды, құқықтық талаптардың "
+            "қолданылуын тексеруді және өтініш берушіге нәтижесін хабарлауды "
+            "сұраймын. Бұл мәтін құқық бұзушылықты немесе адамның кінәсін анықтамайды."
+        )
+    raise ValueError(f"Unsupported response language: {lang}")
 
 
 def legal_reference_block(lang, selection, policy):
@@ -686,6 +723,12 @@ def process_project(mc, bucket):
         if state and state.get("status") == INCIDENT_STATUS_DELIVERY_UNCERTAIN:
             LOG.error(
                 "Incident delivery remains uncertain; manual review is required: %s",
+                uid,
+            )
+            continue
+        if state and state.get("status") == INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED:
+            LOG.error(
+                "Incident draft remains quarantined for manual review: %s",
                 uid,
             )
             continue
@@ -822,6 +865,7 @@ def process_project(mc, bucket):
             len(attachments),
         )
         responses = {"RU": "", "KZ": ""}
+        draft_review_required = False
 
         for lang in ["RU", "KZ"]:
             LOG.info("Generating %s response for incident %s", lang, uid)
@@ -843,11 +887,40 @@ def process_project(mc, bucket):
                 
                 clean_text = validate_model_draft(resp.text, lang)
                 responses[lang] = (
-                    f"{clean_text}\n\n"
+                    f"{clean_text}\n\n{verification_request_block(lang)}\n\n"
                     f"{legal_reference_block(lang, legal_selection, legal_policy)}"
                 )
+            except ModelDraftRejectedError as e:
+                state = write_incident_state(
+                    bucket,
+                    uid,
+                    INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+                    previous=state,
+                    source_project_version=source_project_version,
+                    draft_rejection_code=e.reason_code,
+                    draft_rejection_term=e.matched_term,
+                    draft_rejection_language=lang,
+                    draft_quarantined_at=datetime.now(timezone.utc).isoformat(),
+                    legal_release_id=legal_policy.legal_release_id,
+                    legal_policy_id=legal_policy.policy_id,
+                    legal_policy_sha256=legal_policy.policy_sha256,
+                    legal_rule_ids=legal_selection["rule_ids"],
+                    legal_reviewer=legal_policy.reviewer_name,
+                    legal_reviewed_on=legal_policy.reviewed_on,
+                )
+                LOG.error(
+                    "Incident draft requires manual review: %s (%s, %s)",
+                    uid,
+                    lang,
+                    e.reason_code,
+                )
+                draft_review_required = True
+                break
             except Exception as e:
                 raise RuntimeError(f"Could not process {lang} response for incident {uid}") from e
+
+        if draft_review_required:
+            continue
 
         # One bilingual email prevents a partially delivered case if the second
         # language generation or delivery fails.
