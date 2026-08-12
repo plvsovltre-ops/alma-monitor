@@ -239,6 +239,13 @@ def normalize_sheet_value(value):
     return str(value)
 
 
+def require_incident_id(value):
+    uid = str(normalize_sheet_value(value)).strip()
+    if not uid:
+        raise ValueError("Incident ID is required")
+    return uid
+
+
 def open_registry_sheet():
     scope = [
         "https://spreadsheets.google.com/feeds",
@@ -255,7 +262,7 @@ def open_registry_sheet():
 
 def append_registry_row(sheet, data_row, existing_ids=None):
     safe_row = [normalize_sheet_value(value) for value in data_row]
-    uid = str(safe_row[1]).strip() if len(safe_row) > 1 else ""
+    uid = require_incident_id(safe_row[1] if len(safe_row) > 1 else None)
 
     if existing_ids is None:
         existing_ids = {str(value).strip() for value in sheet.col_values(2)[1:]}
@@ -501,7 +508,7 @@ def process_project(mc):
     LOG.info("New incidents: %s", len(new_recs))
 
     for idx, row in new_recs.iterrows():
-        uid = str(row.get('unique-id'))
+        uid = require_incident_id(row.get('unique-id'))
         LOG.info("Processing incident: %s", uid)
         
         # --- ФОТО ---
