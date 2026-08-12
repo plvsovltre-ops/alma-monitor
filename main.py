@@ -83,6 +83,7 @@ INCIDENT_STATUS_DELIVERY_UNCERTAIN = "delivery_uncertain"
 INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED = "draft_review_required"
 INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED = "spatial_review_required"
 INCIDENT_STATUS_INPUT_REVIEW_REQUIRED = "input_review_required"
+INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED = "evidence_review_required"
 INCIDENT_STATUSES = {
     INCIDENT_STATUS_PROCESSING,
     INCIDENT_STATUS_READY,
@@ -93,6 +94,7 @@ INCIDENT_STATUSES = {
     INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
     INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
     INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
+    INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
 }
 
 
@@ -286,6 +288,7 @@ def incident_requires_processing(row, state):
             INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
             INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
             INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
+            INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
         }
 
     # Before Sync Safety, completed results were written back to the field
@@ -526,6 +529,120 @@ def get_observation_time(related_photos):
         if value:
             values.append(value)
     return min(values) if values else ""
+
+
+def resolve_project_photo_path(reference, project_path=PROJECT_PATH):
+    """Resolve a relative Mergin attachment without allowing path traversal."""
+    value = str(normalize_sheet_value(reference)).strip()
+    if not value or os.path.isabs(value):
+        return None
+
+    project_root = os.path.realpath(project_path)
+    relative = value.replace("\\", "/")
+    if any(part == ".." for part in relative.split("/")):
+        return None
+    candidates = [relative, os.path.basename(relative)]
+    for candidate in dict.fromkeys(candidates):
+        resolved = os.path.realpath(os.path.join(project_root, candidate))
+        try:
+            inside_project = os.path.commonpath([project_root, resolved]) == project_root
+        except ValueError:
+            inside_project = False
+        if inside_project and os.path.isfile(resolved):
+            return resolved
+    return None
+
+
+def related_photo_fingerprint(related_photos):
+    """Hash evidence fields plus current file availability and content."""
+    rows = []
+    for _, photo in related_photos.iterrows():
+        reference = str(normalize_sheet_value(photo.get("photo"))).strip()
+        resolved = resolve_project_photo_path(reference)
+        file_sha256 = ""
+        file_size = 0
+        if resolved:
+            digest = hashlib.sha256()
+            try:
+                with open(resolved, "rb") as evidence_file:
+                    for chunk in iter(lambda: evidence_file.read(1024 * 1024), b""):
+                        digest.update(chunk)
+                file_sha256 = digest.hexdigest()
+                file_size = os.path.getsize(resolved)
+            except OSError:
+                file_sha256 = ""
+                file_size = 0
+        rows.append(
+            {
+                "photo": reference,
+                "date": str(normalize_sheet_value(photo.get("date"))).strip(),
+                "external_pk": str(
+                    normalize_sheet_value(photo.get("external_pk"))
+                ).strip(),
+                "file_available": bool(resolved and file_sha256),
+                "file_size": file_size,
+                "file_sha256": file_sha256,
+            }
+        )
+    encoded = json.dumps(
+        sorted(rows, key=lambda item: json.dumps(item, sort_keys=True)),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def validate_image_attachment(path):
+    """Verify that an attachment is a readable image before any model or email use."""
+    try:
+        with PIL.Image.open(path) as image:
+            image.verify()
+        return True
+    except Exception as error:
+        LOG.warning(
+            "Incident attachment is not a readable image: %s (%s)",
+            os.path.basename(path),
+            error,
+        )
+        return False
+
+
+def collect_incident_evidence(uid, related_photos):
+    """Copy valid, related photographs to an isolated immutable work directory."""
+    observed_at = get_observation_time(related_photos)
+    fingerprint = related_photo_fingerprint(related_photos)
+    incident_photo_dir = os.path.join(
+        ARCHIVE_PATH,
+        "PHOTOS",
+        f"{datetime.now().strftime('%Y-%m-%d')}_{incident_storage_key(uid)}",
+    )
+    attachments = []
+
+    for _, photo in related_photos.iterrows():
+        reference = str(normalize_sheet_value(photo.get("photo"))).strip()
+        if not reference:
+            LOG.warning("Incident photo reference is empty: %s", uid)
+            continue
+        source = resolve_project_photo_path(reference)
+        if source is None:
+            LOG.warning(
+                "Incident photo file is unavailable or unsafe: %s (%s)",
+                uid,
+                os.path.basename(reference),
+            )
+            continue
+        if not validate_image_attachment(source):
+            continue
+
+        os.makedirs(incident_photo_dir, exist_ok=True)
+        destination = os.path.join(incident_photo_dir, os.path.basename(source))
+        if destination in attachments:
+            continue
+        shutil.copy2(source, destination)
+        attachments.append(destination)
+
+    return attachments, observed_at, fingerprint
 
 
 def display_observation_date(value, lang):
@@ -847,14 +964,20 @@ def send_email_with_attachments(to_email, subject, body, attachment_paths):
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
+    if not attachment_paths:
+        raise RuntimeError(f"Email delivery blocked without photo evidence: {subject}")
     for f_path in attachment_paths:
-        if f_path and os.path.exists(f_path):
-            try:
-                with open(f_path, 'rb') as f:
-                    img_data = f.read()
-                    image = MIMEImage(img_data, name=os.path.basename(f_path))
-                    msg.attach(image)
-            except: pass
+        if not f_path or not os.path.isfile(f_path):
+            raise RuntimeError(f"Email attachment is unavailable: {subject}")
+        try:
+            with open(f_path, 'rb') as f:
+                img_data = f.read()
+            image = MIMEImage(img_data, name=os.path.basename(f_path))
+            msg.attach(image)
+        except Exception as error:
+            raise RuntimeError(
+                f"Could not prepare email attachment for {subject}"
+            ) from error
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
@@ -951,6 +1074,21 @@ def process_project(mc, bucket):
             )
             pending_incidents.append((row, state))
             continue
+        if state and state.get("status") == INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED:
+            related_photos = photos_gdf[photos_gdf["external_pk"] == uid]
+            current_fingerprint = related_photo_fingerprint(related_photos)
+            if current_fingerprint == state.get("evidence_input_sha256"):
+                LOG.error(
+                    "Incident remains quarantined for evidence review: %s",
+                    uid,
+                )
+                continue
+            LOG.info(
+                "Incident evidence changed; re-evaluating incident: %s",
+                uid,
+            )
+            pending_incidents.append((row, state))
+            continue
         if state and state.get("status") == INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED:
             routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
             catalog_unchanged = (
@@ -1026,6 +1164,7 @@ def process_project(mc, bucket):
     if not legally_routable_incidents:
         LOG.info("No incidents with a reviewed legal mapping")
         return registry_ok
+
     LOG.info(
         "Runtime Legal Core policy approved: %s (%s)",
         legal_policy.policy_id,
@@ -1044,7 +1183,7 @@ def process_project(mc, bucket):
             territory_files.append(source_file)
 
     source_project_version = read_downloaded_project_version()
-    routed_incidents = []
+    spatially_routed_incidents = []
     for row, state in legally_routable_incidents:
         uid = require_incident_id(row.get("unique-id"))
         routing_input_sha256 = routing_input_fingerprint(row, incidents.crs)
@@ -1098,12 +1237,52 @@ def process_project(mc, bucket):
                 uid,
             )
             continue
-        routed_incidents.append(
+        spatially_routed_incidents.append(
             (row, state, territory, request_template, routing_input_sha256)
         )
 
-    if not routed_incidents:
+    if not spatially_routed_incidents:
         LOG.info("No incidents with a reviewed territory and authority route")
+        return registry_ok
+
+    # A field observation without at least one readable, explicitly related
+    # image is incomplete. Quarantine it before Gemini availability checks,
+    # registry delivery, or email delivery.
+    evidence_by_incident = {}
+    routed_incidents = []
+    for item in spatially_routed_incidents:
+        row, state, territory, request_template, routing_input_sha256 = item
+        uid = require_incident_id(row.get("unique-id"))
+        related_photos = photos_gdf[photos_gdf["external_pk"] == uid]
+        attachments, observed_at, evidence_input_sha256 = collect_incident_evidence(
+            uid,
+            related_photos,
+        )
+        if not attachments:
+            write_incident_state(
+                bucket,
+                uid,
+                INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
+                previous=state,
+                source_project_version=source_project_version,
+                evidence_rejection_code="missing_readable_photo",
+                evidence_input_sha256=evidence_input_sha256,
+                evidence_related_row_count=len(related_photos.rows)
+                if hasattr(related_photos, "rows")
+                else len(related_photos),
+                evidence_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            LOG.error("Incident requires photo evidence review: %s", uid)
+            continue
+        evidence_by_incident[uid] = {
+            "attachments": attachments,
+            "observed_at": observed_at,
+            "evidence_input_sha256": evidence_input_sha256,
+        }
+        routed_incidents.append(item)
+
+    if not routed_incidents:
+        LOG.info("No routed incidents with complete photo evidence")
         return registry_ok
 
     # Do not spend Gemini quota on checks without a reviewed spatial route.
@@ -1145,43 +1324,9 @@ def process_project(mc, bucket):
             started_at=datetime.now(timezone.utc).isoformat(),
         )
         
-        # --- ФОТО ---
-        attachments = []
-        incident_photo_dir = os.path.join(
-            ARCHIVE_PATH,
-            "PHOTOS",
-            f"{datetime.now().strftime('%Y-%m-%d')}_{incident_storage_key(uid)}",
-        )
-        os.makedirs(incident_photo_dir, exist_ok=True)
-
-        rel_photos = photos_gdf[photos_gdf['external_pk'] == uid]
-        observed_at = get_observation_time(rel_photos)
-        if not rel_photos.empty:
-            for _, p_row in rel_photos.iterrows():
-                original = str(
-                    normalize_sheet_value(p_row.get('photo'))
-                ).strip()
-                if original:
-                    possible_paths = [
-                        os.path.join(PROJECT_PATH, original),
-                        os.path.join(PROJECT_PATH, os.path.basename(original)),
-                    ]
-                    src = next((p for p in possible_paths if os.path.exists(p)), None)
-                    if src:
-                        dst = os.path.join(incident_photo_dir, os.path.basename(src))
-                        shutil.copy2(src, dst)
-                        attachments.append(dst)
-                    else:
-                        LOG.warning(
-                            "Incident photo file is unavailable: %s (%s)",
-                            uid,
-                            os.path.basename(original),
-                        )
-                else:
-                    LOG.warning(
-                        "Incident photo reference is empty and was skipped: %s",
-                        uid,
-                    )
+        evidence = evidence_by_incident[uid]
+        attachments = evidence["attachments"]
+        observed_at = evidence["observed_at"]
 
         # --- КООРДИНАТЫ ---
         coords_str = get_coordinates(row, incidents.crs)
@@ -1213,7 +1358,10 @@ def process_project(mc, bucket):
                 try:
                     img = PIL.Image.open(img_path)
                     contents_list.append(img)
-                except: pass
+                except Exception as error:
+                    raise RuntimeError(
+                        f"Could not open verified evidence for incident {uid}"
+                    ) from error
 
             try:
                 resp = client.models.generate_content(
@@ -1275,6 +1423,8 @@ def process_project(mc, bucket):
             "processed_at": processed_at,
             "observed_at": observed_at,
             "photo_names": [os.path.basename(path) for path in attachments],
+            "evidence_input_sha256": evidence["evidence_input_sha256"],
+            "evidence_gate": "passed",
             "volunteer_email": normalize_sheet_value(row.get("volunteer_email")),
             "territory_id": territory["territory_id"],
             "territory_name_ru": territory["public_name_ru"],

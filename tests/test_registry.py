@@ -139,6 +139,7 @@ def _install_import_stubs():
 
     pil = types.ModuleType("PIL")
     pil_image = types.ModuleType("PIL.Image")
+    pil_image.open = mock.Mock()
     pil.Image = pil_image
 
     google = types.ModuleType("google")
@@ -273,10 +274,22 @@ class RegistryTests(unittest.TestCase):
 
     def test_processed_project_does_not_load_gemini_or_send_email(self):
         incidents = _Frame([{"is_sent": 1, "unique-id": "case-1"}])
-        photos = _Frame([])
+        photos = _Frame([{"external_pk": "case-1", "photo": "field-photo.jpg"}])
         client = mock.Mock()
         bucket = _Bucket()
+        verified_image = mock.MagicMock()
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.os.path,
+            "isfile",
+            return_value=True,
+        ), mock.patch.object(
+            main.PIL.Image,
+            "open",
+            return_value=verified_image,
+        ), mock.patch.object(
+            main.shutil,
+            "copy2",
+        ), mock.patch.object(
             main.gpd,
             "read_file",
             side_effect=[incidents, photos],
@@ -289,6 +302,141 @@ class RegistryTests(unittest.TestCase):
 
         get_env.assert_not_called()
         send_email.assert_not_called()
+
+    def test_empty_photo_reference_is_quarantined_before_gemini(self):
+        incidents = _Frame(
+            [{
+                "is_sent": 0,
+                "unique-id": "case-no-photo",
+                "incident_type": "waste",
+            }]
+        )
+        photos = _Frame(
+            [{
+                "external_pk": "case-no-photo",
+                "photo": float("nan"),
+                "date": "2026-08-13T01:00:00Z",
+            }]
+        )
+        bucket = _Bucket()
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="test-territory-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+        territory_catalog.request_for.return_value = self._request_template()
+        territory_catalog.route_context.return_value = self._territory()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v128",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=self._territory(),
+        ), mock.patch.object(main, "get_env") as get_env, mock.patch.object(
+            main.genai,
+            "Client",
+            create=True,
+        ) as gemini_client, mock.patch.object(
+            main,
+            "send_email_with_attachments",
+        ) as send_email:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        gemini_client.assert_not_called()
+        send_email.assert_not_called()
+        state = main.read_incident_state(bucket, "case-no-photo")
+        self.assertEqual(
+            main.INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
+            state["status"],
+        )
+        self.assertEqual("missing_readable_photo", state["evidence_rejection_code"])
+        self.assertEqual(1, state["evidence_related_row_count"])
+
+    def test_evidence_quarantine_retries_only_after_photo_fields_change(self):
+        bucket = _Bucket()
+        photos = _Frame(
+            [{
+                "external_pk": "case-1",
+                "photo": None,
+                "date": "2026-08-13T01:00:00Z",
+            }]
+        )
+        main.write_incident_state(
+            bucket,
+            "case-1",
+            main.INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
+            evidence_input_sha256=main.related_photo_fingerprint(photos),
+            evidence_rejection_code="missing_readable_photo",
+        )
+        incidents = _Frame(
+            [{"is_sent": 0, "unique-id": "case-1", "incident_type": "waste"}]
+        )
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(main, "get_env") as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        get_env.assert_not_called()
+        self.assertEqual(
+            main.INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
+            main.read_incident_state(bucket, "case-1")["status"],
+        )
+
+    def test_photo_path_cannot_escape_project_directory(self):
+        with mock.patch.object(main.os.path, "isfile", return_value=True):
+            self.assertIsNone(main.resolve_project_photo_path("../../secret.jpg"))
+            self.assertIsNone(main.resolve_project_photo_path("/tmp/secret.jpg"))
+
+    def test_email_delivery_fails_closed_without_attachment(self):
+        with mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
+            main.smtplib,
+            "SMTP_SSL",
+        ) as smtp:
+            with self.assertRaisesRegex(RuntimeError, "without photo evidence"):
+                main.send_email_with_attachments(
+                    "volunteer@example.com",
+                    "ALMA: test",
+                    "body",
+                    [],
+                )
+        smtp.assert_not_called()
+
+    def test_unreadable_image_is_rejected(self):
+        with mock.patch.object(
+            main.PIL.Image,
+            "open",
+            side_effect=OSError("not an image"),
+        ):
+            self.assertFalse(main.validate_image_attachment("broken.jpg"))
 
     def test_unapproved_territory_catalog_blocks_even_without_new_incident(self):
         incidents = _Frame([{"is_sent": 1, "unique-id": "case-1"}])
@@ -355,7 +503,7 @@ class RegistryTests(unittest.TestCase):
             [
                 {
                     "external_pk": "case-1",
-                    "photo": float("nan"),
+                    "photo": "field-photo.jpg",
                 }
             ]
         )
@@ -376,7 +524,19 @@ class RegistryTests(unittest.TestCase):
         territory = self._territory()
         territory_catalog.route_context.return_value = territory
 
+        verified_image = mock.MagicMock()
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.os.path,
+            "isfile",
+            return_value=True,
+        ), mock.patch.object(
+            main.PIL.Image,
+            "open",
+            return_value=verified_image,
+        ), mock.patch.object(
+            main.shutil,
+            "copy2",
+        ), mock.patch.object(
             main.gpd,
             "read_file",
             side_effect=[incidents, photos],
@@ -421,7 +581,7 @@ class RegistryTests(unittest.TestCase):
             self.assertTrue(main.process_project(mergin_client, bucket))
 
         send_email.assert_called_once()
-        self.assertEqual([], send_email.call_args.args[3])
+        self.assertEqual(1, len(send_email.call_args.args[3]))
         self.assertEqual("ALMA: наблюдение case-1", send_email.call_args.args[1])
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
@@ -449,6 +609,8 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual("Yernar Sailybayev", state["legal_reviewer"])
         self.assertEqual("remizovka", state["territory_id"])
         self.assertEqual("almaty_land_resources", state["authority_route_id"])
+        self.assertEqual("passed", state["evidence_gate"])
+        self.assertEqual(["field-photo.jpg"], state["photo_names"])
         self.assertFalse(hasattr(mergin_client, "push_project"))
 
     def test_missing_incident_type_is_quarantined_before_gemini(self):
@@ -609,7 +771,7 @@ class RegistryTests(unittest.TestCase):
                 }
             ]
         )
-        photos = _Frame([])
+        photos = _Frame([{"external_pk": "case-1", "photo": "field-photo.jpg"}])
         bucket = _Bucket()
         model_client = mock.Mock()
         model_client.models.generate_content.side_effect = [
@@ -624,7 +786,19 @@ class RegistryTests(unittest.TestCase):
         territory_catalog.request_for.return_value = self._request_template()
         territory_catalog.route_context.return_value = self._territory()
 
+        verified_image = mock.MagicMock()
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.os.path,
+            "isfile",
+            return_value=True,
+        ), mock.patch.object(
+            main.PIL.Image,
+            "open",
+            return_value=verified_image,
+        ), mock.patch.object(
+            main.shutil,
+            "copy2",
+        ), mock.patch.object(
             main.gpd,
             "read_file",
             side_effect=[incidents, photos],
