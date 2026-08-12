@@ -31,7 +31,8 @@
       "required": [
         "owner_status",
         "pilot_status",
-        "lawyer_status",
+        "legal_editor_status",
+        "independent_lawyer_status",
         "public_release_status",
         "source_change_status",
         "source_checked_at"
@@ -39,7 +40,15 @@
       "properties": {
         "owner_status": {"enum": ["OWNER_ACCEPTED", "OWNER_REVIEW_REQUIRED"]},
         "pilot_status": {"enum": ["PILOT_ELIGIBLE", "PILOT_BLOCKED"]},
-        "lawyer_status": {"enum": ["LAWYER_REVIEW_PENDING", "LAWYER_REVIEW_APPROVED"]},
+        "legal_editor_status": {
+          "enum": ["AUTHOR_LEGAL_REVIEW_APPROVED", "LEGAL_EDITOR_REVIEW_REQUIRED"]
+        },
+        "independent_lawyer_status": {
+          "enum": [
+            "INDEPENDENT_LAWYER_REVIEW_PENDING",
+            "INDEPENDENT_LAWYER_REVIEW_APPROVED"
+          ]
+        },
         "public_release_status": {
           "enum": ["PUBLIC_LEGAL_RELEASE_BLOCKED", "PUBLIC_LEGAL_RELEASE_APPROVED"]
         },

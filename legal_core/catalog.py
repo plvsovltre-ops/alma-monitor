@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -22,6 +23,7 @@ DEFAULT_RELEASE = (
     / "0.1.0-rc1"
     / "cards.json"
 )
+CONTROLLED_PILOT_REVIEWER = "Yernar Sailybayev"
 
 
 class LegalCoreError(RuntimeError):
@@ -56,6 +58,9 @@ class LegalCoreCatalog:
                 self.release = json.load(handle)
             sources_document = json.loads(
                 (self.release_path.parent / "sources.json").read_text(encoding="utf-8")
+            )
+            review_record = json.loads(
+                (self.release_path.parent / "review.json").read_text(encoding="utf-8")
             )
         except (OSError, json.JSONDecodeError) as exc:
             raise IntegrityError("Legal Core release JSON is invalid") from exc
@@ -108,6 +113,8 @@ class LegalCoreCatalog:
         release_id = self.release.get("release", {}).get("id")
         if not release_id or manifest.get("release_id") != release_id:
             raise IntegrityError("Manifest and card release IDs do not match")
+        if self.release.get("release", {}).get("status") != manifest.get("status"):
+            raise IntegrityError("Manifest and card release statuses do not match")
         if sources_document.get("release_id") != release_id:
             raise IntegrityError("Source registry and card release IDs do not match")
         if manifest.get("card_count") != len(cards):
@@ -115,10 +122,88 @@ class LegalCoreCatalog:
         if manifest.get("source_count") != len(sources):
             raise IntegrityError("Manifest source count is incorrect")
 
+        self._validate_review_record(review_record, manifest, release_id, len(cards))
+        self.review_record = review_record
+
+    @staticmethod
+    def _validate_review_record(
+        review_record: Any,
+        manifest: dict[str, Any],
+        release_id: str,
+        card_count: int,
+    ) -> None:
+        if not isinstance(review_record, dict):
+            raise IntegrityError("Legal Core review record must be an object")
+        if review_record.get("release_id") != release_id:
+            raise IntegrityError("Review record and card release IDs do not match")
+        if review_record.get("card_count") != card_count:
+            raise IntegrityError("Review record card count is incorrect")
+
+        reviewer = review_record.get("reviewer")
+        if not isinstance(reviewer, dict):
+            raise IntegrityError("Legal Core reviewer record is invalid")
+        if not isinstance(reviewer.get("name"), str) or not reviewer["name"].strip():
+            raise IntegrityError("Legal Core reviewer name is missing")
+        if reviewer["name"].strip() != CONTROLLED_PILOT_REVIEWER:
+            raise IntegrityError("Controlled pilot reviewer is not authorized")
+        if reviewer.get("capacity") != "AUTHOR_AND_LEGAL_EDITOR":
+            raise IntegrityError("Legal Core reviewer capacity is unsupported")
+
+        try:
+            date.fromisoformat(review_record.get("reviewed_on"))
+        except (TypeError, ValueError) as exc:
+            raise IntegrityError("Legal Core review date is invalid") from exc
+
+        reviewed_artifacts = review_record.get("reviewed_artifacts")
+        expected_artifacts = {
+            name: manifest["artifacts"][name]
+            for name in ("cards.json", "sources.json")
+        }
+        if reviewed_artifacts != expected_artifacts:
+            raise IntegrityError("Review record does not bind the reviewed artifacts")
+
+        if review_record.get("decision") != "CONTROLLED_PILOT_APPROVED":
+            raise IntegrityError("Controlled pilot legal review is not approved")
+        if review_record.get("scope") != "CONTROLLED_PILOT_ONLY":
+            raise IntegrityError("Legal review scope is not controlled-pilot-only")
+        if (
+            review_record.get("independent_lawyer_review_status")
+            != "INDEPENDENT_LAWYER_REVIEW_PENDING"
+        ):
+            raise IntegrityError(
+                "Independent lawyer approval cannot be asserted by this release"
+            )
+        if (
+            review_record.get("public_release_status")
+            != "PUBLIC_LEGAL_RELEASE_BLOCKED"
+        ):
+            raise IntegrityError("Public legal release must remain blocked")
+
+        expected_manifest_review = {
+            "status": "CONTROLLED_PILOT_APPROVED",
+            "owner_review_status": "OWNER_ACCEPTED",
+            "legal_editor_review_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+            "legal_reviewer_name": reviewer["name"],
+            "independent_lawyer_review_status": review_record[
+                "independent_lawyer_review_status"
+            ],
+            "public_legal_release_status": review_record["public_release_status"],
+        }
+        for field, expected in expected_manifest_review.items():
+            if manifest.get(field) != expected:
+                raise IntegrityError(
+                    f"Manifest legal review metadata is inconsistent: {field}"
+                )
+
     def rule_ids(self) -> tuple[str, ...]:
         return tuple(self._cards)
 
-    def require_card(self, rule_id: str, *, use_case: str = "pilot") -> dict[str, Any]:
+    def require_card(
+        self,
+        rule_id: str,
+        *,
+        use_case: str = "controlled_pilot",
+    ) -> dict[str, Any]:
         """Return an approved card or fail without attempting a substitute."""
         try:
             card = self._cards[rule_id]
@@ -138,13 +223,26 @@ class LegalCoreCatalog:
         if review.get("owner_status") != "OWNER_ACCEPTED":
             raise CardBlockedError(f"Owner review is incomplete: {rule_id}")
 
-        if use_case == "pilot":
-            if review.get("pilot_status") != "PILOT_ELIGIBLE":
-                raise CardBlockedError(f"Card is blocked for pilot use: {rule_id}")
+        if use_case == "controlled_pilot":
+            if (
+                review.get("pilot_status") != "PILOT_ELIGIBLE"
+                or review.get("legal_editor_status")
+                != "AUTHOR_LEGAL_REVIEW_APPROVED"
+                or self.review_record.get("decision")
+                != "CONTROLLED_PILOT_APPROVED"
+            ):
+                raise CardBlockedError(
+                    f"Card is blocked for controlled pilot use: {rule_id}"
+                )
         elif use_case == "public_legal_release":
             if (
-                review.get("lawyer_status") != "LAWYER_REVIEW_APPROVED"
+                review.get("independent_lawyer_status")
+                != "INDEPENDENT_LAWYER_REVIEW_APPROVED"
                 or review.get("public_release_status")
+                != "PUBLIC_LEGAL_RELEASE_APPROVED"
+                or self.review_record.get("independent_lawyer_review_status")
+                != "INDEPENDENT_LAWYER_REVIEW_APPROVED"
+                or self.review_record.get("public_release_status")
                 != "PUBLIC_LEGAL_RELEASE_APPROVED"
             ):
                 raise CardBlockedError(
@@ -159,7 +257,7 @@ class LegalCoreCatalog:
         self,
         rule_ids: Iterable[str],
         *,
-        use_case: str = "pilot",
+        use_case: str = "controlled_pilot",
     ) -> list[dict[str, str]]:
         """Resolve citations exclusively from approved cards."""
         resolved = []

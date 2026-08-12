@@ -37,6 +37,8 @@ METADATA = ReleaseMetadata(
     source_spreadsheet_id="test-sheet",
     source_review_view="ALMA Legal Review — Kazakhstan v1.2",
     expected_card_count=1,
+    legal_reviewer_name="Yernar Sailybayev",
+    legal_review_date="2026-08-12",
 )
 
 
@@ -150,6 +152,15 @@ class ExportLegalCoreTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Expected 2 cards, found 1"):
                 load_cards(path, replace(METADATA, expected_card_count=2))
 
+    def test_legal_review_cannot_predate_owner_review(self):
+        metadata = replace(
+            METADATA,
+            review_date="2026-08-12",
+            legal_review_date="2026-08-11",
+        )
+        with self.assertRaisesRegex(ValueError, "cannot precede owner review"):
+            metadata.validate()
+
     def test_export_rejects_one_source_id_for_two_documents(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "review.csv"
@@ -184,6 +195,8 @@ class ExportLegalCoreTests(unittest.TestCase):
             source_spreadsheet_id="next-sheet",
             source_review_view="ALMA Legal Review — Kazakhstan v1.3",
             expected_card_count=1,
+            legal_reviewer_name="Yernar Sailybayev",
+            legal_review_date="2026-08-12",
         )
         values = reviewed_values()
         values[13] = "1.3"
@@ -199,6 +212,37 @@ class ExportLegalCoreTests(unittest.TestCase):
             document = json.loads((output / "cards.json").read_text(encoding="utf-8"))
         self.assertEqual("kz-0.2.0-rc1", document["release"]["id"])
         self.assertEqual("2026-08-12", document["release"]["generated_on"])
+
+    def test_release_records_author_review_for_controlled_pilot_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            csv_path = Path(directory) / "review.csv"
+            self.write_csv(csv_path)
+            cards = load_cards(csv_path, METADATA)
+            output = Path(directory) / "release"
+            write_release(cards, output, METADATA)
+
+            review = json.loads((output / "review.json").read_text(encoding="utf-8"))
+            manifest = json.loads(
+                (output / "manifest.json").read_text(encoding="utf-8")
+            )
+
+        self.assertEqual("Yernar Sailybayev", review["reviewer"]["name"])
+        self.assertEqual("AUTHOR_AND_LEGAL_EDITOR", review["reviewer"]["capacity"])
+        self.assertEqual("CONTROLLED_PILOT_APPROVED", review["decision"])
+        self.assertEqual("CONTROLLED_PILOT_ONLY", review["scope"])
+        self.assertEqual(
+            "INDEPENDENT_LAWYER_REVIEW_PENDING",
+            review["independent_lawyer_review_status"],
+        )
+        self.assertEqual(
+            "PUBLIC_LEGAL_RELEASE_BLOCKED",
+            review["public_release_status"],
+        )
+        self.assertEqual(
+            "AUTHOR_LEGAL_REVIEW_APPROVED",
+            cards[0]["review"]["legal_editor_status"],
+        )
+        self.assertEqual("CONTROLLED_PILOT_APPROVED", manifest["status"])
 
     def test_documented_direct_cli_command_runs(self):
         repository = Path(__file__).resolve().parents[1]
@@ -224,6 +268,10 @@ class ExportLegalCoreTests(unittest.TestCase):
                     "test-view",
                     "--expected-card-count",
                     "1",
+                    "--legal-reviewer-name",
+                    "Yernar Sailybayev",
+                    "--legal-review-date",
+                    "2026-08-12",
                 ],
                 cwd=repository,
                 capture_output=True,

@@ -53,22 +53,33 @@ class ReleaseMetadata:
     source_spreadsheet_id: str
     source_review_view: str
     expected_card_count: int
+    legal_reviewer_name: str
+    legal_review_date: str
 
     def validate(self) -> None:
         if not RELEASE_ID.fullmatch(self.release_id):
             raise ValueError(f"Invalid release ID: {self.release_id}")
         try:
-            date.fromisoformat(self.review_date)
-        except ValueError as exc:
+            owner_review_date = date.fromisoformat(self.review_date)
+        except (TypeError, ValueError) as exc:
             raise ValueError("Review date must use YYYY-MM-DD") from exc
         if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", self.review_date):
             raise ValueError("Review date must use YYYY-MM-DD")
         if self.expected_card_count < 1:
             raise ValueError("Expected card count must be positive")
+        try:
+            legal_review_date = date.fromisoformat(self.legal_review_date)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Legal review date must use YYYY-MM-DD") from exc
+        if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", self.legal_review_date):
+            raise ValueError("Legal review date must use YYYY-MM-DD")
+        if legal_review_date < owner_review_date:
+            raise ValueError("Legal review date cannot precede owner review date")
         for field_name in (
             "review_view_version",
             "source_spreadsheet_id",
             "source_review_view",
+            "legal_reviewer_name",
         ):
             if not getattr(self, field_name).strip():
                 raise ValueError(f"Release metadata is empty: {field_name}")
@@ -162,7 +173,10 @@ def load_cards(csv_path: Path, metadata: ReleaseMetadata) -> list[dict]:
                 "review": {
                     "owner_status": "OWNER_ACCEPTED",
                     "pilot_status": "PILOT_ELIGIBLE",
-                    "lawyer_status": "LAWYER_REVIEW_PENDING",
+                    "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+                    "independent_lawyer_status": (
+                        "INDEPENDENT_LAWYER_REVIEW_PENDING"
+                    ),
                     "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
                     "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
                     "review_view_version": metadata.review_view_version,
@@ -230,7 +244,7 @@ def write_release(
         "release": {
             "id": metadata.release_id,
             "jurisdiction": "KZ",
-            "status": "PILOT_RELEASE_CANDIDATE",
+            "status": "CONTROLLED_PILOT_APPROVED",
             "generated_on": metadata.review_date,
             "source_spreadsheet_id": metadata.source_spreadsheet_id,
             "source_review_view": metadata.source_review_view,
@@ -256,6 +270,32 @@ def write_release(
         "cards.json": json_bytes(card_document),
         "sources.json": json_bytes(sources),
     }
+    reviewed_hashes = {
+        name: hashlib.sha256(content).hexdigest()
+        for name, content in artifacts.items()
+    }
+    review_record = {
+        "release_id": metadata.release_id,
+        "card_count": len(cards),
+        "decision": "CONTROLLED_PILOT_APPROVED",
+        "scope": "CONTROLLED_PILOT_ONLY",
+        "reviewed_on": metadata.legal_review_date,
+        "reviewer": {
+            "name": metadata.legal_reviewer_name,
+            "capacity": "AUTHOR_AND_LEGAL_EDITOR",
+        },
+        "reviewed_artifacts": reviewed_hashes,
+        "independent_lawyer_review_status": (
+            "INDEPENDENT_LAWYER_REVIEW_PENDING"
+        ),
+        "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+        "statement": (
+            "The reviewer approved the reviewed cards for controlled use by "
+            "ALMA during a private pilot. This is not an independent legal "
+            "review or approval for a public legal release."
+        ),
+    }
+    artifacts["review.json"] = json_bytes(review_record)
     for name, content in artifacts.items():
         (output_dir / name).write_bytes(content)
 
@@ -265,11 +305,15 @@ def write_release(
     }
     manifest = {
         "release_id": metadata.release_id,
-        "status": "PILOT_RELEASE_CANDIDATE",
+        "status": "CONTROLLED_PILOT_APPROVED",
         "card_count": len(cards),
         "source_count": len(sources["sources"]),
         "owner_review_status": "OWNER_ACCEPTED",
-        "lawyer_review_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_review_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "legal_reviewer_name": metadata.legal_reviewer_name,
+        "independent_lawyer_review_status": (
+            "INDEPENDENT_LAWYER_REVIEW_PENDING"
+        ),
         "public_legal_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "artifacts": checksums,
     }
@@ -292,6 +336,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--source-spreadsheet-id", required=True)
     parser.add_argument("--source-review-view", required=True)
     parser.add_argument("--expected-card-count", required=True, type=int)
+    parser.add_argument("--legal-reviewer-name", required=True)
+    parser.add_argument("--legal-review-date", required=True)
     return parser.parse_args(argv[1:])
 
 
@@ -304,6 +350,8 @@ def main(argv: list[str]) -> int:
         source_spreadsheet_id=args.source_spreadsheet_id,
         source_review_view=args.source_review_view,
         expected_card_count=args.expected_card_count,
+        legal_reviewer_name=args.legal_reviewer_name,
+        legal_review_date=args.legal_review_date,
     )
     try:
         cards = load_cards(args.review_csv, metadata)

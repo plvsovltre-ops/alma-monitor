@@ -12,7 +12,12 @@ from urllib.parse import urlsplit, urlunsplit
 
 SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 ADILET_DOCUMENT_PATH = re.compile(r"^/rus/docs/[A-Za-z0-9_]+$")
-REQUIRED_RELEASE_FILES = ("cards.json", "manifest.json", "sources.json")
+REQUIRED_RELEASE_FILES = (
+    "cards.json",
+    "manifest.json",
+    "review.json",
+    "sources.json",
+)
 
 
 class IntegrityError(RuntimeError):
@@ -84,7 +89,9 @@ def _load_sha256sums(path: Path) -> dict[str, str]:
             raise IntegrityError(f"Duplicate SHA256SUMS entry: {name}")
         checksums[name] = digest
     if set(checksums) != set(REQUIRED_RELEASE_FILES):
-        raise IntegrityError("SHA256SUMS must cover cards, manifest, and sources")
+        raise IntegrityError(
+            "SHA256SUMS must cover cards, manifest, review, and sources"
+        )
     return checksums
 
 
@@ -107,9 +114,11 @@ def verify_release_bundle(cards_path: str | Path) -> dict[str, Any]:
     except (OSError, json.JSONDecodeError) as exc:
         raise IntegrityError("Release manifest is invalid") from exc
     artifacts = manifest.get("artifacts")
-    expected_artifacts = {"cards.json", "sources.json"}
+    expected_artifacts = {"cards.json", "review.json", "sources.json"}
     if not isinstance(artifacts, dict) or set(artifacts) != expected_artifacts:
-        raise IntegrityError("Manifest must cover cards.json and sources.json")
+        raise IntegrityError(
+            "Manifest must cover cards.json, review.json, and sources.json"
+        )
     for name in expected_artifacts:
         if artifacts[name] != checksums[name]:
             raise IntegrityError(f"Manifest checksum disagrees with SHA256SUMS: {name}")

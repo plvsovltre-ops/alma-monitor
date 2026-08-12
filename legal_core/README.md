@@ -6,10 +6,11 @@ model may explain an already selected card, but it must not choose an article,
 invent a citation, fill an unknown fact, establish guilt, or make a final legal
 qualification.
 
-The first bundle is `releases/kz/0.1.0-rc1`. It is a pilot release candidate,
-not a public legal release and not legal advice. Owner acceptance means that
-Yernar Sailybayev accepted a card for further editorial and pilot work. It does
-not mean that an independent lawyer approved the card.
+The first bundle is `releases/kz/0.1.0-rc1`. Yernar Sailybayev approved its
+reviewed cards in the disclosed capacity of author and legal editor for a
+private controlled pilot. It is not a public legal release, independent legal
+review, or legal advice. The separate `review.json` binds that decision to the
+exact reviewed `cards.json` and `sources.json` artifacts.
 
 ## Fail-closed rules
 
@@ -18,12 +19,16 @@ not mean that an independent lawyer approved the card.
 3. A card is blocked when its official source changes, is missing, or has an
    unrecognized monitoring status.
 4. An unknown fact remains `UNKNOWN`.
-5. Public legal use requires both lawyer approval and explicit public-release
-   approval in a later release.
-6. A generated appeal must ask a competent authority to verify facts and report
+5. Controlled-pilot use requires the recorded author/legal-editor approval.
+6. Public legal use still requires independent lawyer approval and explicit
+   public-release approval in a later release.
+7. A generated appeal must ask a competent authority to verify facts and report
    the result. It must not name a person as an offender or establish guilt.
-7. The catalog verifies `SHA256SUMS`, the manifest, the source registry, and
-   every canonical card hash before it returns a citation.
+8. The catalog verifies `SHA256SUMS`, the manifest, the review record, the
+   source registry, and every canonical card hash before it returns a citation.
+9. This controlled-pilot release accepts only the recorded review by Yernar
+   Sailybayev. A future independent or public release needs a new governed
+   release format and cannot be unlocked by editing this bundle.
 
 ## Canonical card hash
 
@@ -45,7 +50,9 @@ python scripts/export_legal_core.py review.csv /tmp/legal-core-release \
   --review-view-version 1.2 \
   --source-spreadsheet-id 1OfPXFwk3RnrJP6H6FVsv_KIRpX-9Gy-ULkWom1ZThaQ \
   --source-review-view "ALMA Legal Review — Kazakhstan v1.2" \
-  --expected-card-count 122
+  --expected-card-count 122 \
+  --legal-reviewer-name "Yernar Sailybayev" \
+  --legal-review-date 2026-08-12
 ```
 
 The exporter rejects unchecked, disputed, incomplete, duplicated, non-Adilet,

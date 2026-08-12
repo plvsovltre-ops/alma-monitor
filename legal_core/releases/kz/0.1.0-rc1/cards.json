@@ -3,7 +3,7 @@
   "release": {
     "id": "kz-0.1.0-rc1",
     "jurisdiction": "KZ",
-    "status": "PILOT_RELEASE_CANDIDATE",
+    "status": "CONTROLLED_PILOT_APPROVED",
     "generated_on": "2026-08-11",
     "source_spreadsheet_id": "1OfPXFwk3RnrJP6H6FVsv_KIRpX-9Gy-ULkWom1ZThaQ",
     "source_review_view": "ALMA Legal Review — Kazakhstan v1.2",
@@ -21,7 +21,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -42,7 +43,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -63,7 +65,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -84,7 +87,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -105,7 +109,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -126,7 +131,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -147,7 +153,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -168,7 +175,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -189,7 +197,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -210,7 +219,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -231,7 +241,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -252,7 +263,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -273,7 +285,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -294,7 +307,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -315,7 +329,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -336,7 +351,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -357,7 +373,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -378,7 +395,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -399,7 +417,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -420,7 +439,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -441,7 +461,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -462,7 +483,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -483,7 +505,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -504,7 +527,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -525,7 +549,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -546,7 +571,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -567,7 +593,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -588,7 +615,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -609,7 +637,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -630,7 +659,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -651,7 +681,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -672,7 +703,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -693,7 +725,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -714,7 +747,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -735,7 +769,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -756,7 +791,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -777,7 +813,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -798,7 +835,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -819,7 +857,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -840,7 +879,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -861,7 +901,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -882,7 +923,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -903,7 +945,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -924,7 +967,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -945,7 +989,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -966,7 +1011,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -987,7 +1033,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1008,7 +1055,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1029,7 +1077,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1050,7 +1099,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1071,7 +1121,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1092,7 +1143,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1113,7 +1165,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1134,7 +1187,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1155,7 +1209,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1176,7 +1231,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1197,7 +1253,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1218,7 +1275,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1239,7 +1297,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1260,7 +1319,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1281,7 +1341,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1302,7 +1363,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1323,7 +1385,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1344,7 +1407,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1365,7 +1429,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1386,7 +1451,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1407,7 +1473,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1428,7 +1495,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1449,7 +1517,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1470,7 +1539,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1491,7 +1561,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1512,7 +1583,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1533,7 +1605,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1554,7 +1627,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1575,7 +1649,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1596,7 +1671,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1617,7 +1693,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1638,7 +1715,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1659,7 +1737,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1680,7 +1759,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1701,7 +1781,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1722,7 +1803,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1743,7 +1825,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1764,7 +1847,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1785,7 +1869,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1806,7 +1891,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1827,7 +1913,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1848,7 +1935,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1869,7 +1957,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1890,7 +1979,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1911,7 +2001,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1932,7 +2023,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1953,7 +2045,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1974,7 +2067,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -1995,7 +2089,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2016,7 +2111,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2037,7 +2133,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2058,7 +2155,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2079,7 +2177,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2100,7 +2199,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2121,7 +2221,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2142,7 +2243,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2163,7 +2265,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2184,7 +2287,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2205,7 +2309,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2226,7 +2331,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2247,7 +2353,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2268,7 +2375,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2289,7 +2397,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2310,7 +2419,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2331,7 +2441,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2352,7 +2463,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2373,7 +2485,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2394,7 +2507,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2415,7 +2529,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2436,7 +2551,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2457,7 +2573,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2478,7 +2595,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2499,7 +2617,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2520,7 +2639,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2541,7 +2661,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
@@ -2562,7 +2683,8 @@
       "review": {
         "owner_status": "OWNER_ACCEPTED",
         "pilot_status": "PILOT_ELIGIBLE",
-        "lawyer_status": "LAWYER_REVIEW_PENDING",
+        "legal_editor_status": "AUTHOR_LEGAL_REVIEW_APPROVED",
+        "independent_lawyer_status": "INDEPENDENT_LAWYER_REVIEW_PENDING",
         "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
         "sheet_status": "СОГЛАСОВАНО ВЛАДЕЛЬЦЕМ",
         "review_view_version": "1.2",
