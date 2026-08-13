@@ -57,7 +57,13 @@ def _project_xml():
         },
     )
     layers.append(photos)
-    layers.append(_layer("Инцидент", "incident_id", ["incident_type"]))
+    layers.append(
+        _layer(
+            "Инцидент",
+            "incident_id",
+            ["incident_type", "volunteer_email"],
+        )
+    )
     return ET.tostring(root, encoding="utf-8")
 
 
@@ -77,6 +83,7 @@ class FieldProjectTests(unittest.TestCase):
             (photos, "photo"),
             (photos, "external_pk"),
             (incidents, "incident_type"),
+            (incidents, "volunteer_email"),
         ):
             constraint = next(
                 item for item in layer.findall("./constraints/constraint")

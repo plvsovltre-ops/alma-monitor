@@ -126,20 +126,30 @@ secret containers before the first image exists. All later changes use a normal
   photos, coordinates, and model output never select article numbers.
 - Before Gemini is called, the incident point must intersect an exact GeoPackage
   filename listed in the reviewed territory catalog. An unknown or unmatched
-  layer is quarantined as `spatial_review_required`; no recipient is guessed and
-  no Gemini tokens are spent. The catalog, not Gemini, supplies the public
-  territory name, purpose, exact authority route, and short request template.
+  layer is quarantined as `spatial_review_required`; no recipient or legal result
+  is guessed and no Gemini tokens are spent. When the row carries an explicit
+  volunteer email, the worker sends one deterministic bilingual correction
+  notice explaining how to check the marker and collect a new observation. It
+  never tells the volunteer to falsify or move truthful coordinates.
 - A spatially quarantined incident is checked again when its point or exact field
   signal changes, even if the reviewed catalog itself is unchanged. Unchanged
   input remains quarantined without a Gemini call.
-- Field mode requires a non-empty signal type and at least one readable image
+- Field mode requires an explicit volunteer email, a non-empty signal type, and at least one readable image
   explicitly related to the incident. The mobile QGIS form makes the image,
   relation, and signal type mandatory and stores attachment paths under `DCIM/`.
   The cloud worker independently verifies that the path stays inside the Mergin
   project and that the file is a readable image. Incomplete evidence is kept as
-  `evidence_review_required`; it consumes no Gemini tokens and sends no email.
+  `evidence_review_required`; it consumes no Gemini tokens and sends one
+  deterministic correction notice to an explicit volunteer email.
   The incident is retried automatically only after its related photo fields
   change.
+- Missing and unsupported signal types use the same correction-notice channel.
+  These operational notices are not legal assessments, do not enter the ALMA
+  Registry as completed observations, and are deduplicated by the exact rejected
+  input, reason, and recipient. A delivery interrupted after SMTP starts is
+  marked uncertain and is never resent automatically. The v1.3.1 watcher-state
+  migration performs one full scan so previously quarantined observations also
+  receive the notice when an explicit email is present.
 - The active v0.2 catalog deterministically routes all five exact field signal
   types: `waste` and `soil_damage` to Almaty land-resources control, `logging`
   to the Almaty Ecology and Environment Department, `construction` to Almaty
