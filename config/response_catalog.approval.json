@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "catalog_id": "kz-almaty-orchard-routes-0.3.0",
-  "catalog_sha256": "0549795c48533a00a8230a575addfabfa12ca49b357f0526790d30b48be9daa8",
+  "catalog_id": "kz-alma-human-response-0.1.0",
+  "catalog_sha256": "ae1c62c8c77e018dbf7cb303a648c48f79ef2cff28ec971c8c61941a73b340b1",
   "approval_scope": "PRIVATE_CONTROLLED_PILOT_ONLY",
   "decision": "CONTROLLED_PILOT_APPROVED",
   "reviewer": {

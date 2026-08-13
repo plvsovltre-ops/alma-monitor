@@ -4,9 +4,11 @@ ALMA Monitor receives new field incidents from a private Mergin Maps project.
 It resolves a reviewed territory and authority route from orchard layers before
 Gemini is used. Gemini describes only observable facts. The recipient, subject,
 short request, territory name, and monitoring purpose come from the local
-reviewed `config/territory_catalog.json`; the catalog causes no API call and no
-Gemini token use. Deterministically selected Legal Core references remain in the
-private incident state and are not shown in the volunteer-facing email. The
+reviewed `config/territory_catalog.json`. The public-interest context and next
+steps come from the separately reviewed `config/response_catalog.json`. These
+catalogs cause no API call and no Gemini token use. Deterministically selected
+Legal Core provisions appear only as a short legal basis in the draft request;
+full citations and audit metadata remain in the private incident state. The
 worker sends one email with Russian and Kazakh text, then records the result in
 private Cloud Storage state and Google Sheets.
 
@@ -144,11 +146,13 @@ secret containers before the first image exists. All later changes use a normal
   Urban Planning Control, and `water_pollution` to the Balkhash-Alakol Basin
   Inspection. The presence of a Legal Core mapping alone never selects an
   authority.
-- Volunteer-facing emails do not contain internal Legal Core citations, reviewer
-  names, GIS source terminology, or a long list of unknown circumstances. Those
-  audit details remain in the private Cloud Storage incident card. Every email
-  includes a short fixed notice that ALMA helps prepare a signal for verification
-  and does not determine a violation or guilt.
+- Volunteer-facing emails use a reviewed human-response structure: greeting,
+  public-interest context, facts, cautious assessment, practical next step, a
+  short draft request, and contribution acknowledgement. They do not contain a
+  reviewer name, GIS source terminology, or a long list of unknown circumstances.
+  The draft request names only provisions selected by the approved Legal Core
+  policy and says that final applicability is determined by the competent organ.
+  Full citations and audit metadata remain in the private Cloud Storage card.
 - The first territory catalog with SHA-256
   `68bb08dabda87343286879be6cb699cda26dfc2bf5d072208a75dbdfa2d5a32a` was
   approved by Yernar Sailybayev on 2026-08-13 as author and legal editor, only
@@ -157,12 +161,17 @@ secret containers before the first image exists. All later changes use a normal
   After reviewing a future exact diff, the author can bind a new private-pilot
   approval with
   `python scripts/approve_territory_catalog.py --catalog config/territory_catalog.json --approval config/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
-- The `kz-almaty-orchard-routes-0.2.0` catalog is the active controlled-pilot
+- The `kz-almaty-orchard-routes-0.3.0` catalog is the active controlled-pilot
   routing release. Its approval sidecar binds the author/legal decision to the
   exact catalog SHA-256; a changed, pending, missing, or differently reviewed
   catalog blocks the worker before registry writes or Gemini calls. The routing
   matrix and its official sources are recorded in
   `docs/COMPETENT_AUTHORITY_ROUTING.md`.
+- The `kz-alma-human-response-0.1.0` catalog is the active controlled-pilot
+  human-response release. It binds orchard public-interest context and practical
+  next steps for all five exact field signal types to an author/legal-editor
+  approval. A changed catalog, missing approval, unofficial source, or incomplete
+  mapping blocks processing before Gemini is called.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
   email delivery and Google Sheets rows. A delivered result can restore a
   missing registry row without sending the email again.

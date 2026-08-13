@@ -138,6 +138,7 @@ class TerritoryCatalog:
                 "public_name_kz",
                 "purpose_ru",
                 "purpose_kz",
+                "context_profile_id",
             ):
                 _required_text(territory.get(field), f"{source_file}.{field}")
             route_ids = territory.get("route_ids_by_incident_type")

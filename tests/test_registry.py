@@ -1,4 +1,5 @@
 import importlib
+import json
 import math
 import sys
 import types
@@ -105,6 +106,9 @@ class _Bucket:
 
     def blob(self, name):
         return self.blobs.setdefault(name, _Blob())
+
+    def list_blobs(self, prefix=""):
+        return [blob for name, blob in self.blobs.items() if name.startswith(prefix)]
 
 
 class _ApprovedLegalPolicy:
@@ -512,8 +516,14 @@ class RegistryTests(unittest.TestCase):
         model_client = mock.Mock()
         model_client.models.generate_content.side_effect = [
             types.SimpleNamespace(text="available"),
-            types.SimpleNamespace(text="RU result"),
-            types.SimpleNamespace(text="KZ result"),
+            types.SimpleNamespace(
+                text=(
+                    '{"facts_ru":"Волонтер сообщил о размещении материалов. '
+                    'На фотографии видны строительные блоки среди растительности.",'
+                    '"facts_kz":"Волонтер материалдардың орналасқанын хабарлады. '
+                    'Фотосуретте өсімдіктер арасында құрылыс блоктары көрінеді."}'
+                )
+            ),
         ]
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
@@ -581,14 +591,27 @@ class RegistryTests(unittest.TestCase):
             self.assertTrue(main.process_project(mergin_client, bucket))
 
         send_email.assert_called_once()
+        self.assertEqual(2, model_client.models.generate_content.call_count)
+        generation_config = model_client.models.generate_content.call_args.kwargs[
+            "config"
+        ]
+        self.assertEqual("application/json", generation_config.response_mime_type)
         self.assertEqual(1, len(send_email.call_args.args[3]))
         self.assertEqual("ALMA: наблюдение case-1", send_email.call_args.args[1])
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
         self.assertEqual(state["source_project_version"], "v125")
-        self.assertIn("ЧТО ЗАФИКСИРОВАНО\nRU result", state["response_ru"])
-        self.assertIn("НЕ ТІРКЕЛДІ\nKZ result", state["response_kz"])
-        self.assertIn("Земельная инспекция Алматы", state["response_ru"])
+        self.assertIn("ЧТО МЫ УВИДЕЛИ", state["response_ru"])
+        self.assertIn("БІЗ НЕ БАЙҚАДЫҚ", state["response_kz"])
+        self.assertIn("строительные блоки", state["response_ru"])
+        self.assertIn("құрылыс блоктары", state["response_kz"])
+        self.assertIn(
+            "Департамент по управлению земельными ресурсами",
+            state["response_ru"],
+        )
+        self.assertIn("Почему это место важно", state["response_ru"])
+        self.assertIn("Что можно сделать сейчас", state["response_ru"])
+        self.assertIn("СПАСИБО ЗА ВКЛАД", state["response_ru"])
         self.assertIn(
             "ALMA помогает подготовить сигнал для проверки",
             state["response_ru"],
@@ -597,8 +620,14 @@ class RegistryTests(unittest.TestCase):
             "ALMA тексеруге арналған хабарламаны дайындауға көмектеседі",
             state["response_kz"],
         )
-        self.assertNotIn("КоАП РК", state["response_ru"])
+        self.assertIn("КоАП РК, часть 2 статьи 344", state["response_ru"])
+        self.assertIn(
+            "Окончательную применимость норм определяет компетентный орган",
+            state["response_ru"],
+        )
         self.assertNotIn("Yernar Sailybayev", state["response_ru"])
+        self.assertNotIn("GIS-источник", state["response_ru"])
+        self.assertNotIn("контур пространственного слоя", state["response_ru"])
         self.assertEqual(
             ["kz-koap-344-2-storage"],
             state["legal_rule_ids"],
@@ -697,6 +726,7 @@ class RegistryTests(unittest.TestCase):
             "public_name_kz": "Ремизовкадағы бақ",
             "purpose_ru": "сохранение садовой территории",
             "purpose_kz": "бақ аумағын сақтау",
+            "context_profile_id": "orchard_landscape",
             "route_ids_by_incident_type": {"waste": "almaty_land_resources"},
             "route_id": "almaty_land_resources",
             "catalog_id": "test-territories",
@@ -776,7 +806,12 @@ class RegistryTests(unittest.TestCase):
         model_client = mock.Mock()
         model_client.models.generate_content.side_effect = [
             types.SimpleNamespace(text="available"),
-            types.SimpleNamespace(text="Применяется статья 505."),
+            types.SimpleNamespace(
+                text=(
+                    '{"facts_ru":"Применяется статья 505.",'
+                    '"facts_kz":"505-бап қолданылады."}'
+                )
+            ),
         ]
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
@@ -845,7 +880,7 @@ class RegistryTests(unittest.TestCase):
             state["status"],
         )
         self.assertEqual("unapproved_legal_reference", state["draft_rejection_code"])
-        self.assertEqual("RU", state["draft_rejection_language"])
+        self.assertEqual("BILINGUAL", state["draft_rejection_language"])
         self.assertEqual("статья", state["draft_rejection_term"])
         self.assertNotIn("response_ru", state)
         self.assertNotIn("Применяется статья 505", bucket.blob(
@@ -951,7 +986,7 @@ class RegistryTests(unittest.TestCase):
             self._territory(),
             2,
         )
-        prompt = main.get_legal_prompt("RU", packet)
+        prompt = main.get_legal_prompt(packet)
 
         self.assertEqual("waste", packet["volunteer_signal_type"])
         self.assertNotIn("signal_type", packet)
@@ -965,8 +1000,84 @@ class RegistryTests(unittest.TestCase):
         self.assertNotIn("gis_context_unverified", prompt)
         self.assertNotIn("unknown_facts_requiring_authority_check", prompt)
         self.assertNotIn("ПРОЕКТ ОБРАЩЕНИЯ", prompt)
-        self.assertIn("Не составляй адресат или просительную часть", prompt)
-        self.assertIn("описание без заголовка", prompt)
+        self.assertIn(
+            "Не составляй адресат, рекомендации или просительную часть",
+            prompt,
+        )
+        self.assertIn('{"facts_ru":"...","facts_kz":"..."}', prompt)
+        self.assertIn("один и тот же смысл", prompt)
+
+    def test_bilingual_fact_parser_requires_exact_shared_schema(self):
+        value = main.parse_bilingual_model_draft(
+            '{"facts_ru":"Волонтер сообщил о материалах.",'
+            '"facts_kz":"Волонтер материалдар туралы хабарлады."}'
+        )
+        self.assertEqual("Волонтер сообщил о материалах.", value["RU"])
+        self.assertEqual(
+            "Волонтер материалдар туралы хабарлады.", value["KZ"]
+        )
+
+        for invalid in (
+            "обычный текст",
+            '{"facts_ru":"только один язык"}',
+            '{"facts_ru":"факт","facts_kz":"факт","article":"505"}',
+        ):
+            with self.subTest(invalid=invalid), self.assertRaises(
+                main.ModelDraftRejectedError
+            ):
+                main.parse_bilingual_model_draft(invalid)
+
+    def test_volunteer_history_uses_only_same_email_and_delivered_states(self):
+        bucket = _Bucket()
+        examples = {
+            "previous-waste": {
+                "incident_id": "previous-waste",
+                "status": main.INCIDENT_STATUS_COMPLETED,
+                "volunteer_email": "Volunteer@Example.com",
+                "incident_type": "waste",
+            },
+            "other-person": {
+                "incident_id": "other-person",
+                "status": main.INCIDENT_STATUS_COMPLETED,
+                "volunteer_email": "other@example.com",
+                "incident_type": "logging",
+            },
+            "not-delivered": {
+                "incident_id": "not-delivered",
+                "status": main.INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+                "volunteer_email": "volunteer@example.com",
+                "incident_type": "construction",
+            },
+        }
+        for incident_id, state in examples.items():
+            bucket.blob(main.incident_state_object(incident_id)).upload_from_string(
+                json.dumps(state)
+            )
+
+        contribution = main.get_volunteer_contribution(
+            bucket, "volunteer@example.com", "current"
+        )
+
+        self.assertEqual(2, contribution["total_count"])
+        self.assertEqual(["waste"], contribution["previous_types"])
+
+    def test_volunteer_name_is_never_inferred_from_generic_fields(self):
+        self.assertEqual(
+            "",
+            main.get_volunteer_name(
+                _Row(
+                    {
+                        "name": "Possible feature name",
+                        "volunteer": "private-login",
+                        "volunteer_email": "person@example.com",
+                    }
+                )
+            ),
+        )
+        self.assertEqual(
+            "Алия",
+            main.get_volunteer_name(_Row({"volunteer_display_name": "Алия"})),
+        )
 
     def test_fixed_request_uses_reviewed_authority_and_short_template(self):
         territory = self._territory()
@@ -978,6 +1089,7 @@ class RegistryTests(unittest.TestCase):
             "Размещены строительные блоки среди растительности.",
             "43.197466, 76.937677",
             "2026-08-12T11:51:56.590Z",
+            procedural_basis=main.ResponseCatalog().catalog["procedural_basis"],
         )
         kz = main.verification_request_block(
             "KZ",
@@ -986,16 +1098,18 @@ class RegistryTests(unittest.TestCase):
             "Өсімдіктер арасында құрылыс блоктары орналасқан.",
             "43.197466, 76.937677",
             "2026-08-12T11:51:56.590Z",
+            procedural_basis=main.ResponseCatalog().catalog["procedural_basis"],
         )
 
-        self.assertIn("КУДА НАПРАВИТЬ", ru)
-        self.assertIn("Земельная инспекция Алматы", ru)
-        self.assertIn("Для выбора в eOtinish", ru)
+        self.assertIn("Кому", ru)
+        self.assertIn("Департамент по управлению земельными ресурсами", ru)
+        self.assertIn("Через eOtinish", ru)
         self.assertIn("Прошу проверить допустимость размещения материалов", ru)
         self.assertIn("43.197466, 76.937677", ru)
         self.assertIn("12.08.2026", ru)
         self.assertIn("Размещены строительные блоки", ru)
-        self.assertIn("ҚАЙДА ЖІБЕРУ КЕРЕК", kz)
+        self.assertIn("Кімге", kz)
+        self.assertIn("eOtinish арқылы", kz)
         self.assertNotIn("установить применимые границы", ru)
         self.assertNotIn("определить применимость правовых требований", ru)
         self.assertNotIn("Yernar Sailybayev", ru)

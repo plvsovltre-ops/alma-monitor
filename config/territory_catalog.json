@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "catalog_id": "kz-almaty-orchard-routes-0.2.0",
+  "catalog_id": "kz-almaty-orchard-routes-0.3.0",
   "status": "AUTHOR_REVIEW_REQUIRED",
   "selection_basis": "Exact reviewed incident_type plus an observation point intersecting an exact reviewed GeoPackage filename; Gemini never selects a territory or authority.",
   "routes": {
@@ -89,6 +89,7 @@
       "public_name_kz": "Ремизовкадағы бақ",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -106,6 +107,7 @@
       "public_name_kz": "Ремизовкадағы бақ",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -123,6 +125,7 @@
       "public_name_kz": "Медеу ауданының бақтары",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -140,6 +143,7 @@
       "public_name_kz": "Каменское үстіртіндегі бақтар",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -157,6 +161,7 @@
       "public_name_kz": "Новиков ауданындағы бақтар",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -174,6 +179,7 @@
       "public_name_kz": "Бостандық ауданының сақталған бақтары",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -191,6 +197,7 @@
       "public_name_kz": "Медеу ауданының сақталған бақтары",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
@@ -208,6 +215,7 @@
       "public_name_kz": "Наурызбай ауданының сақталған бақтары",
       "purpose_ru": "сохранение садовой территории",
       "purpose_kz": "бақ аумағын сақтау",
+      "context_profile_id": "orchard_landscape",
       "route_ids_by_incident_type": {
         "waste": "almaty_land_resources",
         "logging": "almaty_ecology_environment",
