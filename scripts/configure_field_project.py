@@ -70,6 +70,7 @@ def configure_project_xml(xml_bytes):
     _require_field(photos, "photo")
     _require_field(photos, "external_pk")
     _require_field(incidents, "incident_type")
+    _require_field(incidents, "volunteer_email")
 
     relation_widget = next(
         (

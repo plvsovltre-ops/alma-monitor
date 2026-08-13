@@ -1230,6 +1230,224 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED, state["status"])
         self.assertEqual("no_reviewed_territory_match", state["spatial_rejection_code"])
 
+    def test_outside_territory_sends_one_service_notice_without_gemini(self):
+        incidents = _Frame(
+            [
+                {
+                    "is_sent": 0,
+                    "unique-id": "case-outside-notice",
+                    "incident_type": "waste",
+                    "volunteer_email": "volunteer@example.com",
+                    "geometry": None,
+                }
+            ]
+        )
+        photos = _Frame([])
+        bucket = _Bucket()
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="test-territory-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "log_to_google_sheet",
+        ) as registry_write, mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v132",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=None,
+        ), mock.patch.object(
+            main,
+            "send_service_email",
+        ) as service_email, mock.patch.object(
+            main.genai,
+            "Client",
+            create=True,
+        ) as gemini_client:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        service_email.assert_called_once()
+        self.assertEqual("volunteer@example.com", service_email.call_args.args[0])
+        self.assertIn("нужно уточнить наблюдение", service_email.call_args.args[1])
+        self.assertIn("вне территорий", service_email.call_args.args[2])
+        self.assertIn("Тексеруден өту үшін", service_email.call_args.args[2])
+        gemini_client.assert_not_called()
+        registry_write.assert_not_called()
+        state = main.read_incident_state(bucket, "case-outside-notice")
+        self.assertEqual("delivered", state["volunteer_notice_status"])
+        self.assertEqual(
+            "no_reviewed_territory_match",
+            state["volunteer_notice_reason"],
+        )
+
+    def test_existing_spatial_quarantine_receives_migration_notice_once(self):
+        row = {
+            "is_sent": 0,
+            "unique-id": "case-existing-spatial",
+            "incident_type": "waste",
+            "volunteer_email": "volunteer@example.com",
+            "geometry": types.SimpleNamespace(wkb_hex="01SAME"),
+        }
+        incidents = _Frame([row])
+        photos = _Frame([])
+        bucket = _Bucket()
+        fingerprint = main.routing_input_fingerprint(_Row(row), incidents.crs)
+        main.write_incident_state(
+            bucket,
+            "case-existing-spatial",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            territory_catalog_sha256="same-sha256",
+            routing_input_sha256=fingerprint,
+            spatial_rejection_code="no_reviewed_territory_match",
+        )
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="same-sha256",
+        )
+
+        patches = (
+            mock.patch.object(main.os.path, "exists", return_value=False),
+            mock.patch.object(main.gpd, "read_file", side_effect=[incidents, photos], create=True),
+            mock.patch.object(main, "load_runtime_legal_policy", return_value=_ApprovedLegalPolicy()),
+            mock.patch.object(main, "load_territory_catalog", return_value=territory_catalog),
+            mock.patch.object(main, "reconcile_google_sheet", return_value=True),
+            mock.patch.object(main, "get_coordinates", return_value="43.000000, 77.000000"),
+            mock.patch.object(main, "send_service_email"),
+        )
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6] as service_email:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+        service_email.assert_called_once()
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd, "read_file", side_effect=[incidents, photos], create=True
+        ), mock.patch.object(
+            main, "load_runtime_legal_policy", return_value=_ApprovedLegalPolicy()
+        ), mock.patch.object(
+            main, "load_territory_catalog", return_value=territory_catalog
+        ), mock.patch.object(
+            main, "reconcile_google_sheet", return_value=True
+        ), mock.patch.object(
+            main, "get_coordinates", return_value="43.000000, 77.000000"
+        ), mock.patch.object(main, "send_service_email") as second_email:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+        second_email.assert_not_called()
+
+    def test_service_notice_without_recipient_is_recorded_and_not_sent(self):
+        bucket = _Bucket()
+        state = main.write_incident_state(
+            bucket,
+            "case-no-recipient",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+        )
+        with mock.patch.object(main, "send_service_email") as service_email:
+            result = main.notify_volunteer_review_required(
+                bucket,
+                "case-no-recipient",
+                _Row({}),
+                state,
+                "no_reviewed_territory_match",
+                "input-sha",
+                "",
+            )
+        service_email.assert_not_called()
+        self.assertEqual("recipient_missing", result["volunteer_notice_status"])
+
+    def test_interrupted_service_notice_is_not_resent(self):
+        bucket = _Bucket()
+        row = _Row({"volunteer_email": "volunteer@example.com"})
+        notice_key = main.volunteer_review_notice_key(
+            "no_reviewed_territory_match",
+            "input-sha",
+            "volunteer@example.com",
+        )
+        state = main.write_incident_state(
+            bucket,
+            "case-uncertain-notice",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            volunteer_notice_key=notice_key,
+            volunteer_notice_status=main.VOLUNTEER_NOTICE_STARTED,
+        )
+        with mock.patch.object(main, "send_service_email") as service_email:
+            result = main.notify_volunteer_review_required(
+                bucket,
+                "case-uncertain-notice",
+                row,
+                state,
+                "no_reviewed_territory_match",
+                "input-sha",
+                "",
+            )
+        service_email.assert_not_called()
+        self.assertEqual("delivery_uncertain", result["volunteer_notice_status"])
+
+    def test_failed_service_notice_is_marked_uncertain_and_not_retried(self):
+        bucket = _Bucket()
+        row = _Row({"volunteer_email": "volunteer@example.com"})
+        state = main.write_incident_state(
+            bucket,
+            "case-failed-notice",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+        )
+        with mock.patch.object(
+            main,
+            "send_service_email",
+            side_effect=RuntimeError("smtp failed"),
+        ) as first_email:
+            with self.assertRaisesRegex(RuntimeError, "smtp failed"):
+                main.notify_volunteer_review_required(
+                    bucket,
+                    "case-failed-notice",
+                    row,
+                    state,
+                    "no_reviewed_territory_match",
+                    "input-sha",
+                    "",
+                )
+        first_email.assert_called_once()
+        failed_state = main.read_incident_state(bucket, "case-failed-notice")
+        self.assertEqual(
+            main.VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN,
+            failed_state["volunteer_notice_status"],
+        )
+
+        with mock.patch.object(main, "send_service_email") as second_email:
+            result = main.notify_volunteer_review_required(
+                bucket,
+                "case-failed-notice",
+                row,
+                failed_state,
+                "no_reviewed_territory_match",
+                "input-sha",
+                "",
+            )
+        second_email.assert_not_called()
+        self.assertEqual(
+            main.VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN,
+            result["volunteer_notice_status"],
+        )
+
     def test_spatial_quarantine_retries_only_after_catalog_change(self):
         row = {
             "is_sent": 0,

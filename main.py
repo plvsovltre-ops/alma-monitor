@@ -49,7 +49,7 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 
 # --- НАСТРОЙКИ ---
 MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
@@ -73,7 +73,7 @@ DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
 STATE_OBJECT = "state/last-scanned-version.json"
 LOCK_OBJECT = "locks/alma-monitor.lock"
 LOCK_TTL_SECONDS = 30 * 60
-STATE_SCHEMA_VERSION = 3
+STATE_SCHEMA_VERSION = 4
 INCIDENT_STATE_SCHEMA_VERSION = 1
 INCIDENT_STATE_PREFIX = "state/incidents"
 
@@ -98,6 +98,16 @@ INCIDENT_STATUSES = {
     INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
     INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
     INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
+}
+
+VOLUNTEER_NOTICE_STARTED = "delivery_started"
+VOLUNTEER_NOTICE_DELIVERED = "delivered"
+VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN = "delivery_uncertain"
+VOLUNTEER_NOTICE_RECIPIENT_MISSING = "recipient_missing"
+VOLUNTEER_NOTICE_FINAL_STATUSES = {
+    VOLUNTEER_NOTICE_DELIVERED,
+    VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN,
+    VOLUNTEER_NOTICE_RECIPIENT_MISSING,
 }
 
 
@@ -541,6 +551,89 @@ def get_volunteer_name(row):
         if value:
             return value[:120]
     return ""
+
+
+def volunteer_review_notice_key(reason_code, input_sha256, recipient):
+    """Bind one service notice to one exact rejected field input."""
+    payload = {
+        "reason_code": str(reason_code or "").strip(),
+        "input_sha256": str(input_sha256 or "").strip(),
+        "recipient": str(recipient or "").strip().casefold(),
+    }
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def volunteer_review_notice_body(reason_code, uid, row, coordinates):
+    """Build a deterministic bilingual correction notice without Gemini or law."""
+    volunteer_name = get_volunteer_name(row)
+    ru_greeting = f"Здравствуйте, {volunteer_name}!" if volunteer_name else "Здравствуйте!"
+    kz_greeting = f"Сәлеметсіз бе, {volunteer_name}!" if volunteer_name else "Сәлеметсіз бе!"
+    location_ru = f"\nКоординаты точки: {coordinates}." if coordinates else ""
+    location_kz = f"\nНүкте координаттары: {coordinates}." if coordinates else ""
+    reasons = {
+        "no_reviewed_territory_match": (
+            "Точка наблюдения находится вне территорий, для которых сейчас настроен "
+            "ALMA Monitor.",
+            "Бақылау нүктесі қазір ALMA Monitor бапталған аумақтардан тыс орналасқан.",
+            "Проверьте положение маркера на карте. Если наблюдение действительно сделано "
+            "вне поддерживаемой территории, оставьте координаты честными и соберите новое "
+            "наблюдение там, где активен слой ALMA. Не переносите точку только ради прохождения проверки.",
+            "Картадағы маркер орнын тексеріңіз. Егер бақылау қолдау көрсетілетін аумақтан "
+            "тыс жасалса, координаттарды өзгертпеңіз және ALMA қабаты белсенді жерде жаңа "
+            "бақылау жасаңыз. Тексеруден өту үшін нүктені әдейі жылжытпаңыз.",
+        ),
+        "no_reviewed_authority_route": (
+            "Территория распознана, но для этого типа сигнала ещё не утверждён маршрут в "
+            "государственный орган.",
+            "Аумақ танылды, бірақ бұл сигнал түрі үшін мемлекеттік органға бағыт әлі бекітілмеген.",
+            "Данные сохранены. Команда ALMA проверит маршрут; повторно собирать наблюдение пока не нужно.",
+            "Деректер сақталды. ALMA командасы бағытты тексереді; әзірше бақылауды қайта жинаудың қажеті жоқ.",
+        ),
+        "missing_incident_type": (
+            "В наблюдении не выбран тип сигнала.",
+            "Бақылауда сигнал түрі таңдалмаған.",
+            "Откройте наблюдение, выберите подходящий тип сигнала и снова синхронизируйте проект.",
+            "Бақылауды ашып, сәйкес сигнал түрін таңдаңыз да, жобаны қайта синхрондаңыз.",
+        ),
+        "unsupported_incident_type": (
+            "Выбранный тип сигнала пока не поддерживается ALMA Monitor.",
+            "Таңдалған сигнал түрін ALMA Monitor әзірше қолдамайды.",
+            "Выберите один из доступных в форме типов либо сохраните наблюдение и сообщите команде ALMA.",
+            "Формадағы қолжетімді түрлердің бірін таңдаңыз немесе бақылауды сақтап, ALMA командасына хабарлаңыз.",
+        ),
+        "missing_readable_photo": (
+            "К наблюдению не удалось привязать ни одной читаемой фотографии.",
+            "Бақылауға оқылатын бірде-бір фотосурет байланыстырылмады.",
+            "Добавьте фотографию через форму наблюдения, дождитесь её загрузки и снова синхронизируйте проект.",
+            "Бақылау формасы арқылы фотосурет қосып, оның жүктелуін күтіңіз де, жобаны қайта синхрондаңыз.",
+        ),
+    }
+    reason_ru, reason_kz, action_ru, action_kz = reasons[reason_code]
+    return (
+        f"РУССКИЙ\n\n{ru_greeting}\n\n"
+        "Спасибо за сигнал. ALMA получила данные, но пока не может подготовить досье и проект обращения. "
+        "Ничего страшного: полевой сбор иногда проверяет внимательность не хуже самой природы.\n\n"
+        f"Что нужно исправить\n{reason_ru}{location_ru}\n\n"
+        f"Что делать\n{action_ru}\n\n"
+        f"Номер наблюдения: {uid}\n\n"
+        "Это сервисное сообщение о качестве данных. Оно не устанавливает нарушение и не содержит юридической оценки.\n\n"
+        "Спасибо, что помогаете ALMA сохранять наблюдения точными.\nКоманда ALMA"
+        f"\n\n{'=' * 72}\n\n"
+        f"ҚАЗАҚША\n\n{kz_greeting}\n\n"
+        "Сигнал үшін рақмет. ALMA деректерді алды, бірақ әзірше досье мен өтініш жобасын дайындай алмайды. "
+        "Ештеңе етпейді: далалық жұмыс кейде табиғаттың өзі сияқты ұқыптылықты тексереді.\n\n"
+        f"Нені түзету керек\n{reason_kz}{location_kz}\n\n"
+        f"Не істеу керек\n{action_kz}\n\n"
+        f"Бақылау нөмірі: {uid}\n\n"
+        "Бұл деректер сапасы туралы қызметтік хабарлама. Ол құқық бұзушылықты белгілемейді және құқықтық баға бермейді.\n\n"
+        "ALMA бақылауларын нақты сақтауға көмектескеніңіз үшін рақмет.\nALMA командасы"
+    )
 
 
 def get_volunteer_contribution(bucket, email, current_uid):
@@ -1196,6 +1289,109 @@ def send_email_with_attachments(to_email, subject, body, attachment_paths):
     except Exception as e:
         raise RuntimeError(f"Email delivery failed for {subject}") from e
 
+
+def send_service_email(to_email, subject, body):
+    """Send a text-only operational notice to one explicit volunteer address."""
+    recipient = str(normalize_sheet_value(to_email)).strip()
+    if not recipient or recipient.casefold() == "nan":
+        raise ValueError("Volunteer service notice requires an explicit email")
+
+    sender = get_env("GMAIL_USER")
+    password = get_env("GMAIL_APP_PASS")
+    msg = MIMEText(body, "plain")
+    msg["From"] = sender
+    msg["To"] = recipient
+    msg["Subject"] = subject
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(sender, password)
+            smtp.send_message(msg)
+        LOG.info("Volunteer service notice sent: %s", subject)
+    except Exception as error:
+        raise RuntimeError(
+            f"Volunteer service notice delivery failed for {subject}"
+        ) from error
+
+
+def notify_volunteer_review_required(
+    bucket,
+    uid,
+    row,
+    state,
+    reason_code,
+    input_sha256,
+    coordinates,
+):
+    """Deliver one correction notice per exact rejected input, without Gemini."""
+    recipient = str(normalize_sheet_value(row.get("volunteer_email"))).strip()
+    notice_key = volunteer_review_notice_key(reason_code, input_sha256, recipient)
+    existing_key = str(state.get("volunteer_notice_key") or "")
+    existing_status = str(state.get("volunteer_notice_status") or "")
+    if existing_key == notice_key and existing_status in VOLUNTEER_NOTICE_FINAL_STATUSES:
+        LOG.info("Volunteer service notice already recorded: %s", uid)
+        return state
+    if existing_key == notice_key and existing_status == VOLUNTEER_NOTICE_STARTED:
+        state = write_incident_state(
+            bucket,
+            uid,
+            state["status"],
+            previous=state,
+            volunteer_notice_status=VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN,
+            volunteer_notice_uncertain_at=datetime.now(timezone.utc).isoformat(),
+        )
+        LOG.error(
+            "Volunteer service notice delivery is uncertain; not resending: %s",
+            uid,
+        )
+        return state
+    if not recipient or recipient.casefold() == "nan":
+        return write_incident_state(
+            bucket,
+            uid,
+            state["status"],
+            previous=state,
+            volunteer_notice_key=notice_key,
+            volunteer_notice_status=VOLUNTEER_NOTICE_RECIPIENT_MISSING,
+            volunteer_notice_reason=reason_code,
+            volunteer_notice_recipient="",
+        )
+
+    # Persist STARTED before SMTP. A crash after this point must never create
+    # an uncontrolled duplicate message on the next minute.
+    state = write_incident_state(
+        bucket,
+        uid,
+        state["status"],
+        previous=state,
+        volunteer_notice_key=notice_key,
+        volunteer_notice_status=VOLUNTEER_NOTICE_STARTED,
+        volunteer_notice_reason=reason_code,
+        volunteer_notice_recipient=recipient.casefold(),
+        volunteer_notice_started_at=datetime.now(timezone.utc).isoformat(),
+    )
+    subject = f"ALMA: нужно уточнить наблюдение {uid}"
+    body = volunteer_review_notice_body(reason_code, uid, row, coordinates)
+    try:
+        send_service_email(recipient, subject, body)
+    except Exception:
+        write_incident_state(
+            bucket,
+            uid,
+            state["status"],
+            previous=state,
+            volunteer_notice_status=VOLUNTEER_NOTICE_DELIVERY_UNCERTAIN,
+            volunteer_notice_uncertain_at=datetime.now(timezone.utc).isoformat(),
+        )
+        raise
+    return write_incident_state(
+        bucket,
+        uid,
+        state["status"],
+        previous=state,
+        volunteer_notice_status=VOLUNTEER_NOTICE_DELIVERED,
+        volunteer_notice_delivered_at=datetime.now(timezone.utc).isoformat(),
+    )
+
 def process_project(mc, bucket):
     if os.path.exists(PROJECT_PATH): shutil.rmtree(PROJECT_PATH)
     try:
@@ -1273,6 +1469,17 @@ def process_project(mc, bucket):
             if current_type == str(
                 state.get("input_incident_type") or ""
             ).strip().lower():
+                reason_code = str(state.get("input_rejection_code") or "")
+                if reason_code in {"missing_incident_type", "unsupported_incident_type"}:
+                    state = notify_volunteer_review_required(
+                        bucket,
+                        uid,
+                        row,
+                        state,
+                        reason_code,
+                        hashlib.sha256(current_type.encode("utf-8")).hexdigest(),
+                        get_coordinates(row, incidents.crs),
+                    )
                 LOG.error(
                     "Incident remains quarantined for input review: %s",
                     uid,
@@ -1288,6 +1495,15 @@ def process_project(mc, bucket):
             related_photos = photos_gdf[photos_gdf["external_pk"] == uid]
             current_fingerprint = related_photo_fingerprint(related_photos)
             if current_fingerprint == state.get("evidence_input_sha256"):
+                state = notify_volunteer_review_required(
+                    bucket,
+                    uid,
+                    row,
+                    state,
+                    "missing_readable_photo",
+                    current_fingerprint,
+                    get_coordinates(row, incidents.crs),
+                )
                 LOG.error(
                     "Incident remains quarantined for evidence review: %s",
                     uid,
@@ -1308,6 +1524,20 @@ def process_project(mc, bucket):
                 state.get("routing_input_sha256") == routing_input_sha256
             )
             if catalog_unchanged and routing_input_unchanged:
+                reason_code = str(state.get("spatial_rejection_code") or "")
+                if reason_code in {
+                    "no_reviewed_territory_match",
+                    "no_reviewed_authority_route",
+                }:
+                    state = notify_volunteer_review_required(
+                        bucket,
+                        uid,
+                        row,
+                        state,
+                        reason_code,
+                        routing_input_sha256,
+                        get_coordinates(row, incidents.crs),
+                    )
                 LOG.error(
                     "Incident remains quarantined for spatial review: %s",
                     uid,
@@ -1347,7 +1577,7 @@ def process_project(mc, bucket):
             raw_type = str(
                 normalize_sheet_value(row.get("incident_type"))
             ).strip().lower()
-            write_incident_state(
+            review_state = write_incident_state(
                 bucket,
                 uid,
                 INCIDENT_STATUS_INPUT_REVIEW_REQUIRED,
@@ -1360,6 +1590,15 @@ def process_project(mc, bucket):
                 ),
                 input_incident_type=raw_type,
                 input_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            notify_volunteer_review_required(
+                bucket,
+                uid,
+                row,
+                review_state,
+                review_state["input_rejection_code"],
+                hashlib.sha256(raw_type.encode("utf-8")).hexdigest(),
+                get_coordinates(row, incidents.crs),
             )
             LOG.error(
                 "Incident requires volunteer input review: %s (%s)",
@@ -1407,7 +1646,7 @@ def process_project(mc, bucket):
             territory_catalog,
         )
         if territory is None:
-            write_incident_state(
+            review_state = write_incident_state(
                 bucket,
                 uid,
                 INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
@@ -1418,6 +1657,15 @@ def process_project(mc, bucket):
                 territory_catalog_sha256=territory_catalog.sha256,
                 routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            notify_volunteer_review_required(
+                bucket,
+                uid,
+                row,
+                review_state,
+                "no_reviewed_territory_match",
+                routing_input_sha256,
+                get_coordinates(row, incidents.crs),
             )
             LOG.error(
                 "Incident has no reviewed territory and authority route; manual review is required: %s",
@@ -1439,7 +1687,7 @@ def process_project(mc, bucket):
                 legal_selections[uid]["incident_type"]
             )
         except (TerritoryCatalogError, ResponseCatalogError):
-            write_incident_state(
+            review_state = write_incident_state(
                 bucket,
                 uid,
                 INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
@@ -1451,6 +1699,15 @@ def process_project(mc, bucket):
                 territory_catalog_sha256=territory["catalog_sha256"],
                 routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            notify_volunteer_review_required(
+                bucket,
+                uid,
+                row,
+                review_state,
+                "no_reviewed_authority_route",
+                routing_input_sha256,
+                get_coordinates(row, incidents.crs),
             )
             LOG.error(
                 "Incident territory has no reviewed authority route; manual review is required: %s",
@@ -1495,7 +1752,7 @@ def process_project(mc, bucket):
             related_photos,
         )
         if not attachments:
-            write_incident_state(
+            review_state = write_incident_state(
                 bucket,
                 uid,
                 INCIDENT_STATUS_EVIDENCE_REVIEW_REQUIRED,
@@ -1507,6 +1764,15 @@ def process_project(mc, bucket):
                 if hasattr(related_photos, "rows")
                 else len(related_photos),
                 evidence_quarantined_at=datetime.now(timezone.utc).isoformat(),
+            )
+            notify_volunteer_review_required(
+                bucket,
+                uid,
+                row,
+                review_state,
+                "missing_readable_photo",
+                evidence_input_sha256,
+                get_coordinates(row, incidents.crs),
             )
             LOG.error("Incident requires photo evidence review: %s", uid)
             continue
@@ -1739,7 +2005,7 @@ def process_project(mc, bucket):
 
 
 def main():
-    LOG.info("Starting ALMA Monitor watcher")
+    LOG.info("Starting ALMA Monitor watcher %s", APP_VERSION)
 
     try:
         mc = MerginClient("https://app.merginmaps.com", login=get_env('MERGIN_USER'), password=get_env('MERGIN_PASS'))
