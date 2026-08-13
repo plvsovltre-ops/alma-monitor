@@ -39,6 +39,7 @@ from legal_core import (
     UnsupportedIncidentTypeError,
 )
 from territory_catalog import TerritoryCatalog, TerritoryCatalogError
+from response_catalog import ResponseCatalog, ResponseCatalogError
 
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
@@ -47,6 +48,8 @@ logging.basicConfig(
 )
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
+
+APP_VERSION = "1.3.0"
 
 # --- НАСТРОЙКИ ---
 MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
@@ -531,6 +534,58 @@ def get_observation_time(related_photos):
     return min(values) if values else ""
 
 
+def get_volunteer_name(row):
+    """Return an explicitly supplied display name, never infer one from email."""
+    for field in ("volunteer_name", "volunteer_display_name"):
+        value = str(normalize_sheet_value(row.get(field))).strip()
+        if value:
+            return value[:120]
+    return ""
+
+
+def get_volunteer_contribution(bucket, email, current_uid):
+    """Count only delivered private cards for the same normalized address."""
+    normalized = str(normalize_sheet_value(email)).strip().casefold()
+    if not normalized:
+        return {"previous_count": 0, "total_count": 1, "previous_types": []}
+
+    states = []
+    try:
+        for blob in bucket.list_blobs(prefix=f"{INCIDENT_STATE_PREFIX}/"):
+            try:
+                state = json.loads(blob.download_as_text())
+            except (json.JSONDecodeError, TypeError, ValueError, NotFound):
+                continue
+            if not isinstance(state, dict):
+                continue
+            if state.get("incident_id") == current_uid:
+                continue
+            if state.get("status") not in {
+                INCIDENT_STATUS_DELIVERED,
+                INCIDENT_STATUS_COMPLETED,
+            }:
+                continue
+            if str(state.get("volunteer_email") or "").strip().casefold() != normalized:
+                continue
+            states.append(state)
+    except Exception as error:
+        # Old test doubles and a new empty bucket have no list API. The result
+        # stays modest instead of guessing a contribution history.
+        LOG.warning("Volunteer contribution history is unavailable: %s", error)
+        return {"previous_count": 0, "total_count": 1, "previous_types": []}
+
+    types_seen = []
+    for state in states:
+        value = str(state.get("incident_type") or "").strip().lower()
+        if value and value not in types_seen:
+            types_seen.append(value)
+    return {
+        "previous_count": len(states),
+        "total_count": len(states) + 1,
+        "previous_types": types_seen,
+    }
+
+
 def resolve_project_photo_path(reference, project_path=PROJECT_PATH):
     """Resolve a relative Mergin attachment without allowing path traversal."""
     value = str(normalize_sheet_value(reference)).strip()
@@ -707,6 +762,11 @@ def load_territory_catalog():
     return TerritoryCatalog()
 
 
+def load_response_catalog():
+    """Load approved public-interest and action text without calling Gemini."""
+    return ResponseCatalog()
+
+
 def read_territory_reference(match_row, territory):
     """Read only explicitly approved source fields; never guess a column."""
     for field in territory["reference_fields"]:
@@ -771,31 +831,10 @@ def build_legal_case_packet(row, selection, coords, territory, photo_count):
     }
 
 
-def get_legal_prompt(lang, case_packet):
-    if lang == "RU":
-        language = "русском языке"
-    elif lang == "KZ":
-        language = "қазақ тілінде"
-    else:
-        raise ValueError(f"Unsupported response language: {lang}")
-
-    localized_case = {
-        "volunteer_signal_type": case_packet["volunteer_signal_type"],
-        "volunteer_statement_unverified": case_packet[
-            "volunteer_statement_unverified"
-        ],
-        "coordinates": case_packet["coordinates"],
-        "territory_name": case_packet[
-            "territory_name_ru" if lang == "RU" else "territory_name_kz"
-        ],
-        "territory_purpose": case_packet[
-            "territory_purpose_ru" if lang == "RU" else "territory_purpose_kz"
-        ],
-        "photo_count": case_packet["photo_count"],
-    }
-    serialized_case = json.dumps(localized_case, ensure_ascii=False, indent=2)
+def get_legal_prompt(case_packet):
+    serialized_case = json.dumps(case_packet, ensure_ascii=False, indent=2)
     return f"""
-Ты готовишь нейтральный проект гражданского обращения ALMA {language}.
+Ты готовишь один двуязычный объект наблюдаемых фактов ALMA.
 ALMA не является юридической консультацией и не устанавливает нарушение,
 личность, вину, право на участок или наличие разрешения.
 
@@ -811,7 +850,7 @@ ALMA не является юридической консультацией и 
 1. Не выбирай и не называй законы, кодексы, статьи, пункты или номера норм.
    Проверенные правовые ссылки система сохранит во внутренней карточке.
 2. Не добавляй ссылки, URL, названия государственных органов или должностных лиц.
-   Не составляй адресат или просительную часть: система добавит их сама.
+   Не составляй адресат, рекомендации или просительную часть: система добавит их.
 3. Не называй лицо нарушителем и не утверждай наличие состава правонарушения.
 4. Не превращай UNKNOWN, тип сигнала или непроверенное описание волонтера в
    установленный факт.
@@ -820,13 +859,33 @@ ALMA не является юридической консультацией и 
 6. Не пиши отдельный перечень неизвестных обстоятельств и не используй фразы
    «по фотографии нельзя определить», «контур пространственного слоя ALMA» или
    «GIS-источник ALMA».
-7. Напиши 2–4 коротких предложения. Не оценивай знания или действия волонтера.
-   Излагай сигнал ясно, спокойно и уважительно, без снисходительных оговорок.
-   Указывай только признаки, видимые на снимках или прямо указанные в сообщении.
-8. Только обычный текст без Markdown.
-
-Верни только связное описание без заголовка: заголовок система добавит сама.
+7. Сохрани отдельно: что сообщил волонтер и что видно на фотографиях. Не выдавай
+   сообщение волонтера за подтвержденный снимками факт.
+8. Поля facts_ru и facts_kz должны передавать один и тот же смысл, без добавления
+   разных объектов, материалов или действий в разных языках.
+9. В каждом языке используй 2–4 коротких предложения. Не оценивай знания или
+   действия волонтера. Пиши ясно, спокойно и уважительно.
+10. Верни только JSON без Markdown: {{"facts_ru":"...","facts_kz":"..."}}.
 """
+
+
+def parse_bilingual_model_draft(text):
+    """Parse one shared Gemini result so language versions cannot drift."""
+    if not isinstance(text, str) or not text.strip():
+        raise RuntimeError("Gemini returned an empty bilingual draft")
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.I)
+    try:
+        value = json.loads(cleaned)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ModelDraftRejectedError("invalid_bilingual_json", "JSON") from exc
+    if not isinstance(value, dict) or set(value) != {"facts_ru", "facts_kz"}:
+        raise ModelDraftRejectedError("invalid_bilingual_schema", "facts_ru/facts_kz")
+    return {
+        "RU": validate_model_draft(value.get("facts_ru"), "RU"),
+        "KZ": validate_model_draft(value.get("facts_kz"), "KZ"),
+    }
 
 
 def validate_model_draft(text, lang):
@@ -867,72 +926,69 @@ def verification_request_block(
     observed_facts,
     coordinates,
     observed_at="",
+    citations=(),
+    procedural_basis=None,
 ):
     """Return the reviewed recipient and short request without Gemini."""
     authority = territory["authority"]
+    provisions = []
+    for citation in list(citations)[:4]:
+        provision = str(citation.get("provision") or "").strip()
+        if provision and provision not in provisions:
+            provisions.append(provision)
+    legal_basis = "; ".join(provisions)
+    if not isinstance(procedural_basis, dict):
+        raise ResponseCatalogError("Reviewed procedural response is missing")
     if lang == "RU":
         display_date = display_observation_date(observed_at, lang) or "Дата не указана"
+        legal_note = (
+            "Правовая опора для проверки: "
+            f"{legal_basis}. Окончательную применимость норм определяет "
+            "компетентный орган.\n\n"
+            if legal_basis
+            else "\n"
+        )
         return (
-            "КУДА НАПРАВИТЬ\n"
-            f"{authority['display_name_ru']}\n"
-            f"Для выбора в eOtinish: {authority['official_name_ru']}\n\n"
-            "ТЕМА\n"
+            "Кому\n"
+            f"{authority['official_name_ru']}\n\n"
+            "Куда\n"
+            "Через eOtinish\n\n"
+            "Тема\n"
             f"{request['subject_ru']}: {territory['public_name_ru']}\n\n"
-            "ПРОЕКТ ОБРАЩЕНИЯ\n"
+            "Наблюдение\n"
             f"{display_date}, по координатам "
             f"{coordinates or 'координаты не указаны'}, на территории "
             f"{territory['public_name_ru']} зафиксировано следующее: "
-            f"{observed_facts}\n\n"
+            f"{observed_facts}\n"
+            f"{legal_note}Просьба\n"
             f"{request['request_ru']}\n\n"
-            f"{authority['forwarding_ru']}"
+            f"{procedural_basis['request_ru']}"
         )
     if lang == "KZ":
         display_date = display_observation_date(observed_at, lang) or "Күні көрсетілмеген"
+        legal_note = (
+            "Ресми карточкадағы құқықтық негіз (орысша): "
+            f"{legal_basis}. Нормалардың түпкілікті қолданылуын құзыретті "
+            "орган айқындайды.\n\n"
+            if legal_basis
+            else "\n"
+        )
         return (
-            "ҚАЙДА ЖІБЕРУ КЕРЕК\n"
-            f"{authority['display_name_kz']}\n"
-            f"eOtinish жүйесінде таңдау үшін: {authority['official_name_kz']}\n\n"
-            "ТАҚЫРЫП\n"
+            "Кімге\n"
+            f"{authority['official_name_kz']}\n\n"
+            "Қайда\n"
+            "eOtinish арқылы\n\n"
+            "Тақырып\n"
             f"{request['subject_kz']}: {territory['public_name_kz']}\n\n"
-            "ӨТІНІШ ЖОБАСЫ\n"
+            "Бақылау\n"
             f"{display_date}, "
             f"{coordinates or 'координаттар көрсетілмеген'} координаттары бойынша "
             f"{territory['public_name_kz']} аумағында мыналар тіркелді: "
-            f"{observed_facts}\n\n"
+            f"{observed_facts}\n"
+            f"{legal_note}Өтініш\n"
             f"{request['request_kz']}\n\n"
-            f"{authority['forwarding_kz']}"
+            f"{procedural_basis['request_kz']}"
         )
-    raise ValueError(f"Unsupported response language: {lang}")
-
-
-def observation_context_block(lang, territory, coordinates, observed_at=""):
-    """Present reviewed spatial context as plain fields, without GIS jargon."""
-    if lang == "RU":
-        display_date = display_observation_date(observed_at, lang) or "не указана"
-        return (
-            "МЕСТО НАБЛЮДЕНИЯ\n"
-            f"Территория: {territory['public_name_ru']}\n"
-            f"Координаты: {coordinates or 'не указаны'}\n"
-            f"Дата наблюдения: {display_date}\n"
-            f"Цель наблюдения: {territory['purpose_ru']}"
-        )
-    if lang == "KZ":
-        display_date = display_observation_date(observed_at, lang) or "көрсетілмеген"
-        return (
-            "БАҚЫЛАУ ОРНЫ\n"
-            f"Аумақ: {territory['public_name_kz']}\n"
-            f"Координаттар: {coordinates or 'көрсетілмеген'}\n"
-            f"Бақылау күні: {display_date}\n"
-            f"Бақылау мақсаты: {territory['purpose_kz']}"
-        )
-    raise ValueError(f"Unsupported response language: {lang}")
-
-
-def observation_heading(lang):
-    if lang == "RU":
-        return "ЧТО ЗАФИКСИРОВАНО"
-    if lang == "KZ":
-        return "НЕ ТІРКЕЛДІ"
     raise ValueError(f"Unsupported response language: {lang}")
 
 
@@ -947,6 +1003,159 @@ def alma_scope_notice(lang):
         return (
             "ALMA тексеруге арналған хабарламаны дайындауға көмектеседі және "
             "құқық бұзушылықты немесе кінәні анықтамайды."
+        )
+    raise ValueError(f"Unsupported response language: {lang}")
+
+
+INCIDENT_LABELS = {
+    "waste": {"RU": "размещении материалов", "KZ": "материалдардың орналасуы"},
+    "logging": {"RU": "состоянии зеленых насаждений", "KZ": "жасыл желектердің жай-күйі"},
+    "construction": {"RU": "строительных и земляных работах", "KZ": "құрылыс және жер жұмыстары"},
+    "soil_damage": {"RU": "состоянии почвы", "KZ": "топырақтың жай-күйі"},
+    "water_pollution": {"RU": "состоянии воды", "KZ": "судың жай-күйі"},
+}
+
+
+def greeting_block(lang, volunteer_name=""):
+    name = str(volunteer_name or "").strip()
+    if lang == "RU":
+        greeting = f"Здравствуйте, {name}!" if name else "Здравствуйте!"
+        return (
+            f"{greeting}\n"
+            "Спасибо за наблюдение. Территория сама письмо не отправит — "
+            "хорошо, что рядом оказались вы. Команда ALMA собрала короткое досье: "
+            "сопоставила ваше сообщение, фотографии, место наблюдения и "
+            "проверенные основания."
+        )
+    if lang == "KZ":
+        greeting = f"Сәлеметсіз бе, {name}!" if name else "Сәлеметсіз бе!"
+        return (
+            f"{greeting}\n"
+            "Бақылауыңызға рақмет. Аумақ өзі хат жібере алмайды — жанында сіздің "
+            "болғаныңыз жақсы. ALMA командасы қысқаша досье жасап, хабарламаңызды, "
+            "фотосуреттерді, бақылау орнын және тексерілген негіздерді салыстырды."
+        )
+    raise ValueError(f"Unsupported response language: {lang}")
+
+
+def contribution_block(lang, contribution, incident_type):
+    total = int(contribution.get("total_count") or 1)
+    label = INCIDENT_LABELS.get(incident_type, {}).get(lang, "")
+    previous_labels = [
+        INCIDENT_LABELS.get(value, {}).get(lang, "")
+        for value in contribution.get("previous_types", [])
+    ]
+    previous_labels = [value for value in previous_labels if value]
+    if lang == "RU":
+        if total > 1:
+            return (
+                "СПАСИБО ЗА ВКЛАД\n"
+                f"Это ваше {total}-е подтвержденное наблюдение ALMA. "
+                f"Сегодня вы помогли зафиксировать сигнал о {label}. "
+                + (
+                    "Ранее ALMA уже обработала ваши наблюдения о "
+                    f"{', '.join(previous_labels[:3])}. "
+                    if previous_labels
+                    else ""
+                )
+                + "Такие наблюдения превращают отдельный кадр в проверяемую историю "
+                "изменений территории. Спасибо от команды ALMA."
+            )
+        return (
+            "СПАСИБО ЗА ВКЛАД\n"
+            "Наблюдение стало частью проверяемой истории этой территории. "
+            "Спасибо от команды ALMA — внимание к месту уже является действием."
+        )
+    if lang == "KZ":
+        if total > 1:
+            return (
+                "ҮЛЕСІҢІЗГЕ РАҚМЕТ\n"
+                f"Бұл сіздің ALMA жүйесіндегі {total}-ші расталған бақылауыңыз. "
+                f"Бүгін сіз {label} туралы сигналды тіркеуге көмектестіңіз. "
+                + (
+                    "Бұған дейін ALMA сіздің "
+                    f"{', '.join(previous_labels[:3])} туралы бақылауларыңызды өңдеді. "
+                    if previous_labels
+                    else ""
+                )
+                + "Мұндай бақылаулар жеке суретті аумақ өзгерістерінің тексерілетін "
+                "тарихына айналдырады. ALMA командасы атынан рақмет."
+            )
+        return (
+            "ҮЛЕСІҢІЗГЕ РАҚМЕТ\n"
+            "Бұл бақылау аумақтың тексерілетін тарихының бір бөлігіне айналды. "
+            "ALMA командасы атынан рақмет — аумаққа назар аударудың өзі әрекет."
+        )
+    raise ValueError(f"Unsupported response language: {lang}")
+
+
+def human_response_block(
+    lang,
+    territory,
+    context,
+    action,
+    observed_facts,
+    request_template,
+    coordinates,
+    observed_at,
+    contribution,
+    incident_type,
+    volunteer_name="",
+    citations=(),
+):
+    if lang == "RU":
+        why = context["why_ru"]
+        assessment = action["assessment_ru"]
+        next_step = action["next_ru"]
+        project = verification_request_block(
+            lang,
+            territory,
+            request_template,
+            observed_facts,
+            coordinates,
+            observed_at,
+            citations,
+            context["procedural_basis"],
+        )
+        return (
+            f"{greeting_block(lang, volunteer_name)}\n\n"
+            "ЧТО МЫ УВИДЕЛИ\n\n"
+            f"Почему это место важно\n{why}\n\n"
+            f"Факты наблюдения\n{observed_facts}\n\n"
+            f"Наша оценка\n{assessment}\n\n"
+            f"Что можно сделать сейчас\n{next_step}\n\n"
+            "ПРОЕКТ ОБРАЩЕНИЯ В ГОСУДАРСТВЕННЫЙ ОРГАН\n\n"
+            f"{alma_scope_notice(lang)} Перед отправкой проверьте дату, координаты "
+            "и фактическое описание.\n\n"
+            f"{project}\n\n"
+            f"{contribution_block(lang, contribution, incident_type)}"
+        )
+    if lang == "KZ":
+        why = context["why_kz"]
+        assessment = action["assessment_kz"]
+        next_step = action["next_kz"]
+        project = verification_request_block(
+            lang,
+            territory,
+            request_template,
+            observed_facts,
+            coordinates,
+            observed_at,
+            citations,
+            context["procedural_basis"],
+        )
+        return (
+            f"{greeting_block(lang, volunteer_name)}\n\n"
+            "БІЗ НЕ БАЙҚАДЫҚ\n\n"
+            f"Бұл орын неге маңызды\n{why}\n\n"
+            f"Бақылау фактілері\n{observed_facts}\n\n"
+            f"Біздің бағалауымыз\n{assessment}\n\n"
+            f"Қазір не істеуге болады\n{next_step}\n\n"
+            "МЕМЛЕКЕТТІК ОРГАНҒА ӨТІНІШ ЖОБАСЫ\n\n"
+            f"{alma_scope_notice(lang)} Жіберер алдында күнді, координаттарды және "
+            "нақты сипаттаманы тексеріңіз.\n\n"
+            f"{project}\n\n"
+            f"{contribution_block(lang, contribution, incident_type)}"
         )
     raise ValueError(f"Unsupported response language: {lang}")
 
@@ -1004,6 +1213,7 @@ def process_project(mc, bucket):
     # before registry reconciliation or any Gemini client is created.
     legal_policy = load_runtime_legal_policy()
     territory_catalog = load_territory_catalog()
+    response_catalog = load_response_catalog()
 
     registry_ok = reconcile_google_sheet(incidents)
 
@@ -1174,6 +1384,10 @@ def process_project(mc, bucket):
         "Reviewed territory catalog loaded locally: %s",
         territory_catalog.catalog_id,
     )
+    LOG.info(
+        "Reviewed human response catalog loaded locally: %s",
+        response_catalog.catalog_id,
+    )
 
     territory_files = []
     for source_file in glob.glob(f"{PROJECT_PATH}/*.gpkg"):
@@ -1218,7 +1432,13 @@ def process_project(mc, bucket):
             request_template = territory_catalog.request_for(
                 legal_selections[uid]["incident_type"]
             )
-        except TerritoryCatalogError:
+            response_context = response_catalog.context_for(
+                territory["context_profile_id"]
+            )
+            response_action = response_catalog.action_for(
+                legal_selections[uid]["incident_type"]
+            )
+        except (TerritoryCatalogError, ResponseCatalogError):
             write_incident_state(
                 bucket,
                 uid,
@@ -1238,7 +1458,15 @@ def process_project(mc, bucket):
             )
             continue
         spatially_routed_incidents.append(
-            (row, state, territory, request_template, routing_input_sha256)
+            (
+                row,
+                state,
+                territory,
+                request_template,
+                response_context,
+                response_action,
+                routing_input_sha256,
+            )
         )
 
     if not spatially_routed_incidents:
@@ -1251,7 +1479,15 @@ def process_project(mc, bucket):
     evidence_by_incident = {}
     routed_incidents = []
     for item in spatially_routed_incidents:
-        row, state, territory, request_template, routing_input_sha256 = item
+        (
+            row,
+            state,
+            territory,
+            request_template,
+            response_context,
+            response_action,
+            routing_input_sha256,
+        ) = item
         uid = require_incident_id(row.get("unique-id"))
         related_photos = photos_gdf[photos_gdf["external_pk"] == uid]
         attachments, observed_at, evidence_input_sha256 = collect_incident_evidence(
@@ -1310,6 +1546,8 @@ def process_project(mc, bucket):
         state,
         territory,
         request_template,
+        response_context,
+        response_action,
         routing_input_sha256,
     ) in routed_incidents:
         uid = require_incident_id(row.get('unique-id'))
@@ -1349,62 +1587,76 @@ def process_project(mc, bucket):
         responses = {"RU": "", "KZ": ""}
         draft_review_required = False
 
-        for lang in ["RU", "KZ"]:
-            LOG.info("Generating %s response for incident %s", lang, uid)
-            prompt = get_legal_prompt(lang, case_packet)
-            
-            contents_list = [prompt]
-            for img_path in attachments:
-                try:
-                    img = PIL.Image.open(img_path)
-                    contents_list.append(img)
-                except Exception as error:
-                    raise RuntimeError(
-                        f"Could not open verified evidence for incident {uid}"
-                    ) from error
-
+        LOG.info("Generating one bilingual fact draft for incident %s", uid)
+        contents_list = [get_legal_prompt(case_packet)]
+        for img_path in attachments:
             try:
-                resp = client.models.generate_content(
-                    model=active_model_name,
-                    contents=contents_list,
-                    config=types.GenerateContentConfig(temperature=0.0)
+                img = PIL.Image.open(img_path)
+                contents_list.append(img)
+            except Exception as error:
+                raise RuntimeError(
+                    f"Could not open verified evidence for incident {uid}"
+                ) from error
+
+        try:
+            resp = client.models.generate_content(
+                model=active_model_name,
+                contents=contents_list,
+                config=types.GenerateContentConfig(
+                    temperature=0.0,
+                    response_mime_type="application/json",
+                ),
+            )
+            fact_drafts = parse_bilingual_model_draft(resp.text)
+            contribution = get_volunteer_contribution(
+                bucket,
+                row.get("volunteer_email"),
+                uid,
+            )
+            volunteer_name = get_volunteer_name(row)
+            for lang in ("RU", "KZ"):
+                responses[lang] = human_response_block(
+                    lang=lang,
+                    territory=territory,
+                    context=response_context,
+                    action=response_action,
+                    observed_facts=fact_drafts[lang],
+                    request_template=request_template,
+                    coordinates=coords_str,
+                    observed_at=observed_at,
+                    contribution=contribution,
+                    incident_type=legal_selection["incident_type"],
+                    volunteer_name=volunteer_name,
+                    citations=legal_selection["citations"],
                 )
-                
-                clean_text = validate_model_draft(resp.text, lang)
-                responses[lang] = (
-                    f"{observation_context_block(lang, territory, coords_str, observed_at)}\n\n"
-                    f"{observation_heading(lang)}\n{clean_text}\n\n"
-                    f"{verification_request_block(lang, territory, request_template, clean_text, coords_str, observed_at)}\n\n"
-                    f"{alma_scope_notice(lang)}"
-                )
-            except ModelDraftRejectedError as e:
-                state = write_incident_state(
-                    bucket,
-                    uid,
-                    INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
-                    previous=state,
-                    source_project_version=source_project_version,
-                    draft_rejection_code=e.reason_code,
-                    draft_rejection_term=e.matched_term,
-                    draft_rejection_language=lang,
-                    draft_quarantined_at=datetime.now(timezone.utc).isoformat(),
-                    legal_release_id=legal_policy.legal_release_id,
-                    legal_policy_id=legal_policy.policy_id,
-                    legal_policy_sha256=legal_policy.policy_sha256,
-                    legal_rule_ids=legal_selection["rule_ids"],
-                    legal_reviewer=legal_policy.reviewer_name,
-                    legal_reviewed_on=legal_policy.reviewed_on,
-                )
-                LOG.error(
-                    "Incident draft requires manual review: %s (%s, %s)",
-                    uid,
-                    lang,
-                    e.reason_code,
-                )
-                draft_review_required = True
-                break
-            except Exception as e:
-                raise RuntimeError(f"Could not process {lang} response for incident {uid}") from e
+        except ModelDraftRejectedError as e:
+            state = write_incident_state(
+                bucket,
+                uid,
+                INCIDENT_STATUS_DRAFT_REVIEW_REQUIRED,
+                previous=state,
+                source_project_version=source_project_version,
+                draft_rejection_code=e.reason_code,
+                draft_rejection_term=e.matched_term,
+                draft_rejection_language="BILINGUAL",
+                draft_quarantined_at=datetime.now(timezone.utc).isoformat(),
+                legal_release_id=legal_policy.legal_release_id,
+                legal_policy_id=legal_policy.policy_id,
+                legal_policy_sha256=legal_policy.policy_sha256,
+                legal_rule_ids=legal_selection["rule_ids"],
+                legal_reviewer=legal_policy.reviewer_name,
+                legal_reviewed_on=legal_policy.reviewed_on,
+            )
+            LOG.error(
+                "Incident draft requires manual review: %s (%s)",
+                uid,
+                e.reason_code,
+            )
+            draft_review_required = True
+        except Exception as e:
+            raise RuntimeError(
+                f"Could not process bilingual response for incident {uid}"
+            ) from e
 
         if draft_review_required:
             continue
@@ -1434,6 +1686,9 @@ def process_project(mc, bucket):
             "territory_source_file": territory["source_file"],
             "territory_catalog_id": territory["catalog_id"],
             "territory_catalog_sha256": territory["catalog_sha256"],
+            "response_catalog_id": response_catalog.catalog_id,
+            "response_catalog_sha256": response_catalog.sha256,
+            "response_context_profile_id": response_context["profile_id"],
             "routing_input_sha256": routing_input_sha256,
             "authority_route_id": territory["route_id"],
             "authority_display_name_ru": territory["authority"]["display_name_ru"],
@@ -1450,6 +1705,8 @@ def process_project(mc, bucket):
             "legal_rule_ids": legal_selection["rule_ids"],
             "legal_reviewer": legal_policy.reviewer_name,
             "legal_reviewed_on": legal_policy.reviewed_on,
+            "volunteer_contribution_total": contribution["total_count"],
+            "alma_monitor_version": APP_VERSION,
         }
         state = write_incident_state(
             bucket,

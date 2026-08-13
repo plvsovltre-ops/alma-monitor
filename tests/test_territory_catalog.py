@@ -62,7 +62,7 @@ class TerritoryCatalogTests(unittest.TestCase):
         catalog = TerritoryCatalog()
 
         self.assertEqual(
-            "735a42c23a711df15c12193d85f0bfa89d3476193500e87097c10fcbc1b2e26c",
+            "0549795c48533a00a8230a575addfabfa12ca49b357f0526790d30b48be9daa8",
             catalog.sha256,
         )
         self.assertEqual(

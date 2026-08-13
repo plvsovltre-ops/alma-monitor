@@ -2,7 +2,12 @@
 
 Status: approved by Yernar Sailybayev as author and legal editor for the private
 controlled pilot and active in the runtime. The approval is bound to exact
-SHA-256 `735a42c23a711df15c12193d85f0bfa89d3476193500e87097c10fcbc1b2e26c`.
+SHA-256 `0549795c48533a00a8230a575addfabfa12ca49b357f0526790d30b48be9daa8`.
+
+The active catalog is `kz-almaty-orchard-routes-0.3.0`. It adds an exact
+`context_profile_id` to each territory so the volunteer explanation is selected
+deterministically from the separately approved human-response catalog. The
+context profile does not change the authority route.
 
 ## Deterministic routing matrix
 
