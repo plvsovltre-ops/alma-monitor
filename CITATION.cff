@@ -9,7 +9,7 @@ authors:
     given-names: Yernar
 version: 1.4.0-rc1
 license: Apache-2.0
-repository-code: https://github.com/plvsovltre-ops/alma_bot
+repository-code: https://github.com/plvsovltre-ops/alma-monitor
 abstract: >-
   A citizen-science platform that links georeferenced observations, reviewed
   spatial context, deterministic legal cards, competent-authority routing, and
