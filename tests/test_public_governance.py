@@ -16,6 +16,7 @@ from legal_core import (
     RuntimePolicyBlockedError,
 )
 from legal_core.public_governance import (
+    DEFAULT_AUTHORSHIP_LICENSING_APPROVAL,
     DEFAULT_DECISION,
     DEFAULT_PROPOSAL,
     REVIEW_CSV_FIELDS,
@@ -95,6 +96,34 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
         self.assertEqual(32, len(governance.review_objects()))
         with self.assertRaisesRegex(PublicReleaseBlockedError, "author approval"):
             governance.require_public_release()
+
+    def test_checked_in_authorship_and_licensing_approval_is_hash_bound(self):
+        governance = PublicReleaseGovernance()
+        approval = governance.authorship_licensing_approval
+        self.assertEqual(
+            "AUTHORSHIP_AND_LICENSING_APPROVED",
+            approval["decision"],
+        )
+        self.assertEqual("Apache-2.0", approval["software_license"])
+        self.assertEqual("CC-BY-4.0", approval["original_content_license"])
+        self.assertFalse(approval["exclusive_rights_transferred"])
+        self.assertFalse(approval["organization_transfer_approved"])
+
+    def test_changed_approved_license_document_is_rejected(self):
+        approval = json.loads(
+            DEFAULT_AUTHORSHIP_LICENSING_APPROVAL.read_text(encoding="utf-8")
+        )
+        approval["documents"]["AUTHORS"] = "0" * 64
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "approval.json"
+            self.write_json(path, approval)
+            with self.assertRaisesRegex(
+                PublicGovernanceError,
+                "licensing document changed",
+            ):
+                PublicReleaseGovernance(
+                    authorship_licensing_approval_path=path,
+                )
 
     def test_review_is_compact_complete_and_source_precedes_norm(self):
         governance = PublicReleaseGovernance()

@@ -2,8 +2,9 @@
 
 The release owner records every item in the release pull request.
 
-- [ ] `AUTHORS`, `NOTICE`, `CITATION.cff`, `LICENSE`, and
-  `LICENSE-CONTENT.md` are present and reviewed.
+- [x] `AUTHORS`, `NOTICE`, `CITATION.cff`, `LICENSE`, `LICENSE-CONTENT.md`,
+  and `TRADEMARKS.md` are present, author-approved, and bound to exact SHA-256
+  values in `authorship_licensing_approval.json`.
 - [ ] `SECURITY.md`, `PRIVACY.md`, and `DATA_RETENTION.md` match the actual
   deployment; retention and deletion are enforced, not merely promised.
 - [ ] The release contains no credentials, real observations, field photos,

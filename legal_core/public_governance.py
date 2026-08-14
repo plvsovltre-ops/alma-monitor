@@ -18,6 +18,9 @@ GOVERNANCE_DIR = (
     PROJECT_ROOT / "governance" / "public" / "kz" / "0.1.0-rc1"
 )
 DEFAULT_PROPOSAL = GOVERNANCE_DIR / "proposal.json"
+DEFAULT_AUTHORSHIP_LICENSING_APPROVAL = (
+    GOVERNANCE_DIR / "authorship_licensing_approval.json"
+)
 DEFAULT_AUTHOR_REVIEW = GOVERNANCE_DIR / "author_review.json"
 DEFAULT_INDEPENDENT_REVIEW = GOVERNANCE_DIR / "independent_review.json"
 DEFAULT_DECISION = GOVERNANCE_DIR / "decision.json"
@@ -114,6 +117,9 @@ class PublicReleaseGovernance:
     def __init__(
         self,
         proposal_path: str | Path = DEFAULT_PROPOSAL,
+        authorship_licensing_approval_path: str | Path = (
+            DEFAULT_AUTHORSHIP_LICENSING_APPROVAL
+        ),
         author_review_path: str | Path = DEFAULT_AUTHOR_REVIEW,
         independent_review_path: str | Path = DEFAULT_INDEPENDENT_REVIEW,
         decision_path: str | Path = DEFAULT_DECISION,
@@ -122,10 +128,17 @@ class PublicReleaseGovernance:
     ):
         self.project_root = Path(project_root).resolve()
         self.proposal_path = Path(proposal_path)
+        self.authorship_licensing_approval_path = Path(
+            authorship_licensing_approval_path
+        )
         self.author_review_path = Path(author_review_path)
         self.independent_review_path = Path(independent_review_path)
         self.decision_path = Path(decision_path)
         self.proposal = _load_json(self.proposal_path, "proposal")
+        self.authorship_licensing_approval = _load_json(
+            self.authorship_licensing_approval_path,
+            "authorship and licensing approval",
+        )
         self.author_review = _load_json(self.author_review_path, "author review")
         self.independent_review = _load_json(
             self.independent_review_path,
@@ -135,6 +148,7 @@ class PublicReleaseGovernance:
         self.proposal_sha256 = sha256_file(self.proposal_path)
         self._artifacts: dict[str, dict[str, Any]] = {}
         self._validate_proposal()
+        self._validate_authorship_licensing_approval()
         self._validate_review_record(self.author_review, "author")
         self._validate_review_record(self.independent_review, "independent")
         self._validate_decision()
@@ -296,6 +310,86 @@ class PublicReleaseGovernance:
         ).hexdigest()
         if proposal.get("review_object_manifest_sha256") != review_manifest_sha256:
             raise PublicGovernanceError("Public review object manifest changed")
+
+    def _validate_authorship_licensing_approval(self) -> None:
+        approval = self.authorship_licensing_approval
+        if approval.get("schema_version") != "1.0":
+            raise PublicGovernanceError(
+                "Public authorship and licensing approval schema is unsupported"
+            )
+        if approval.get("release_id") != self.release_id:
+            raise PublicGovernanceError(
+                "Public authorship and licensing approval release ID differs"
+            )
+        if approval.get("decision") != "AUTHORSHIP_AND_LICENSING_APPROVED":
+            raise PublicGovernanceError(
+                "Public authorship and licensing approval is missing"
+            )
+        if approval.get("proposal_sha256") != self.proposal_sha256:
+            raise PublicGovernanceError(
+                "Public authorship and licensing approval proposal hash differs"
+            )
+        if approval.get("approved_by") != {
+            "name": "Yernar Sailybayev",
+            "capacity": "INITIATOR_ORIGINAL_AUTHOR_AND_ARCHITECT",
+        }:
+            raise PublicGovernanceError(
+                "Public authorship and licensing approver is invalid"
+            )
+        try:
+            date.fromisoformat(
+                _required_text(approval.get("approved_on"), "licensing approval date")
+            )
+        except ValueError as exc:
+            raise PublicGovernanceError(
+                "Public authorship and licensing approval date is invalid"
+            ) from exc
+
+        expected_documents = {
+            "AUTHORS",
+            "NOTICE",
+            "CITATION.cff",
+            "LICENSE",
+            "LICENSE-CONTENT.md",
+            "TRADEMARKS.md",
+        }
+        documents = approval.get("documents")
+        if not isinstance(documents, dict) or set(documents) != expected_documents:
+            raise PublicGovernanceError(
+                "Public authorship and licensing document set is incomplete"
+            )
+        for relative_path, expected_hash in documents.items():
+            if not isinstance(expected_hash, str) or not SHA256_HEX.fullmatch(
+                expected_hash
+            ):
+                raise PublicGovernanceError(
+                    f"Public licensing document hash is invalid: {relative_path}"
+                )
+            path = self._artifact_path(relative_path)
+            if not path.is_file() or sha256_file(path) != expected_hash:
+                raise PublicGovernanceError(
+                    f"Public licensing document changed: {relative_path}"
+                )
+
+        expected_values = {
+            "software_license": "Apache-2.0",
+            "original_content_license": "CC-BY-4.0",
+            "official_law_and_government_data_relicensed": False,
+            "origin_statement": (
+                "ALMA was initiated and originally designed by Yernar "
+                "Sailybayev in Almaty, Kazakhstan."
+            ),
+            "name_use_rules": "TRADEMARKS.md",
+            "exclusive_rights_transferred": False,
+            "organization_transfer_approved": False,
+        }
+        for field, expected_value in expected_values.items():
+            if approval.get(field) != expected_value:
+                raise PublicGovernanceError(
+                    f"Public authorship and licensing term differs: {field}"
+                )
+        _required_text(approval.get("approval_source"), "licensing approval source")
+        _required_text(approval.get("statement_ru"), "licensing approval statement")
 
     def review_objects(self) -> list[dict[str, str]]:
         """Return the exact compact objects shown to both legal reviewers."""
