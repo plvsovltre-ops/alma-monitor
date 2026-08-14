@@ -24,5 +24,6 @@
   "exclusive_rights_transferred": false,
   "organization_transfer_approved": false,
   "approval_source": "Direct written instruction from Yernar Sailybayev in the ALMA project conversation on 2026-08-14.",
-  "statement_ru": "Yernar Sailybayev утвердил указанные документы, лицензирование программного кода по Apache License 2.0, лицензирование оригинальных текстов, схем и учебных материалов по CC BY 4.0, формулировку происхождения проекта и правила использования обозначений ALMA и ALMA Legal Core. Утверждение не означает отчуждение исключительных прав или передачу проекта какой-либо организации."
+  "statement_ru": "Yernar Sailybayev утвердил указанные документы, лицензирование программного кода по Apache License 2.0, лицензирование оригинальных текстов, схем и учебных материалов по CC BY 4.0, формулировку происхождения проекта и правила использования обозначений ALMA и ALMA Legal Core. Утверждение не означает отчуждение исключительных прав или передачу проекта какой-либо организации.",
+  "statement_en": "Yernar Sailybayev approved the listed documents, Apache License 2.0 for the software, CC BY 4.0 for original prose, diagrams and educational materials, the project origin statement, and the ALMA and ALMA Legal Core name-use rules. The approval does not transfer exclusive rights or transfer the project to any organisation."
 }

@@ -390,6 +390,10 @@ class PublicReleaseGovernance:
                 )
         _required_text(approval.get("approval_source"), "licensing approval source")
         _required_text(approval.get("statement_ru"), "licensing approval statement")
+        _required_text(
+            approval.get("statement_en"),
+            "English licensing approval statement",
+        )
 
     def review_objects(self) -> list[dict[str, str]]:
         """Return the exact compact objects shown to both legal reviewers."""

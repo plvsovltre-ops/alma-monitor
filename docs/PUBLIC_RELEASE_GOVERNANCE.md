@@ -1,63 +1,73 @@
-# Публичный выпуск ALMA: контролируемое согласование
+# ALMA public release: controlled approval
 
-Публичный режим Legal Core нельзя включить одной настройкой. Он применяется
-только к конкретному набору файлов и только после двух независимых юридических
-решений.
+English | [Русский](PUBLIC_RELEASE_GOVERNANCE.ru.md)
 
-## Авторство и лицензирование
+The public Legal Core mode cannot be enabled with one setting. It applies only
+to an exact set of files and only after two separate legal decisions.
 
-Yernar Sailybayev 14 августа 2026 года письменно утвердил для этого предложения
-файлы `AUTHORS`, `NOTICE`, `CITATION.cff`, `LICENSE`, `LICENSE-CONTENT.md` и
-`TRADEMARKS.md`. Точное решение и SHA-256 каждого документа зафиксированы в
+## Authorship and licensing
+
+On 14 August 2026, Yernar Sailybayev approved the exact `AUTHORS`, `NOTICE`,
+`CITATION.cff`, `LICENSE`, `LICENSE-CONTENT.md`, and `TRADEMARKS.md` files for
+this proposal. The decision and the SHA-256 of each document are recorded in
 `governance/public/kz/0.1.0-rc1/authorship_licensing_approval.json`.
 
-Это решение утверждает Apache-2.0 для программного кода и CC BY 4.0 для
-оригинальных текстов, схем и учебных материалов. Оно не перелицензирует НПА и
-государственные данные, не отчуждает исключительные права и не передаёт проект
-какой-либо организации. Изменение любого из шести документов аннулирует
-машинную проверку и требует нового решения автора.
+The decision approves Apache-2.0 for software and CC BY 4.0 for original prose,
+diagrams, and educational materials. It does not relicense legislation or
+government data. It does not transfer exclusive rights or transfer the project
+to an organisation. A change to any of the six documents breaks the automated
+integrity check and requires a new author decision.
 
-Утверждение авторства и лицензий не заменяет отдельную проверку 32 правовых
-объектов автором и независимым юристом.
+This authorship and licensing decision does not replace the separate review of
+the 32 legal objects by the author and an independent lawyer.
 
-## Что согласуется
+## Review scope
 
-Первое предложение `kz-alma-public-0.1.0-rc1` содержит 32 компактных объекта:
+The first proposal, `kz-alma-public-0.1.0-rc1`, contains 32 compact objects:
 
-| Вид объекта | Количество | Что проверяет юрист |
+| Object type | Count | What the lawyer reviews |
 | --- | ---: | --- |
-| Карточка нормы | 18 | официальный источник, норма и безопасное краткое содержание |
-| Сопоставление сигнала | 5 | какие уже утверждённые карточки применяются к полевому сигналу |
-| Маршрут органа | 4 | наименование органа, источник компетенции, правило переадресации и все ГИС-территории, использующие маршрут |
-| Просьба | 5 | короткая формулировка просьбы по каждому виду сигнала |
+| Legal card | 18 | official source, provision, and cautious summary |
+| Signal mapping | 5 | which approved cards apply to each field signal |
+| Authority route | 4 | authority name, competence source, forwarding rule, and all GIS territories that use the route |
+| Request template | 5 | short request text for each signal type |
 
-Модель не выбирает статьи. Свободный текст, фотография и координаты не могут
-добавить правовую норму. Неизвестное обстоятельство остаётся неизвестным.
+The model does not select articles. Free text, a photograph, and coordinates
+cannot add a legal provision. An unknown circumstance remains unknown.
 
-## Как работать в Google Sheets
+## Google Sheets review
 
-1. Ответственный за выпуск создаёт CSV командой:
+1. The release owner creates the review CSV:
 
    ```sh
    python scripts/prepare_public_review.py public-review.csv
    ```
 
-2. CSV импортируется в Google Sheets. Порядок первых полей нельзя менять:
-   `Тип объекта`, `ID`, `Официальный источник`, `Норма или решение`, `Текст
-   проверки`, `SHA-256 объекта`.
-3. Для каждого юриста создаётся отдельная защищённая вкладка или отдельная
-   копия таблицы. Служебные столбцы и SHA-256 защищаются от редактирования.
-4. Юрист периодически работает только с тремя последними полями:
-   `Согласен`, `Не согласен`, `Комментарий`.
-5. Для выпуска во всех 32 строках должно быть `Согласен = TRUE` и
-   `Не согласен = FALSE`. Любое несогласие означает новую редакцию на следующий
-   цикл. Строку нельзя тихо исправить в уже согласованном файле.
-6. Каждая вкладка экспортируется как CSV. URL исходной таблицы сохраняется в
-   записи решения; сам CSV получает SHA-256.
+2. The owner imports the CSV into Google Sheets. The order of the first fields
+   must not change: `Тип объекта`, `ID`, `Официальный источник`, `Норма или
+   решение`, `Текст проверки`, and `SHA-256 объекта`.
+3. Each lawyer receives a separate protected tab or a separate copy. The
+   governed fields and SHA-256 values are protected from editing.
+4. The lawyer signs in with a Google account under the lawyer's control. The
+   lawyer edits only `Согласен`, `Не согласен`, `Комментарий`, and the
+   `Подтверждение` tab.
+5. On `Подтверждение`, the lawyer records the full name, qualification,
+   jurisdiction, and review date. The lawyer declares no conflict of interest
+   and consents to public attribution of the name and qualification. A work
+   email is used only for identity verification and is not published.
+6. All 32 rows must contain `Согласен = TRUE` and `Не согласен = FALSE`. A
+   disagreement starts a new revision cycle. An approved row must not be
+   silently changed.
+7. The final tab is exported as CSV. The review record stores the source Sheet
+   URL and the CSV SHA-256. The Google Sheets revision history must show that
+   the lawyer's account entered the decision.
 
-## Два решения
+This is a controlled electronic attestation for ALMA release governance. It is
+not described as a qualified electronic signature.
 
-Первое решение принимает Yernar Sailybayev как автор и юридический редактор:
+## Two legal decisions
+
+Yernar Sailybayev makes the first decision as author and legal editor:
 
 ```sh
 python scripts/record_public_review.py author-review.csv \
@@ -68,35 +78,38 @@ python scripts/record_public_review.py author-review.csv \
   --review-source-url "https://docs.google.com/spreadsheets/d/..."
 ```
 
-Второе решение принимает другой юрист лично:
+A different lawyer personally makes the second decision:
 
 ```sh
 python scripts/record_public_review.py independent-review.csv \
   governance/public/kz/0.1.0-rc1/independent_review.json \
   --role independent \
-  --reviewer-name "Полное имя" \
-  --qualification "Квалификация и юрисдикция" \
+  --reviewer-name "Full name" \
+  --qualification "Qualification and jurisdiction" \
   --reviewed-on YYYY-MM-DD \
   --review-source-url "https://docs.google.com/spreadsheets/d/..." \
   --declare-no-conflict \
   --consent-public-attribution
 ```
 
-Флаг отсутствия конфликта означает именно отсутствие конфликта. Имя второго
-юриста, квалификация и факт согласования будут публичными. Yernar Sailybayev,
-разработчик и модель не могут поставить эти отметки от имени юриста.
+The no-conflict flag means that the lawyer declares no conflict. The second
+lawyer's name, qualification, and approval are public. Yernar Sailybayev, a
+developer, or a model must not enter these decisions on the lawyer's behalf.
 
-В GitHub для ветки `main` следует включить защиту: обязательный pull request,
-две одобряющие рецензии и обязательные Actions-проверки. Второй юрист входит в
-собственный GitHub-аккаунт и лично одобряет PR с финальными JSON-записями.
-Заполненный кем-то другим JSON не заменяет это личное одобрение. Когда известен
-GitHub-логин юриста, его добавляют как требуемого reviewer для файлов
-`governance/public/`, `legal_core/`, `config/territory_catalog*` и
-`config/response_catalog*` (через CODEOWNERS или правила repository ruleset).
+The lawyer does not need a GitHub account. If the lawyer has one, the lawyer may
+also approve the pull request. That optional GitHub review does not replace the
+32-row legal review and is not a legal-release gate. The required evidence is
+the lawyer's personal work in Google Sheets, the completed attestation, the
+revision history, the Sheet URL, and the final CSV SHA-256.
 
-## Финальная активация
+The `main` branch still requires a pull request, successful Actions checks, and
+merge by the release owner. A GitHub technical reviewer, if appointed, reviews
+the code and process integrity. That reviewer does not make the independent
+lawyer's legal decision.
 
-После двух решений владелец выпуска создаёт финальную запись:
+## Final activation
+
+After both legal decisions, the release owner creates the final record:
 
 ```sh
 python scripts/activate_public_release.py \
@@ -104,42 +117,42 @@ python scripts/activate_public_release.py \
   --approved-on YYYY-MM-DD
 ```
 
-Затем проводится новый pull request. Проверки должны подтвердить все хеши и
-отрицательные сценарии. Только после слияния этого решения и выпуска образа
-оператор может установить:
+A new pull request then verifies every hash and negative test. Only after that
+decision is merged and a new image is released may the operator set:
 
 ```text
 ALMA_RELEASE_MODE=public_legal_release
 ```
 
-До этого используется `controlled_pilot`. Если публичный режим включить раньше,
-Cloud Run Job завершится до вызова Gemini и не подготовит правовой результат.
+Until then, the deployment uses `controlled_pilot`. A premature public setting
+stops the Cloud Run Job before Gemini is called and before a legal draft is
+created.
 
-## Когда нужно новое согласование
+## When a new review is required
 
-Новый цикл обязателен при изменении хотя бы одного управляемого файла:
+A new review cycle is required if any governed item changes:
 
-- карточек или официальных источников;
-- пяти сопоставлений видов сигнала;
-- маршрута компетентного органа или текста просьбы;
-- каталога территорий, назначения участка или пространственного источника.
+- a legal card or official source;
+- one of the five signal mappings;
+- a competent-authority route or request text;
+- a territory catalog entry, land purpose, or spatial source.
 
-Добавление новой географии с тем же поддерживаемым форматом обычно не требует
-изменения алгоритма. Оно всё равно меняет каталог территории, его SHA-256 и
-область применения, поэтому требует теста пересечения и нового юридического
-согласования маршрута. Иной формат слоя, несколько целевых слоёв в одном файле,
-иная геометрия или допуск по расстоянию требуют отдельного изменения программы.
+A new GeoPackage for a new geography usually needs no algorithm change when it
+uses the supported format. It still changes the territory catalog, its SHA-256,
+and the scope of use. The release therefore needs an intersection test and a
+new legal review of the route. A different layer format, multiple target layers
+in one file, a different geometry type, or a distance tolerance requires a
+separate code change and tests.
 
-В строке маршрута юрист видит имена файлов, назначение и все территории,
-использующие этот орган. Для публичного выпуска у каждого слоя также должны
-быть документированы происхождение, версия/дата и допустимые условия
-использования. Если официального источника нет, слой нельзя называть
-официальным: это повод отметить несогласие или прямо указать его общественное
-происхождение.
+The lawyer sees the filenames, purpose, and all territories that use each
+authority route. Each public layer must also record its provenance, version or
+date, and permitted use. A community-derived layer must not be called official.
+The lawyer must mark a disagreement or the record must state its community
+origin.
 
-## Что публичное согласование не означает
+## Limits of the approval
 
-Оно не устанавливает факт нарушения или виновность лица, не превращает ALMA в
-юридическую консультацию и не разрешает автоматическую отправку обращения.
-Проект обращения просит компетентный орган проверить факты, применимость норм и
-сообщить результат.
+The approval does not establish a violation or a person's guilt. It does not
+make ALMA a legal-advice service. It does not permit automatic submission of a
+citizen request. A draft asks the competent authority to verify the facts,
+determine which rules apply, and report the result.

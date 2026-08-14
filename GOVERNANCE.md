@@ -34,6 +34,12 @@ A public legal release needs three hash-bound records:
 Any changed governed artifact invalidates the proposal hash and blocks the
 public mode. A disagreement creates a new proposal; it is not overwritten.
 
+The independent lawyer completes a protected Google Sheets review from an
+account under the lawyer's control. The Sheet revision history, attestation,
+source URL, and exported CSV SHA-256 are the primary approval evidence. A
+GitHub account and GitHub PR approval are optional for the lawyer. They do not
+replace the complete 32-object legal review.
+
 ## Geography
 
 A new polygon GeoPackage with the already supported layer contract normally

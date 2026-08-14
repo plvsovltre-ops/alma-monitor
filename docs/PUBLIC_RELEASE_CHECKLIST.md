@@ -14,6 +14,9 @@ The release owner records every item in the release pull request.
 - [ ] The 32-object independent-lawyer review is approved by a different
   identified qualified person, with no-conflict declaration and attribution
   consent.
+- [ ] The independent review is attributable to the lawyer's Google account,
+  includes the completed attestation, and is bound to the Sheet URL and exact
+  exported CSV SHA-256. A GitHub account is optional.
 - [ ] The final public decision binds both review-record hashes.
 - [ ] Every spatial layer has recorded provenance, version/date, permitted use,
   and an official source where one exists; a community-derived layer is not
