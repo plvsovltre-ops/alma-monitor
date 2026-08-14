@@ -9,6 +9,11 @@ from .catalog import (
 )
 from .facts import FactState, normalize_fact_state
 from .integrity import IntegrityError, canonical_card_hash
+from .public_governance import (
+    PublicGovernanceError,
+    PublicReleaseBlockedError,
+    PublicReleaseGovernance,
+)
 from .runtime_policy import (
     RuntimeLegalPolicy,
     RuntimePolicyBlockedError,
@@ -23,6 +28,9 @@ __all__ = [
     "LegalCoreError",
     "IntegrityError",
     "SourceChangedError",
+    "PublicGovernanceError",
+    "PublicReleaseBlockedError",
+    "PublicReleaseGovernance",
     "RuntimeLegalPolicy",
     "RuntimePolicyBlockedError",
     "RuntimePolicyError",

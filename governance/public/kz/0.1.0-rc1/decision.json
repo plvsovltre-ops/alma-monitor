@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "decision": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+  "proposal_sha256": "5edc43f76fc115663e94b2c46c17e300e8ef796f84518065eace7c11594790ee",
+  "author_review_sha256": null,
+  "independent_review_sha256": null,
+  "approved_on": null,
+  "activated_by": null,
+  "reason": "Both exact reviews and final author activation are required before public legal use."
+}

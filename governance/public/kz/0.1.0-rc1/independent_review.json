@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "decision": "INDEPENDENT_REVIEW_PENDING",
+  "proposal_sha256": "5edc43f76fc115663e94b2c46c17e300e8ef796f84518065eace7c11594790ee",
+  "reviewer": null,
+  "qualification": null,
+  "conflict_of_interest_declared": null,
+  "public_attribution_consent": false,
+  "reviewed_on": null,
+  "review_csv_sha256": null,
+  "reviewed_object_count": 32,
+  "review_source_url": null,
+  "statement": "An independent lawyer has not yet approved this exact public-release proposal."
+}

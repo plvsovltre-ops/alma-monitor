@@ -25,6 +25,7 @@ COPY territory_catalog.py ./
 COPY response_catalog.py ./
 COPY config ./config
 COPY legal_core ./legal_core
+COPY governance ./governance
 
 RUN useradd --create-home --uid 10001 alma \
     && chown -R alma:alma /app

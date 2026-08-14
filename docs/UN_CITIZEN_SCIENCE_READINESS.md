@@ -35,17 +35,26 @@ record as separate data products. This makes the publication traceable.
 - Store the model name, prompt version, source set version, and processing time.
 - Test Russian and Kazakh output with native-language reviewers.
 
-## Open package
+## Open package status
 
-Before publication, add:
+Present in the `1.4.0-rc1` governance proposal:
 
-- a reviewed open-source licence;
-- a `CITATION.cff` file;
-- `SECURITY.md` and a responsible disclosure contact;
-- a privacy notice and data retention schedule;
-- an English installation guide and field collection guide;
-- a reproducible demonstration with synthetic data;
-- automated tests for schema validation and duplicate delivery protection.
+- Apache-2.0 for software and CC BY 4.0 for original documentation;
+- `AUTHORS`, `NOTICE`, `CITATION.cff`, and name-use rules;
+- `SECURITY.md` and a private reporting contact;
+- privacy and current-state retention documentation;
+- English installation and operations guidance in `README.md`;
+- automated tests for schemas, hash-bound legal governance, fail-closed public
+  mode, and duplicate delivery protection.
+
+Still required before opening public field collection:
+
+- approval by the identified independent lawyer and final hash-bound release
+  activation;
+- an operator-specific privacy notice and enforced retention/deletion settings;
+- documented provenance and permitted use for every published spatial layer;
+- an English field collection guide;
+- a reproducible end-to-end demonstration containing synthetic data only.
 
 ## Alignment evidence
 

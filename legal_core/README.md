@@ -20,15 +20,15 @@ exact reviewed `cards.json` and `sources.json` artifacts.
    unrecognized monitoring status.
 4. An unknown fact remains `UNKNOWN`.
 5. Controlled-pilot use requires the recorded author/legal-editor approval.
-6. Public legal use still requires independent lawyer approval and explicit
-   public-release approval in a later release.
+6. Public legal use requires the separate hash-bound author review,
+   independent-lawyer review, and final activation under `governance/public/`.
 7. A generated appeal must ask a competent authority to verify facts and report
    the result. It must not name a person as an offender or establish guilt.
 8. The catalog verifies `SHA256SUMS`, the manifest, the review record, the
    source registry, and every canonical card hash before it returns a citation.
-9. This controlled-pilot release accepts only the recorded review by Yernar
-   Sailybayev. A future independent or public release needs a new governed
-   release format and cannot be unlocked by editing this bundle.
+9. This controlled-pilot bundle remains immutable and accepts only the recorded
+   review by Yernar Sailybayev. The public governance overlay cannot be
+   unlocked by editing this bundle or changing a status string.
 
 ## Canonical card hash
 
@@ -77,6 +77,22 @@ on 2026-08-12 as author and legal editor for the private controlled pilot only.
 The policy keeps its original proposal marker so that the reviewed artifact
 remains byte-for-byte unchanged; the separate approval decision unlocks it.
 Changing the policy after approval invalidates its hash and stops processing.
+
+## Public governance overlay
+
+The proposed `kz-alma-public-0.1.0-rc1` overlay is blocked by default. Its
+proposal binds the exact card, source, owner-review, runtime-policy, territory,
+and human-response artifacts. A second manifest hash binds the exact 32-object
+lawyer view produced from those files. This prevents a changed exporter from
+hiding a governed object while leaving the underlying artifact hashes intact.
+
+The review view has 18 active cards, five signal mappings (including the
+bilingual public-interest and action text), four competent-authority routes
+(including their complete GIS territory coverage),
+and five bilingual request templates. A complete author review and a separate
+complete review by an identified qualified lawyer are both required. The
+process is documented in
+[`../docs/PUBLIC_RELEASE_GOVERNANCE.md`](../docs/PUBLIC_RELEASE_GOVERNANCE.md).
 
 Gemini receives one shared fact object for Russian and Kazakh drafting. It does
 not receive article names or official URLs and may not insert a legal citation.

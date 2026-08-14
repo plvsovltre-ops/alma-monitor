@@ -10,6 +10,7 @@ from typing import Any
 
 from .catalog import LegalCoreCatalog
 from .integrity import IntegrityError, sha256_file
+from .public_governance import PublicReleaseGovernance
 
 
 POLICY_DIR = Path(__file__).resolve().parent / "policies" / "kz" / "0.1.0-rc1"
@@ -61,12 +62,23 @@ class RuntimeLegalPolicy:
         policy_path: str | Path = DEFAULT_POLICY,
         approval_path: str | Path = DEFAULT_APPROVAL,
         catalog: LegalCoreCatalog | None = None,
+        *,
+        use_case: str = "controlled_pilot",
+        public_governance: PublicReleaseGovernance | None = None,
     ):
         self.policy_path = Path(policy_path)
         self.approval_path = Path(approval_path)
         self.policy = _load_json(self.policy_path, "policy")
         self.approval = _load_json(self.approval_path, "approval")
         self.catalog = catalog or LegalCoreCatalog()
+        if use_case not in {"controlled_pilot", "public_legal_release"}:
+            raise ValueError(f"Unsupported Legal Core use case: {use_case}")
+        if use_case == "public_legal_release" and public_governance is None:
+            raise RuntimePolicyBlockedError(
+                "Public runtime policy requires two-person release governance"
+            )
+        self.use_case = use_case
+        self.public_governance = public_governance
         self._validate()
 
     def _validate(self) -> None:
@@ -120,7 +132,10 @@ class RuntimeLegalPolicy:
         if set(mappings) != SUPPORTED_INCIDENT_TYPES:
             raise IntegrityError("Runtime legal policy incident types are incomplete")
         for incident_type, mapping in mappings.items():
-            if not isinstance(incident_type, str) or incident_type != incident_type.strip().lower():
+            if (
+                not isinstance(incident_type, str)
+                or incident_type != incident_type.strip().lower()
+            ):
                 raise IntegrityError("Runtime incident type is not canonical")
             if not isinstance(mapping, dict):
                 raise IntegrityError(f"Runtime mapping is invalid: {incident_type}")
@@ -150,7 +165,11 @@ class RuntimeLegalPolicy:
                 raise IntegrityError(f"Runtime unknown-fact list is invalid: {incident_type}")
             # Resolve every configured ID now. A missing, changed, or blocked
             # card blocks the entire policy before any incident is processed.
-            self.catalog.citations(rule_ids, use_case="controlled_pilot")
+            self.catalog.citations(
+                rule_ids,
+                use_case=self.use_case,
+                public_governance=self.public_governance,
+            )
 
         # The policy is the immutable object that the reviewer approved. Its
         # original proposal marker remains unchanged so its SHA-256 stays the
@@ -194,11 +213,31 @@ class RuntimeLegalPolicy:
 
     @property
     def reviewer_name(self) -> str:
+        if self.public_governance is not None:
+            return self.public_governance.independent_reviewer_name
         return self.approval["reviewer"]["name"]
 
     @property
     def reviewed_on(self) -> str:
+        if self.public_governance is not None:
+            return self.public_governance.reviewed_on
         return self.approval["reviewed_on"]
+
+    @property
+    def release_mode(self) -> str:
+        return self.use_case
+
+    @property
+    def governance_release_id(self) -> str:
+        if self.public_governance is None:
+            return ""
+        return self.public_governance.release_id
+
+    @property
+    def governance_proposal_sha256(self) -> str:
+        if self.public_governance is None:
+            return ""
+        return self.public_governance.proposal_sha256
 
     def select(self, incident_type: object) -> dict[str, Any]:
         normalized = str(incident_type or "").strip().lower()
@@ -209,7 +248,8 @@ class RuntimeLegalPolicy:
             )
         citations = self.catalog.citations(
             mapping["rule_ids"],
-            use_case="controlled_pilot",
+            use_case=self.use_case,
+            public_governance=self.public_governance,
         )
         return {
             "incident_type": normalized,

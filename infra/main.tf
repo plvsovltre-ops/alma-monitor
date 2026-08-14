@@ -134,6 +134,11 @@ resource "google_cloud_run_v2_job" "monitor" {
         }
 
         env {
+          name  = "ALMA_RELEASE_MODE"
+          value = var.release_mode
+        }
+
+        env {
           name  = "STATE_BUCKET"
           value = google_storage_bucket.monitor_state.name
         }

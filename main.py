@@ -34,6 +34,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from mergin import MerginClient
 from legal_core import (
+    PublicReleaseGovernance,
     RuntimeLegalPolicy,
     RuntimePolicyBlockedError,
     UnsupportedIncidentTypeError,
@@ -49,7 +50,7 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.4.0-rc1"
 
 # --- НАСТРОЙКИ ---
 MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
@@ -847,7 +848,16 @@ def reconcile_google_sheet(incidents):
 
 def load_runtime_legal_policy():
     """Load the exact author-reviewed policy or fail before Gemini is used."""
-    return RuntimeLegalPolicy()
+    release_mode = os.environ.get("ALMA_RELEASE_MODE", "controlled_pilot").strip()
+    if release_mode == "controlled_pilot":
+        return RuntimeLegalPolicy()
+    if release_mode == "public_legal_release":
+        governance = PublicReleaseGovernance()
+        return RuntimeLegalPolicy(
+            use_case=release_mode,
+            public_governance=governance,
+        )
+    raise RuntimeError(f"Unsupported ALMA_RELEASE_MODE: {release_mode}")
 
 
 def load_territory_catalog():
@@ -1912,6 +1922,15 @@ def process_project(mc, bucket):
                 legal_rule_ids=legal_selection["rule_ids"],
                 legal_reviewer=legal_policy.reviewer_name,
                 legal_reviewed_on=legal_policy.reviewed_on,
+                legal_release_mode=getattr(
+                    legal_policy, "release_mode", "controlled_pilot"
+                ),
+                legal_governance_release_id=getattr(
+                    legal_policy, "governance_release_id", ""
+                ),
+                legal_governance_proposal_sha256=getattr(
+                    legal_policy, "governance_proposal_sha256", ""
+                ),
             )
             LOG.error(
                 "Incident draft requires manual review: %s (%s)",
@@ -1971,6 +1990,15 @@ def process_project(mc, bucket):
             "legal_rule_ids": legal_selection["rule_ids"],
             "legal_reviewer": legal_policy.reviewer_name,
             "legal_reviewed_on": legal_policy.reviewed_on,
+            "legal_release_mode": getattr(
+                legal_policy, "release_mode", "controlled_pilot"
+            ),
+            "legal_governance_release_id": getattr(
+                legal_policy, "governance_release_id", ""
+            ),
+            "legal_governance_proposal_sha256": getattr(
+                legal_policy, "governance_proposal_sha256", ""
+            ),
             "volunteer_contribution_total": contribution["total_count"],
             "alma_monitor_version": APP_VERSION,
         }

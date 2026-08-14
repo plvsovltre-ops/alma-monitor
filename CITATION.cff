@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: >-
+  If you use ALMA Monitor, please cite the software and preserve the origin
+  statement in NOTICE.
+title: ALMA Monitor
+type: software
+authors:
+  - family-names: Sailybayev
+    given-names: Yernar
+version: 1.4.0-rc1
+license: Apache-2.0
+repository-code: https://github.com/plvsovltre-ops/alma_bot
+abstract: >-
+  A citizen-science platform that links georeferenced observations, reviewed
+  spatial context, deterministic legal cards, competent-authority routing, and
+  legally cautious draft requests.
+keywords:
+  - citizen science
+  - GIS
+  - environmental monitoring
+  - legal informatics
+  - Kazakhstan

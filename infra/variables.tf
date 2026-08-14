@@ -27,6 +27,17 @@ variable "gemini_model" {
   default     = "gemini-3.6-flash"
 }
 
+variable "release_mode" {
+  description = "Legal release gate. Public mode remains fail-closed until both exact reviews are approved."
+  type        = string
+  default     = "controlled_pilot"
+
+  validation {
+    condition     = contains(["controlled_pilot", "public_legal_release"], var.release_mode)
+    error_message = "release_mode must be controlled_pilot or public_legal_release."
+  }
+}
+
 variable "schedule" {
   description = "Unix cron schedule for monitoring Mergin Maps."
   type        = string
