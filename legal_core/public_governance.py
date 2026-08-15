@@ -29,6 +29,14 @@ AUTHOR_REVIEWER = {
     "name": "Yernar Sailybayev",
     "capacity": "AUTHOR_AND_LEGAL_EDITOR",
 }
+AUTHOR_REVIEWER_REFERENCE = "author-yernar-sailybayev"
+CONFIDENTIAL_REVIEWER_LABEL = (
+    "Independent legal reviewer (identity confidential)"
+)
+REVIEW_SOURCE_TYPES = {
+    "ALMA_PROJECT_CONVERSATION",
+    "RESTRICTED_GOOGLE_SHEET",
+}
 REVIEW_CSV_COLUMNS = (
     ("object_type", "Тип объекта"),
     ("object_id", "ID объекта"),
@@ -164,7 +172,7 @@ class PublicReleaseGovernance:
     @property
     def independent_reviewer_name(self) -> str:
         reviewer = self.independent_review.get("reviewer") or {}
-        return str(reviewer.get("name") or "")
+        return str(reviewer.get("public_label") or "")
 
     @property
     def reviewed_on(self) -> str:
@@ -613,7 +621,7 @@ class PublicReleaseGovernance:
         return sha256_file(review_path)
 
     def _validate_review_record(self, review: dict[str, Any], role: str) -> None:
-        if review.get("schema_version") != "1.0":
+        if review.get("schema_version") != "1.1":
             raise PublicGovernanceError(f"Public {role} review schema is unsupported")
         if review.get("release_id") != self.release_id:
             raise PublicGovernanceError(f"Public {role} review release ID differs")
@@ -642,22 +650,83 @@ class PublicReleaseGovernance:
         reviewer = review.get("reviewer")
         if not isinstance(reviewer, dict):
             raise PublicGovernanceError(f"Public {role} reviewer is missing")
-        name = _required_text(reviewer.get("name"), f"{role} reviewer name")
         if reviewer.get("capacity") != expected_capacity:
             raise PublicGovernanceError(f"Public {role} reviewer capacity is invalid")
         if role == "author" and reviewer != AUTHOR_REVIEWER:
             raise PublicGovernanceError("Public author reviewer is not authorized")
         if role == "independent":
-            if name == AUTHOR_REVIEWER["name"]:
+            forbidden_public_fields = {
+                "name",
+                "email",
+                "qualification",
+                "review_source_url",
+                "review_source_revision_id",
+                "review_source_last_modified_at",
+                "review_source_identity_evidence",
+            }
+            present_forbidden_fields = forbidden_public_fields.intersection(review)
+            present_forbidden_fields.update(
+                forbidden_public_fields.intersection(reviewer)
+            )
+            if present_forbidden_fields:
+                raise PublicGovernanceError(
+                    "Independent review exposes confidential identity data"
+                )
+            reference = _required_text(
+                reviewer.get("reference"),
+                "independent reviewer reference",
+            )
+            if reference == AUTHOR_REVIEWER_REFERENCE or "@" in reference:
                 raise PublicGovernanceError("Independent reviewer must differ from author")
-            _required_text(review.get("qualification"), "independent qualification")
+            if reviewer.get("public_label") != CONFIDENTIAL_REVIEWER_LABEL:
+                raise PublicGovernanceError(
+                    "Independent reviewer public label is invalid"
+                )
+            if review.get("identity_disclosure") != "CONFIDENTIAL":
+                raise PublicGovernanceError(
+                    "Independent reviewer identity must remain confidential"
+                )
+            if review.get("identity_verified") is not True:
+                raise PublicGovernanceError(
+                    "Independent reviewer identity must be privately verified"
+                )
+            if review.get("independence_verified") is not True:
+                raise PublicGovernanceError(
+                    "Independent reviewer independence must be privately verified"
+                )
+            if review.get("qualification_verified") is not True:
+                raise PublicGovernanceError(
+                    "Independent reviewer qualification must be privately verified"
+                )
+            if review.get("jurisdiction") != "KZ":
+                raise PublicGovernanceError(
+                    "Independent reviewer jurisdiction is invalid"
+                )
             if review.get("conflict_of_interest_declared") is not False:
                 raise PublicGovernanceError(
                     "Independent reviewer must declare no conflict of interest"
                 )
-            if review.get("public_attribution_consent") is not True:
+            if review.get("public_attribution_consent") is not False:
                 raise PublicGovernanceError(
-                    "Independent reviewer public attribution consent is required"
+                    "Independent reviewer public attribution must be disabled"
+                )
+            if review.get("confidential_attestation_consent") is not True:
+                raise PublicGovernanceError(
+                    "Independent reviewer confidential attestation consent is required"
+                )
+            if review.get("private_evidence_location") != (
+                "OUTSIDE_PUBLIC_REPOSITORY"
+            ):
+                raise PublicGovernanceError(
+                    "Independent reviewer evidence must remain outside the public repository"
+                )
+            attestation_sha256 = _required_text(
+                review.get("confidential_attestation_sha256"),
+                "confidential attestation hash",
+            )
+            if not SHA256_HEX.fullmatch(attestation_sha256):
+                raise PublicGovernanceError(
+                    "Independent confidential attestation hash is invalid"
                 )
         try:
             date.fromisoformat(_required_text(review.get("reviewed_on"), "review date"))
@@ -671,7 +740,8 @@ class PublicReleaseGovernance:
             raise PublicGovernanceError("Public review CSV hash is invalid")
         if review.get("reviewed_object_count") != len(self.review_objects()):
             raise PublicGovernanceError("Public reviewed object count is incorrect")
-        _required_https_url(review.get("review_source_url"), "review source URL")
+        if review.get("review_source_type") not in REVIEW_SOURCE_TYPES:
+            raise PublicGovernanceError("Public review source type is invalid")
 
     def _validate_decision(self) -> None:
         decision = self.decision
@@ -746,12 +816,17 @@ def build_review_record(
     review_csv_path: str | Path,
     *,
     role: str,
-    reviewer_name: str,
     reviewed_on: str,
-    review_source_url: str,
-    qualification: str = "",
+    review_source_type: str,
+    reviewer_name: str = "",
+    reviewer_reference: str = "",
+    jurisdiction: str = "",
+    identity_verified: bool | None = None,
+    independence_verified: bool | None = None,
+    qualification_verified: bool | None = None,
     conflict_of_interest_declared: bool | None = None,
-    public_attribution_consent: bool | None = None,
+    confidential_attestation_consent: bool | None = None,
+    confidential_attestation_sha256: str = "",
 ) -> dict[str, Any]:
     """Create one review record after validating every exact checkbox row."""
     review_csv_sha256 = governance.validate_completed_review_csv(review_csv_path)
@@ -759,16 +834,17 @@ def build_review_record(
         date.fromisoformat(reviewed_on)
     except ValueError as exc:
         raise PublicGovernanceError("Public review date is invalid") from exc
-    _required_https_url(review_source_url, "review source URL")
+    if review_source_type not in REVIEW_SOURCE_TYPES:
+        raise PublicGovernanceError("Public review source type is invalid")
 
     base: dict[str, Any] = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "release_id": governance.release_id,
         "proposal_sha256": governance.proposal_sha256,
         "reviewed_on": reviewed_on,
         "review_csv_sha256": review_csv_sha256,
         "reviewed_object_count": len(governance.review_objects()),
-        "review_source_url": review_source_url,
+        "review_source_type": review_source_type,
     }
     if role == "author":
         if reviewer_name != AUTHOR_REVIEWER["name"]:
@@ -784,31 +860,65 @@ def build_review_record(
         }
     if role != "independent":
         raise PublicGovernanceError("Public review role is unsupported")
-    if reviewer_name == AUTHOR_REVIEWER["name"]:
+    reference = _required_text(
+        reviewer_reference,
+        "independent reviewer reference",
+    )
+    if reference == AUTHOR_REVIEWER_REFERENCE or "@" in reference:
         raise PublicGovernanceError("Independent reviewer must differ from author")
-    _required_text(qualification, "independent qualification")
+    if identity_verified is not True:
+        raise PublicGovernanceError(
+            "Independent reviewer identity must be privately verified"
+        )
+    if independence_verified is not True:
+        raise PublicGovernanceError(
+            "Independent reviewer independence must be privately verified"
+        )
+    if qualification_verified is not True:
+        raise PublicGovernanceError(
+            "Independent reviewer qualification must be privately verified"
+        )
+    if jurisdiction != "KZ":
+        raise PublicGovernanceError("Independent reviewer jurisdiction is invalid")
     if conflict_of_interest_declared is not False:
         raise PublicGovernanceError(
             "Independent reviewer must declare no conflict of interest"
         )
-    if public_attribution_consent is not True:
+    if confidential_attestation_consent is not True:
         raise PublicGovernanceError(
-            "Independent reviewer public attribution consent is required"
+            "Independent reviewer confidential attestation consent is required"
+        )
+    attestation_sha256 = _required_text(
+        confidential_attestation_sha256,
+        "confidential attestation hash",
+    )
+    if not SHA256_HEX.fullmatch(attestation_sha256):
+        raise PublicGovernanceError(
+            "Independent confidential attestation hash is invalid"
         )
     return {
         **base,
         "decision": "INDEPENDENT_LAWYER_REVIEW_APPROVED",
         "reviewer": {
-            "name": _required_text(reviewer_name, "independent reviewer name"),
+            "reference": reference,
             "capacity": "INDEPENDENT_LAWYER",
+            "public_label": CONFIDENTIAL_REVIEWER_LABEL,
         },
-        "qualification": qualification.strip(),
+        "identity_disclosure": "CONFIDENTIAL",
+        "identity_verified": True,
+        "independence_verified": True,
+        "qualification_verified": True,
+        "jurisdiction": "KZ",
         "conflict_of_interest_declared": False,
-        "public_attribution_consent": True,
+        "public_attribution_consent": False,
+        "confidential_attestation_consent": True,
+        "confidential_attestation_sha256": attestation_sha256,
+        "private_evidence_location": "OUTSIDE_PUBLIC_REPOSITORY",
         "statement": (
             "The independent lawyer approved the exact public-release proposal "
-            "and all listed review objects without establishing facts or guilt "
-            "in any individual observation."
+            "and all listed review objects. The reviewer identity and private "
+            "evidence are withheld from the public repository. The approval "
+            "does not establish facts or guilt in any individual observation."
         ),
     }
 

@@ -12,11 +12,12 @@ The release owner records every item in the release pull request.
 - [ ] All automated tests pass from a clean checkout.
 - [ ] The 32-object author review is approved and bound to its CSV SHA-256.
 - [ ] The 32-object independent-lawyer review is approved by a different
-  identified qualified person, with no-conflict declaration and attribution
-  consent.
+  privately identified qualified person, with no-conflict declaration and
+  confidential-attestation consent.
 - [ ] The independent review is attributable to the lawyer's Google account,
-  includes the completed attestation, and is bound to the Sheet URL and exact
-  exported CSV SHA-256. A GitHub account is optional.
+  includes the completed attestation, and is bound to the exact exported CSV
+  and private-attestation SHA-256 values. The public repository contains no
+  identifying lawyer data or restricted Sheet URL. A GitHub account is optional.
 - [ ] The final public decision binds both review-record hashes.
 - [ ] Every spatial layer has recorded provenance, version/date, permitted use,
   and an official source where one exists; a community-derived layer is not

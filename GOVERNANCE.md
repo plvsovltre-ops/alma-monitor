@@ -27,18 +27,20 @@ No contributor, model, automation, donor, or partner may:
 A public legal release needs three hash-bound records:
 
 1. approval by Yernar Sailybayev as author and legal editor;
-2. approval by a different, identified and qualified lawyer who declares no
-   conflict of interest and consents to public attribution;
+2. approval by a different, privately identified and qualified lawyer who
+   declares no conflict of interest and consents to confidential verification;
 3. final activation by the release owner.
 
 Any changed governed artifact invalidates the proposal hash and blocks the
 public mode. A disagreement creates a new proposal; it is not overwritten.
 
 The independent lawyer completes a protected Google Sheets review from an
-account under the lawyer's control. The Sheet revision history, attestation,
-source URL, and exported CSV SHA-256 are the primary approval evidence. A
-GitHub account and GitHub PR approval are optional for the lawyer. They do not
-replace the complete 32-object legal review.
+account under the lawyer's control. Identity, qualification, revision history,
+attestation, and the restricted Sheet URL are retained outside the public
+repository. The public record contains only a non-identifying reviewer role,
+jurisdiction, verification flags, object count, and SHA-256 values. A GitHub
+account and GitHub PR approval are optional for the lawyer. They do not replace
+the complete 32-object legal review.
 
 ## Geography
 

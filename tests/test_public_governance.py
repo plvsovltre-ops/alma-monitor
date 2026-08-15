@@ -17,7 +17,6 @@ from legal_core import (
 )
 from legal_core.public_governance import (
     DEFAULT_AUTHORSHIP_LICENSING_APPROVAL,
-    DEFAULT_DECISION,
     DEFAULT_PROPOSAL,
     REVIEW_CSV_FIELDS,
     build_public_decision,
@@ -61,22 +60,34 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
             role="author",
             reviewer_name="Yernar Sailybayev",
             reviewed_on="2026-08-14",
-            review_source_url="https://docs.google.com/spreadsheets/d/test-author",
+            review_source_type="ALMA_PROJECT_CONVERSATION",
         )
         independent = build_review_record(
             initial,
             review_csv,
             role="independent",
-            reviewer_name="Independent Lawyer",
+            reviewer_reference="independent-legal-reviewer-kz-001",
             reviewed_on="2026-08-14",
-            review_source_url="https://docs.google.com/spreadsheets/d/test-independent",
-            qualification="Lawyer admitted in Kazakhstan",
+            review_source_type="RESTRICTED_GOOGLE_SHEET",
+            jurisdiction="KZ",
+            identity_verified=True,
+            independence_verified=True,
+            qualification_verified=True,
             conflict_of_interest_declared=False,
-            public_attribution_consent=True,
+            confidential_attestation_consent=True,
+            confidential_attestation_sha256="1" * 64,
         )
         self.write_json(author_path, author)
         self.write_json(independent_path, independent)
-        decision_path.write_bytes(DEFAULT_DECISION.read_bytes())
+        self.write_json(
+            decision_path,
+            {
+                "schema_version": "1.0",
+                "release_id": initial.release_id,
+                "decision": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+                "proposal_sha256": initial.proposal_sha256,
+            },
+        )
 
         reviewed = PublicReleaseGovernance(
             author_review_path=author_path,
@@ -91,11 +102,11 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
             decision_path=decision_path,
         )
 
-    def test_checked_in_public_release_is_valid_but_blocked(self):
+    def test_checked_in_public_release_is_valid_and_activated(self):
         governance = PublicReleaseGovernance()
         self.assertEqual(32, len(governance.review_objects()))
-        with self.assertRaisesRegex(PublicReleaseBlockedError, "author approval"):
-            governance.require_public_release()
+        governance.require_public_release()
+        self.assertEqual("2026-08-15", governance.reviewed_on)
 
     def test_checked_in_authorship_and_licensing_approval_is_hash_bound(self):
         governance = PublicReleaseGovernance()
@@ -193,7 +204,7 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
             with self.assertRaisesRegex(PublicGovernanceError, "manifest changed"):
                 PublicReleaseGovernance(proposal_path=proposal_path)
 
-    def test_author_cannot_act_as_independent_lawyer(self):
+    def test_author_reference_cannot_act_as_independent_lawyer(self):
         governance = PublicReleaseGovernance()
         with tempfile.TemporaryDirectory() as directory:
             review_csv = Path(directory) / "review.csv"
@@ -203,28 +214,38 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
                     governance,
                     review_csv,
                     role="independent",
-                    reviewer_name="Yernar Sailybayev",
+                    reviewer_reference="author-yernar-sailybayev",
                     reviewed_on="2026-08-14",
-                    review_source_url="https://docs.google.com/test",
-                    qualification="Lawyer",
+                    review_source_type="RESTRICTED_GOOGLE_SHEET",
+                    jurisdiction="KZ",
+                    identity_verified=True,
+                    independence_verified=True,
+                    qualification_verified=True,
                     conflict_of_interest_declared=False,
-                    public_attribution_consent=True,
+                    confidential_attestation_consent=True,
+                    confidential_attestation_sha256="1" * 64,
                 )
 
-    def test_independent_identity_qualification_and_consent_are_required(self):
+    def test_independent_private_verification_and_consent_are_required(self):
         governance = PublicReleaseGovernance()
         with tempfile.TemporaryDirectory() as directory:
             review_csv = Path(directory) / "review.csv"
             self.complete_review_csv(governance, review_csv)
             for kwargs, message in (
-                ({"qualification": ""}, "qualification"),
+                ({"identity_verified": False}, "identity"),
+                ({"independence_verified": False}, "independence"),
+                ({"qualification_verified": False}, "qualification"),
                 ({"conflict_of_interest_declared": None}, "conflict"),
-                ({"public_attribution_consent": False}, "consent"),
+                ({"confidential_attestation_consent": False}, "consent"),
+                ({"confidential_attestation_sha256": ""}, "attestation"),
             ):
                 values = {
-                    "qualification": "Lawyer admitted in Kazakhstan",
+                    "identity_verified": True,
+                    "independence_verified": True,
+                    "qualification_verified": True,
                     "conflict_of_interest_declared": False,
-                    "public_attribution_consent": True,
+                    "confidential_attestation_consent": True,
+                    "confidential_attestation_sha256": "1" * 64,
                     **kwargs,
                 }
                 with self.subTest(message=message), self.assertRaisesRegex(
@@ -234,25 +255,26 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
                         governance,
                         review_csv,
                         role="independent",
-                        reviewer_name="Independent Lawyer",
+                        reviewer_reference="independent-legal-reviewer-kz-001",
                         reviewed_on="2026-08-14",
-                        review_source_url="https://docs.google.com/test",
+                        review_source_type="RESTRICTED_GOOGLE_SHEET",
+                        jurisdiction="KZ",
                         **values,
                     )
 
-    def test_review_source_requires_https(self):
+    def test_review_source_type_is_restricted(self):
         governance = PublicReleaseGovernance()
         with tempfile.TemporaryDirectory() as directory:
             review_csv = Path(directory) / "review.csv"
             self.complete_review_csv(governance, review_csv)
-            with self.assertRaisesRegex(PublicGovernanceError, "HTTPS"):
+            with self.assertRaisesRegex(PublicGovernanceError, "source type"):
                 build_review_record(
                     governance,
                     review_csv,
                     role="author",
                     reviewer_name="Yernar Sailybayev",
                     reviewed_on="2026-08-14",
-                    review_source_url="http://example.test/review",
+                    review_source_type="PUBLIC_URL",
                 )
 
     def test_final_activation_cannot_predate_either_review(self):
@@ -272,7 +294,7 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
                     role="author",
                     reviewer_name="Yernar Sailybayev",
                     reviewed_on="2026-08-14",
-                    review_source_url="https://docs.google.com/author",
+                    review_source_type="ALMA_PROJECT_CONVERSATION",
                 ),
             )
             self.write_json(
@@ -281,15 +303,27 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
                     initial,
                     review_csv,
                     role="independent",
-                    reviewer_name="Independent Lawyer",
+                    reviewer_reference="independent-legal-reviewer-kz-001",
                     reviewed_on="2026-08-15",
-                    review_source_url="https://docs.google.com/independent",
-                    qualification="Lawyer admitted in Kazakhstan",
+                    review_source_type="RESTRICTED_GOOGLE_SHEET",
+                    jurisdiction="KZ",
+                    identity_verified=True,
+                    independence_verified=True,
+                    qualification_verified=True,
                     conflict_of_interest_declared=False,
-                    public_attribution_consent=True,
+                    confidential_attestation_consent=True,
+                    confidential_attestation_sha256="1" * 64,
                 ),
             )
-            decision_path.write_bytes(DEFAULT_DECISION.read_bytes())
+            self.write_json(
+                decision_path,
+                {
+                    "schema_version": "1.0",
+                    "release_id": initial.release_id,
+                    "decision": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+                    "proposal_sha256": initial.proposal_sha256,
+                },
+            )
             reviewed = PublicReleaseGovernance(
                 author_review_path=author_path,
                 independent_review_path=independent_path,
@@ -322,8 +356,38 @@ class PublicReleaseGovernanceTests(unittest.TestCase):
                 public_governance=governance,
             )
             self.assertEqual("public_legal_release", policy.release_mode)
-            self.assertEqual("Independent Lawyer", policy.reviewer_name)
+            self.assertEqual(
+                "Independent legal reviewer (identity confidential)",
+                policy.reviewer_name,
+            )
             self.assertEqual("waste", policy.select("waste")["incident_type"])
+
+    def test_independent_public_record_rejects_identity_data(self):
+        with tempfile.TemporaryDirectory() as directory:
+            governance = self.approved_governance(directory)
+            root = Path(directory)
+            independent_path = root / "independent.json"
+            independent = json.loads(independent_path.read_text(encoding="utf-8"))
+            for field, value in (
+                ("name", "Private person"),
+                ("email", "private@example.test"),
+                ("qualification", "Identifying qualification details"),
+                ("review_source_url", "https://docs.google.com/private"),
+            ):
+                with self.subTest(field=field):
+                    changed = dict(independent)
+                    changed[field] = value
+                    self.write_json(independent_path, changed)
+                    with self.assertRaisesRegex(
+                        PublicGovernanceError,
+                        "confidential identity data",
+                    ):
+                        PublicReleaseGovernance(
+                            author_review_path=root / "author.json",
+                            independent_review_path=independent_path,
+                            decision_path=root / "decision.json",
+                        )
+            self.write_json(independent_path, independent)
 
 if __name__ == "__main__":
     unittest.main()

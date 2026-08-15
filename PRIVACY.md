@@ -20,3 +20,9 @@ Public maps and demonstrations must use aggregation, redaction, or synthetic
 data where publication could identify a person or expose a vulnerable site.
 Legal compliance, consent or another lawful basis, and responses to data-subject
 requests remain the operator's responsibility.
+
+Independent legal-review identity evidence is restricted governance data. The
+public repository must not contain the reviewer's name, email, qualification
+text, restricted Sheet URL, or identifying revision metadata without explicit
+publication consent. A refusal of attribution does not invalidate a privately
+verified, hash-bound legal review.

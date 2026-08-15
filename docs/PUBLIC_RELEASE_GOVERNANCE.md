@@ -52,18 +52,36 @@ cannot add a legal provision. An unknown circumstance remains unknown.
    lawyer edits only `Согласен`, `Не согласен`, `Комментарий`, and the
    `Подтверждение` tab.
 5. On `Подтверждение`, the lawyer records the full name, qualification,
-   jurisdiction, and review date. The lawyer declares no conflict of interest
-   and consents to public attribution of the name and qualification. A work
-   email is used only for identity verification and is not published.
+   jurisdiction, and review date in the restricted Sheet. The lawyer declares
+   no conflict of interest and records the publication preference. This initial
+   governance version always keeps the identity confidential; an old or general
+   attribution checkbox cannot override a later specific refusal. A work email
+   and the full identity record are used only for confidential verification.
 6. All 32 rows must contain `Согласен = TRUE` and `Не согласен = FALSE`. A
    disagreement starts a new revision cycle. An approved row must not be
    silently changed.
-7. The final tab is exported as CSV. The review record stores the source Sheet
-   URL and the CSV SHA-256. The Google Sheets revision history must show that
-   the lawyer's account entered the decision.
+7. The final tab is exported as CSV. The public review record stores the CSV
+   SHA-256, a non-identifying reviewer reference, and the hash of the private
+   attestation. It must not store the lawyer's name, email, qualification text,
+   Sheet URL, or identifying revision metadata. The release owner retains that
+   evidence outside the public repository with restricted access.
 
 This is a controlled electronic attestation for ALMA release governance. It is
 not described as a qualified electronic signature.
+
+If the lawyer refuses publication of their name, the restricted
+`Подтверждение` tab records this statement:
+
+> I personally reviewed all 32 objects in proposal
+> `kz-alma-public-0.1.0-rc1`. I do not consent to publication of my name,
+> email, qualification text, restricted Sheet URL, or other identifying data.
+> I consent to confidential verification and retention by the release owner
+> outside the public repository solely for release-integrity verification and
+> dispute resolution. My approval does not establish facts, final legal
+> qualification, or guilt in any individual observation.
+
+The public record contains only the `32/32` result, date, jurisdiction,
+non-identifying role, and hashes.
 
 ## Two legal decisions
 
@@ -75,7 +93,7 @@ python scripts/record_public_review.py author-review.csv \
   --role author \
   --reviewer-name "Yernar Sailybayev" \
   --reviewed-on YYYY-MM-DD \
-  --review-source-url "https://docs.google.com/spreadsheets/d/..."
+  --review-source-type ALMA_PROJECT_CONVERSATION
 ```
 
 A different lawyer personally makes the second decision:
@@ -84,23 +102,32 @@ A different lawyer personally makes the second decision:
 python scripts/record_public_review.py independent-review.csv \
   governance/public/kz/0.1.0-rc1/independent_review.json \
   --role independent \
-  --reviewer-name "Full name" \
-  --qualification "Qualification and jurisdiction" \
+  --reviewer-reference independent-legal-reviewer-kz-001 \
   --reviewed-on YYYY-MM-DD \
-  --review-source-url "https://docs.google.com/spreadsheets/d/..." \
+  --review-source-type RESTRICTED_GOOGLE_SHEET \
+  --jurisdiction KZ \
+  --identity-verified \
+  --independence-verified \
+  --qualification-verified \
   --declare-no-conflict \
-  --consent-public-attribution
+  --consent-confidential-attestation \
+  --confidential-attestation-sha256 SHA256
 ```
 
-The no-conflict flag means that the lawyer declares no conflict. The second
-lawyer's name, qualification, and approval are public. Yernar Sailybayev, a
-developer, or a model must not enter these decisions on the lawyer's behalf.
+The no-conflict flag means that the lawyer declares no conflict. The public
+record shows only a non-identifying role, jurisdiction, verification flags,
+object count, and hashes. The lawyer's identity, email, qualification text,
+restricted Sheet URL, and identifying revision metadata remain confidential.
+Yernar Sailybayev, a developer, or a model must not enter the lawyer's legal
+decision on the lawyer's behalf.
 
 The lawyer does not need a GitHub account. If the lawyer has one, the lawyer may
 also approve the pull request. That optional GitHub review does not replace the
-32-row legal review and is not a legal-release gate. The required evidence is
-the lawyer's personal work in Google Sheets, the completed attestation, the
-revision history, the Sheet URL, and the final CSV SHA-256.
+32-row legal review and is not a legal-release gate. The required private
+evidence is the lawyer's personal work in Google Sheets, the completed
+attestation, the revision history, the Sheet URL, identity and qualification
+verification, and the final CSV SHA-256. Only non-identifying hashes and
+results enter the public repository.
 
 The `main` branch still requires a pull request, successful Actions checks, and
 merge by the release owner. A GitHub technical reviewer, if appointed, reviews
