@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "decision": "AUTHORSHIP_AND_LICENSING_APPROVED",
+  "proposal_sha256": "5edc43f76fc115663e94b2c46c17e300e8ef796f84518065eace7c11594790ee",
+  "approved_by": {
+    "name": "Yernar Sailybayev",
+    "capacity": "INITIATOR_ORIGINAL_AUTHOR_AND_ARCHITECT"
+  },
+  "approved_on": "2026-08-14",
+  "documents": {
+    "AUTHORS": "d5358264c57c88b6a3a8fcce2a5d06a0b5b818a33b6194bb7d844721924ff8a7",
+    "NOTICE": "cadeba40ae3b3251ab25d60e7123e6d2f71606c0b8e29e94375f8f0d3e757427",
+    "CITATION.cff": "cb9f759c415ebb30ceff5d32429cd28413e5a0306210f4f3a771d8ef73d79713",
+    "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "LICENSE-CONTENT.md": "3dc09c0a82931bd192bdbb7366df487391081edb00955a6166107f4b8051a0cc",
+    "TRADEMARKS.md": "04b44f26e8bb085be0e9f44f146b45d07e18db8db25685e12d48e782c621ffd2"
+  },
+  "software_license": "Apache-2.0",
+  "original_content_license": "CC-BY-4.0",
+  "official_law_and_government_data_relicensed": false,
+  "origin_statement": "ALMA was initiated and originally designed by Yernar Sailybayev in Almaty, Kazakhstan.",
+  "name_use_rules": "TRADEMARKS.md",
+  "exclusive_rights_transferred": false,
+  "organization_transfer_approved": false,
+  "approval_source": "Direct written instruction from Yernar Sailybayev in the ALMA project conversation on 2026-08-14.",
+  "statement_ru": "Yernar Sailybayev утвердил указанные документы, лицензирование программного кода по Apache License 2.0, лицензирование оригинальных текстов, схем и учебных материалов по CC BY 4.0, формулировку происхождения проекта и правила использования обозначений ALMA и ALMA Legal Core. Утверждение не означает отчуждение исключительных прав или передачу проекта какой-либо организации.",
+  "statement_en": "Yernar Sailybayev approved the listed documents, Apache License 2.0 for the software, CC BY 4.0 for original prose, diagrams and educational materials, the project origin statement, and the ALMA and ALMA Legal Core name-use rules. The approval does not transfer exclusive rights or transfer the project to any organisation.",
+  "amendments": [
+    {
+      "decision": "CITATION_REPOSITORY_URL_CHANGE_APPROVED",
+      "approved_by": "Yernar Sailybayev",
+      "approved_on": "2026-08-14",
+      "document": "CITATION.cff",
+      "field": "repository-code",
+      "previous_value": "https://github.com/plvsovltre-ops/alma_bot",
+      "approved_value": "https://github.com/plvsovltre-ops/alma-monitor",
+      "previous_sha256": "023d694c024321f4baa1e8a1d9782f1da48df521f936b11a3ba80733aa06b959",
+      "approved_sha256": "cb9f759c415ebb30ceff5d32429cd28413e5a0306210f4f3a771d8ef73d79713",
+      "scope": "Only the canonical repository address in CITATION.cff changes; all other authorship and licensing terms approved on 2026-08-14 remain unchanged.",
+      "approval_source": "Direct written instruction from Yernar Sailybayev in the ALMA project conversation on 2026-08-14.",
+      "statement_ru": "Утверждаю изменение адреса репозитория в CITATION.cff на https://github.com/plvsovltre-ops/alma-monitor. Остальные условия моего решения об авторстве и лицензировании от 14 августа 2026 года остаются без изменений. Разрешаю пересчитать SHA-256 и обновить governance-запись PR №15."
+    }
+  ]
+}

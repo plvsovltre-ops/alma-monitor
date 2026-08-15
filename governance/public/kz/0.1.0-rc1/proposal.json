@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "status": "PUBLIC_REVIEW_REQUIRED",
+  "jurisdiction": "KZ",
+  "scope": "PUBLIC_CITIZEN_SCIENCE_DRAFTS",
+  "review_view_version": "1.0",
+  "review_object_manifest_sha256": "bd2918aec9ae82b3c8864d44dd9d18548475252c6b28148bbb2d3e68d385ed98",
+  "authorship": "ALMA was initiated and originally designed by Yernar Sailybayev in Almaty, Kazakhstan.",
+  "review_object_count": 32,
+  "artifacts": {
+    "legal_cards": {
+      "path": "legal_core/releases/kz/0.1.0-rc1/cards.json",
+      "sha256": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4"
+    },
+    "legal_sources": {
+      "path": "legal_core/releases/kz/0.1.0-rc1/sources.json",
+      "sha256": "15db8df513aa562a8b495dbaef2a6c2441ffc9a4dc5d98988c1e30f0489d60be"
+    },
+    "legal_owner_review": {
+      "path": "legal_core/releases/kz/0.1.0-rc1/review.json",
+      "sha256": "2620b2115af63db76550b20e5cbd3940faa525ab55f56c04b1107b200a81cf63"
+    },
+    "runtime_policy": {
+      "path": "legal_core/policies/kz/0.1.0-rc1/policy.json",
+      "sha256": "dff20191ef26409fa23c1c43130961a9987b081b88b35c79605e94441c4c26b6"
+    },
+    "runtime_policy_approval": {
+      "path": "legal_core/policies/kz/0.1.0-rc1/approval.json",
+      "sha256": "77550a92c3527bfd6d125d8268cae9939e8c4bbaf1ac5b015422704ff7fd29ab"
+    },
+    "territory_catalog": {
+      "path": "config/territory_catalog.json",
+      "sha256": "0549795c48533a00a8230a575addfabfa12ca49b357f0526790d30b48be9daa8"
+    },
+    "territory_catalog_approval": {
+      "path": "config/territory_catalog.approval.json",
+      "sha256": "425454f41ca27e83b011a91c66f2e49381b0c576c9bbfe5bebf91978a998d975"
+    },
+    "response_catalog": {
+      "path": "config/response_catalog.json",
+      "sha256": "ae1c62c8c77e018dbf7cb303a648c48f79ef2cff28ec971c8c61941a73b340b1"
+    },
+    "response_catalog_approval": {
+      "path": "config/response_catalog.approval.json",
+      "sha256": "6386ec0e0a6be9e11f3673cd26fb5e29cf3622165bf54b29b0a7127cc56b77f1"
+    }
+  },
+  "review_scope": {
+    "legal_rule_ids": [
+      "kz-almaty-green-p13-construction-preservation",
+      "kz-almaty-green-p32-1-construction-fencing",
+      "kz-almaty-green-p32-8-topsoil",
+      "kz-almaty-green-p42-1-damage",
+      "kz-almaty-green-p42-10-12-soil-networks",
+      "kz-almaty-green-p48-50-felling-permit",
+      "kz-almaty-green-p54-inspection-act",
+      "kz-eco-340-3",
+      "kz-koap-337-1-topsoil",
+      "kz-koap-344-2-storage",
+      "kz-koap-386-green-rules",
+      "kz-koap-505-1-cleaning",
+      "kz-land-65-1-9",
+      "kz-water-75-1-protection-directions",
+      "kz-water-76-1-pollution-definition",
+      "kz-water-77-1-clogging-definition",
+      "kz-water-77-2-clogging-burial",
+      "kz-water-86-1-2-surface-waste"
+    ],
+    "policy_mapping_ids": [
+      "construction",
+      "logging",
+      "soil_damage",
+      "waste",
+      "water_pollution"
+    ],
+    "authority_route_ids": [
+      "almaty_ecology_environment",
+      "almaty_land_resources",
+      "almaty_urban_planning_control",
+      "balkhash_alakol_water_inspection"
+    ],
+    "request_template_ids": [
+      "construction",
+      "logging",
+      "soil_damage",
+      "waste",
+      "water_pollution"
+    ]
+  }
+}

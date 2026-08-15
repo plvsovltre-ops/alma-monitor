@@ -1,5 +1,9 @@
 # ALMA Monitor
 
+> **Release status:** the code is publicly inspectable, but the public Legal
+> Core mode remains fail-closed until the author/legal-editor review, a separate
+> independent-lawyer review, and final hash-bound activation are committed.
+
 ALMA Monitor receives new field incidents from a private Mergin Maps project.
 It resolves a reviewed territory and authority route from orchard layers before
 Gemini is used. Gemini describes only observable facts. The recipient, subject,
@@ -53,6 +57,11 @@ Secret Manager entry for it.
 
 Set `GEMINI_MODEL` only when a different supported model is needed. The default
 is `gemini-3.6-flash`. The worker uses `gemini-2.5-flash` as a fallback.
+
+`ALMA_RELEASE_MODE` defaults to `controlled_pilot`. Do not set it to
+`public_legal_release` until the exact governance records under
+`governance/public/` are approved. A premature public setting fails before
+Gemini is called.
 
 Never commit secret values. Use `.env.example` only as a list of variable names.
 
@@ -216,6 +225,11 @@ See [the readiness note](docs/UN_CITIZEN_SCIENCE_READINESS.md). It defines the
 minimum documentation, privacy controls, and quality evidence needed before a
 public release.
 
+The public-release workflow and second-lawyer procedure are documented in
+[`docs/PUBLIC_RELEASE_GOVERNANCE.md`](docs/PUBLIC_RELEASE_GOVERNANCE.md). The
+operational gate is in
+[`docs/PUBLIC_RELEASE_CHECKLIST.md`](docs/PUBLIC_RELEASE_CHECKLIST.md).
+
 ## Kazakhstan Legal Core
 
 The versioned Kazakhstan Legal Core release candidate is documented in
@@ -228,6 +242,11 @@ citation can be returned.
 Yernar Sailybayev approved the reviewed cards as author and legal editor only
 for a private controlled pilot. Independent lawyer review remains pending and
 public legal release is blocked.
+
+The proposed public overlay reviews only the 32 objects actually used by the
+current worker: 18 Legal Core cards, five deterministic mappings, four authority
+routes, and five request templates. Its initial records deliberately state
+`PUBLIC_LEGAL_RELEASE_BLOCKED`. Editing a legacy card flag cannot unlock it.
 
 The runtime integration uses a separate five-row policy under
 `legal_core/policies/kz/0.1.0-rc1/`. The policy remains an immutable proposal
@@ -242,3 +261,12 @@ then appends exact reviewed cards and official links.
 
 ALMA was initiated and originally designed by Yernar Sailybayev in Almaty,
 Kazakhstan.
+
+## Licenses and name
+
+Software and machine-executable configuration are offered under the Apache
+License 2.0. Original documentation and educational material are offered under
+CC BY 4.0 as described in [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md). Official
+laws, government data, third-party material, personal data, and the ALMA name
+are outside those grants. See [`NOTICE`](NOTICE) and
+[`TRADEMARKS.md`](TRADEMARKS.md).

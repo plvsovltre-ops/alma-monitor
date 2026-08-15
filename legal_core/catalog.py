@@ -6,7 +6,7 @@ import copy
 import json
 from datetime import date
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 from .integrity import (
     IntegrityError,
@@ -24,6 +24,9 @@ DEFAULT_RELEASE = (
     / "cards.json"
 )
 CONTROLLED_PILOT_REVIEWER = "Yernar Sailybayev"
+
+if TYPE_CHECKING:
+    from .public_governance import PublicReleaseGovernance
 
 
 class LegalCoreError(RuntimeError):
@@ -203,6 +206,7 @@ class LegalCoreCatalog:
         rule_id: str,
         *,
         use_case: str = "controlled_pilot",
+        public_governance: PublicReleaseGovernance | None = None,
     ) -> dict[str, Any]:
         """Return an approved card or fail without attempting a substitute."""
         try:
@@ -235,19 +239,12 @@ class LegalCoreCatalog:
                     f"Card is blocked for controlled pilot use: {rule_id}"
                 )
         elif use_case == "public_legal_release":
-            if (
-                review.get("independent_lawyer_status")
-                != "INDEPENDENT_LAWYER_REVIEW_APPROVED"
-                or review.get("public_release_status")
-                != "PUBLIC_LEGAL_RELEASE_APPROVED"
-                or self.review_record.get("independent_lawyer_review_status")
-                != "INDEPENDENT_LAWYER_REVIEW_APPROVED"
-                or self.review_record.get("public_release_status")
-                != "PUBLIC_LEGAL_RELEASE_APPROVED"
-            ):
+            if public_governance is None:
                 raise CardBlockedError(
-                    f"Card is blocked for public legal release: {rule_id}"
+                    "Public legal release requires the separate two-person "
+                    f"governance record: {rule_id}"
                 )
+            public_governance.require_rule(rule_id)
         else:
             raise ValueError(f"Unsupported Legal Core use case: {use_case}")
 
@@ -258,11 +255,16 @@ class LegalCoreCatalog:
         rule_ids: Iterable[str],
         *,
         use_case: str = "controlled_pilot",
+        public_governance: PublicReleaseGovernance | None = None,
     ) -> list[dict[str, str]]:
         """Resolve citations exclusively from approved cards."""
         resolved = []
         for rule_id in rule_ids:
-            card = self.require_card(rule_id, use_case=use_case)
+            card = self.require_card(
+                rule_id,
+                use_case=use_case,
+                public_governance=public_governance,
+            )
             resolved.append(
                 {
                     "rule_id": card["rule_id"],

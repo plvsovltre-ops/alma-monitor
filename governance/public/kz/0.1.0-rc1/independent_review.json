@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "decision": "INDEPENDENT_LAWYER_REVIEW_APPROVED",
+  "proposal_sha256": "5edc43f76fc115663e94b2c46c17e300e8ef796f84518065eace7c11594790ee",
+  "reviewer": {
+    "reference": "independent-legal-reviewer-kz-001",
+    "capacity": "INDEPENDENT_LAWYER",
+    "public_label": "Independent legal reviewer (identity confidential)"
+  },
+  "identity_disclosure": "CONFIDENTIAL",
+  "identity_verified": true,
+  "independence_verified": true,
+  "qualification_verified": true,
+  "jurisdiction": "KZ",
+  "conflict_of_interest_declared": false,
+  "public_attribution_consent": false,
+  "confidential_attestation_consent": true,
+  "confidential_attestation_sha256": "901fbdc0f8008387df463f3bfa526384b41d4759689f23e028b04dccd1e20fc0",
+  "private_evidence_location": "OUTSIDE_PUBLIC_REPOSITORY",
+  "reviewed_on": "2026-08-15",
+  "review_csv_sha256": "350fff55ec2a1429855759d819615aa5ca061e6f1d484b7e4dedbacd87f439c5",
+  "reviewed_object_count": 32,
+  "review_source_type": "RESTRICTED_GOOGLE_SHEET",
+  "attestation_supersedes_legacy_publication_checkbox": true,
+  "statement": "The independent lawyer approved the exact public-release proposal and all listed review objects. The reviewer identity and private evidence are withheld from the public repository. The approval does not establish facts or guilt in any individual observation."
+}

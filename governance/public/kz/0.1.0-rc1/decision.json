@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "release_id": "kz-alma-public-0.1.0-rc1",
+  "decision": "PUBLIC_LEGAL_RELEASE_APPROVED",
+  "proposal_sha256": "5edc43f76fc115663e94b2c46c17e300e8ef796f84518065eace7c11594790ee",
+  "author_review_sha256": "9bd21eaf7e13b999340d3be08955aa5eb7aa206fbd34ca1dc92de933aaed7acd",
+  "independent_review_sha256": "1a56e58a83cc62ea33b17be4d393875d6a4479b9a83632f2d8697a16352c6944",
+  "approved_on": "2026-08-15",
+  "activated_by": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "statement": "This approval activates only the exact hash-bound public release. ALMA remains a drafting and citizen-science tool, not legal advice or a determination of violation or guilt."
+}
