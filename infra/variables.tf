@@ -38,6 +38,45 @@ variable "release_mode" {
   }
 }
 
+variable "mail_from" {
+  description = "Approved public sender address displayed to ALMA volunteers."
+  type        = string
+  default     = "monitor@alma.eco"
+
+  validation {
+    condition     = lower(var.mail_from) == "monitor@alma.eco"
+    error_message = "mail_from must remain monitor@alma.eco."
+  }
+}
+
+variable "mail_from_name" {
+  description = "Human-readable sender name displayed to ALMA volunteers."
+  type        = string
+  default     = "ALMA Monitor"
+}
+
+variable "smtp_host" {
+  description = "Verified SMTP2GO endpoint used for ALMA delivery."
+  type        = string
+  default     = "mail-eu.smtp2go.com"
+
+  validation {
+    condition     = lower(var.smtp_host) == "mail-eu.smtp2go.com"
+    error_message = "smtp_host must remain mail-eu.smtp2go.com."
+  }
+}
+
+variable "smtp_port" {
+  description = "SMTP submission port used with STARTTLS."
+  type        = number
+  default     = 587
+
+  validation {
+    condition     = var.smtp_port == 587
+    error_message = "smtp_port must remain the approved STARTTLS port 587."
+  }
+}
+
 variable "schedule" {
   description = "Low-cost cron schedule for monitoring Mergin Maps. Fifteen minutes leaves Cloud Run free-tier headroom for manual executions."
   type        = string

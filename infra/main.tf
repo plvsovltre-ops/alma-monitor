@@ -16,10 +16,19 @@ locals {
   runtime_secrets = toset([
     "MERGIN_USER",
     "MERGIN_PASS",
-    "GMAIL_USER",
-    "GMAIL_APP_PASS",
+    "SMTP_USER",
+    "SMTP_PASS",
     "GEMINI_API_KEY",
   ])
+
+  # Keep the retired Gmail secret containers in Terraform state during the
+  # SMTP2GO migration. They are no longer exposed to the Cloud Run worker.
+  legacy_mail_secrets = toset([
+    "GMAIL_USER",
+    "GMAIL_APP_PASS",
+  ])
+
+  managed_secrets = setunion(local.runtime_secrets, local.legacy_mail_secrets)
 }
 
 resource "google_project_service" "required" {
@@ -55,7 +64,7 @@ resource "google_service_account" "scheduler" {
 # Terraform creates only empty secret containers. Add secret values in Google
 # Cloud Console or with gcloud. This keeps secret values out of Git and state.
 resource "google_secret_manager_secret" "runtime" {
-  for_each = local.runtime_secrets
+  for_each = local.managed_secrets
 
   project   = var.project_id
   secret_id = each.value
@@ -138,6 +147,26 @@ resource "google_cloud_run_v2_job" "monitor" {
         env {
           name  = "ALMA_RELEASE_MODE"
           value = var.release_mode
+        }
+
+        env {
+          name  = "MAIL_FROM"
+          value = var.mail_from
+        }
+
+        env {
+          name  = "MAIL_FROM_NAME"
+          value = var.mail_from_name
+        }
+
+        env {
+          name  = "SMTP_HOST"
+          value = var.smtp_host
+        }
+
+        env {
+          name  = "SMTP_PORT"
+          value = tostring(var.smtp_port)
         }
 
         env {

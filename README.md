@@ -48,12 +48,15 @@ The worker needs these secrets:
 | --- | --- |
 | `MERGIN_USER` | Dedicated Mergin Maps worker account |
 | `MERGIN_PASS` | Password for the worker account |
-| `GMAIL_USER` | Email account that sends replies |
-| `GMAIL_APP_PASS` | App password for the sender account |
+| `SMTP_USER` | Dedicated SMTP2GO authentication username; it is never shown to volunteers |
+| `SMTP_PASS` | Password for the dedicated SMTP2GO user |
 | `GEMINI_API_KEY` | Gemini API key |
 
-Terraform sets `STATE_BUCKET` as a normal environment variable. Do not create a
-Secret Manager entry for it.
+Terraform sets `STATE_BUCKET`, `MAIL_FROM`, `MAIL_FROM_NAME`, `SMTP_HOST`, and
+`SMTP_PORT` as normal environment variables. Do not create Secret Manager
+entries for them. Production delivery uses STARTTLS on `mail-eu.smtp2go.com:587`.
+The visible `From` and `Reply-To` address is fixed to `monitor@alma.eco`; the
+SMTP2GO login remains private and may use a different name.
 
 Set `GEMINI_MODEL` only when a different supported model is needed. The default
 is `gemini-3.6-flash`. The worker uses `gemini-2.5-flash` as a fallback.
