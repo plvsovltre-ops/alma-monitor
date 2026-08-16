@@ -39,7 +39,7 @@ variable "release_mode" {
 }
 
 variable "schedule" {
-  description = "Unix cron schedule for monitoring Mergin Maps."
+  description = "Low-cost cron schedule for monitoring Mergin Maps. Fifteen minutes leaves Cloud Run free-tier headroom for manual executions."
   type        = string
-  default     = "* * * * *"
+  default     = "*/15 * * * *"
 }

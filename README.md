@@ -28,7 +28,7 @@ need a personal computer after deployment.
 
 - **Mergin Maps Cloud** is the read-only source of field observations and media.
 - **Cloud Run Job** is the processing worker.
-- **Cloud Scheduler** starts the watcher every minute.
+- **Cloud Scheduler** starts the watcher every 15 minutes.
 - **Cloud Storage** keeps per-incident processing and delivery state, the last
   scanned Mergin Maps version, and an atomic execution lock.
 - **Secret Manager** stores credentials.
@@ -123,7 +123,7 @@ secret containers before the first image exists. All later changes use a normal
 ## Operations
 
 - Use Cloud Logging to review every job execution.
-- The watcher reads the Mergin Maps project version each minute. If the version
+- The watcher reads the Mergin Maps project version every 15 minutes. If the version
   did not change, it does not download the GIS project and it does not call
   Gemini.
 - If the version changed, the worker downloads and scans the project. It calls
@@ -216,6 +216,12 @@ secret containers before the first image exists. All later changes use a normal
   metadata, not from a later server lookup.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
   executions from processing the same Mergin Maps version.
+- The production Scheduler polls Mergin Maps every 15 minutes. Cloud Run Jobs
+  have a one-minute minimum billable duration, so minute-by-minute polling costs
+  about 15 times more while most runs find no new project version. Immediate
+  Cloud Run and Scheduler retries are disabled; a transient failure is retried
+  by the next scheduled poll. Manual executions remain available for urgent
+  checks.
 - Update the Gemini model before a published model shutdown date.
 - Review generated legal drafts before they are used as official submissions.
 

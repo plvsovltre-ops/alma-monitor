@@ -111,7 +111,9 @@ resource "google_cloud_run_v2_job" "monitor" {
       timeout         = "840s"
       # The application uses an atomic Cloud Storage lock. It prevents
       # overlapping executions from processing the same field version.
-      max_retries     = 1
+      # A failed poll is retried by the next 15-minute Scheduler invocation.
+      # Disabling an immediate retry bounds idle and failure-path compute cost.
+      max_retries = 0
 
       containers {
         image = var.image
@@ -177,13 +179,15 @@ resource "google_cloud_scheduler_job" "monitor" {
   project          = var.project_id
   region           = var.scheduler_region
   name             = "alma-monitor-every-minute"
-  description      = "Checks Mergin Maps each minute and processes each new incident"
+  description      = "Checks Mergin Maps on the configured low-cost polling schedule"
   schedule         = var.schedule
   time_zone        = "Asia/Almaty"
   attempt_deadline = "600s"
 
   retry_config {
-    retry_count = 2
+    # The next regular poll is the retry. Extra Scheduler attempts can start
+    # duplicate Cloud Run executions after an ambiguous HTTP response.
+    retry_count = 0
   }
 
   http_target {
