@@ -59,6 +59,11 @@ variable "smtp_host" {
   description = "Verified SMTP2GO endpoint used for ALMA delivery."
   type        = string
   default     = "mail-eu.smtp2go.com"
+
+  validation {
+    condition     = lower(var.smtp_host) == "mail-eu.smtp2go.com"
+    error_message = "smtp_host must remain mail-eu.smtp2go.com."
+  }
 }
 
 variable "smtp_port" {
@@ -67,8 +72,8 @@ variable "smtp_port" {
   default     = 587
 
   validation {
-    condition     = var.smtp_port >= 1 && var.smtp_port <= 65535
-    error_message = "smtp_port must be between 1 and 65535."
+    condition     = var.smtp_port == 587
+    error_message = "smtp_port must remain the approved STARTTLS port 587."
   }
 }
 
