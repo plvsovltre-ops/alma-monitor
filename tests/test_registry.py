@@ -423,7 +423,7 @@ class RegistryTests(unittest.TestCase):
     def test_email_delivery_fails_closed_without_attachment(self):
         with mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
             main.smtplib,
-            "SMTP_SSL",
+            "SMTP",
         ) as smtp:
             with self.assertRaisesRegex(RuntimeError, "without photo evidence"):
                 main.send_email_with_attachments(
@@ -433,6 +433,109 @@ class RegistryTests(unittest.TestCase):
                     [],
                 )
         smtp.assert_not_called()
+
+    def test_smtp2go_service_email_uses_approved_sender_and_starttls(self):
+        smtp = mock.MagicMock()
+        smtp.__enter__.return_value = smtp
+        tls_context = object()
+        environment = {
+            "MAIL_FROM": "monitor@alma.eco",
+            "MAIL_FROM_NAME": "ALMA Monitor",
+            "SMTP_HOST": "mail-eu.smtp2go.com",
+            "SMTP_PORT": "587",
+            "SMTP_USER": "alma-monitor-prod",
+            "SMTP_PASS": "smtp2go-secret",
+        }
+
+        with mock.patch.dict(main.os.environ, environment, clear=True), mock.patch.object(
+            main.ssl,
+            "create_default_context",
+            return_value=tls_context,
+        ), mock.patch.object(
+            main.smtplib,
+            "SMTP",
+            return_value=smtp,
+        ) as smtp_factory:
+            main.send_service_email(
+                "volunteer@example.com",
+                "ALMA: test",
+                "body",
+            )
+
+        smtp_factory.assert_called_once_with(
+            "mail-eu.smtp2go.com",
+            587,
+            timeout=30,
+        )
+        self.assertEqual(
+            [
+                mock.call.ehlo(),
+                mock.call.starttls(context=tls_context),
+                mock.call.ehlo(),
+                mock.call.login("alma-monitor-prod", "smtp2go-secret"),
+                mock.call.send_message(
+                    mock.ANY,
+                    from_addr="monitor@alma.eco",
+                    to_addrs=["volunteer@example.com"],
+                ),
+            ],
+            smtp.method_calls,
+        )
+        message = smtp.send_message.call_args.args[0]
+        self.assertEqual("ALMA Monitor <monitor@alma.eco>", message["From"])
+        self.assertEqual("monitor@alma.eco", message["Reply-To"])
+        self.assertEqual("volunteer@example.com", message["To"])
+
+    def test_mail_config_rejects_an_unapproved_visible_sender(self):
+        environment = {
+            "MAIL_FROM": "another@example.com",
+            "SMTP_USER": "alma-monitor-prod",
+            "SMTP_PASS": "smtp2go-secret",
+        }
+        with mock.patch.dict(main.os.environ, environment, clear=True):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "MAIL_FROM must be the approved ALMA sender",
+            ):
+                main.load_mail_config()
+
+    def test_mail_config_rejects_header_injection(self):
+        environment = {
+            "MAIL_FROM": "monitor@alma.eco",
+            "MAIL_FROM_NAME": "ALMA Monitor\nBcc: attacker@example.com",
+            "SMTP_USER": "alma-monitor-prod",
+            "SMTP_PASS": "smtp2go-secret",
+        }
+        with mock.patch.dict(main.os.environ, environment, clear=True):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "Invalid mail configuration: MAIL_FROM_NAME",
+            ):
+                main.load_mail_config()
+
+    def test_smtp2go_failure_is_fail_closed_without_exposing_password(self):
+        smtp = mock.MagicMock()
+        smtp.__enter__.return_value = smtp
+        smtp.login.side_effect = main.smtplib.SMTPAuthenticationError(
+            535,
+            b"authentication failed",
+        )
+        config = {
+            "sender": "monitor@alma.eco",
+            "sender_header": "ALMA Monitor <monitor@alma.eco>",
+            "smtp_host": "mail-eu.smtp2go.com",
+            "smtp_port": 587,
+            "smtp_user": "alma-monitor-prod",
+            "smtp_pass": "do-not-expose",
+        }
+        with mock.patch.object(main.smtplib, "SMTP", return_value=smtp):
+            with self.assertRaisesRegex(RuntimeError, "SMTP2GO delivery failed") as error:
+                main.deliver_email(
+                    main.MIMEText("body"),
+                    ["volunteer@example.com"],
+                    config=config,
+                )
+        self.assertNotIn("do-not-expose", str(error.exception))
 
     def test_unreadable_image_is_rejected(self):
         with mock.patch.object(
