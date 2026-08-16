@@ -513,6 +513,36 @@ class RegistryTests(unittest.TestCase):
             ):
                 main.load_mail_config()
 
+    def test_mail_config_rejects_an_unapproved_smtp_endpoint(self):
+        environment = {
+            "MAIL_FROM": "monitor@alma.eco",
+            "SMTP_HOST": "attacker.example.com",
+            "SMTP_PORT": "587",
+            "SMTP_USER": "alma-monitor-prod",
+            "SMTP_PASS": "smtp2go-secret",
+        }
+        with mock.patch.dict(main.os.environ, environment, clear=True):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "SMTP_HOST must be the approved SMTP2GO endpoint",
+            ):
+                main.load_mail_config()
+
+    def test_mail_config_rejects_an_unapproved_smtp_port(self):
+        environment = {
+            "MAIL_FROM": "monitor@alma.eco",
+            "SMTP_HOST": "mail-eu.smtp2go.com",
+            "SMTP_PORT": "465",
+            "SMTP_USER": "alma-monitor-prod",
+            "SMTP_PASS": "smtp2go-secret",
+        }
+        with mock.patch.dict(main.os.environ, environment, clear=True):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "SMTP_PORT must be the approved STARTTLS port",
+            ):
+                main.load_mail_config()
+
     def test_smtp2go_failure_is_fail_closed_without_exposing_password(self):
         smtp = mock.MagicMock()
         smtp.__enter__.return_value = smtp
