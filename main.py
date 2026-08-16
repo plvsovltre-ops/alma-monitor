@@ -13,6 +13,7 @@ import math
 import logging
 import re
 import smtplib
+import ssl
 import shutil
 import pandas as pd
 import geopandas as gpd
@@ -32,6 +33,7 @@ import gspread
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
+from email.utils import formataddr
 from mergin import MerginClient
 from legal_core import (
     PublicReleaseGovernance,
@@ -50,7 +52,12 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.4.0-rc1"
+APP_VERSION = "1.4.1"
+
+REQUIRED_MAIL_FROM = "monitor@alma.eco"
+DEFAULT_MAIL_FROM_NAME = "ALMA Monitor"
+DEFAULT_SMTP_HOST = "mail-eu.smtp2go.com"
+DEFAULT_SMTP_PORT = 587
 
 # --- НАСТРОЙКИ ---
 MERGIN_PROJECT = "ALMA_exmachina/alma_bot"
@@ -173,6 +180,77 @@ def get_env(name, required=True):
             raise RuntimeError(message)
         LOG.warning(message)
     return val
+
+
+def load_mail_config():
+    """Load SMTP2GO credentials separately from the public ALMA sender."""
+    sender = os.environ.get("MAIL_FROM", REQUIRED_MAIL_FROM).strip()
+    sender_name = os.environ.get("MAIL_FROM_NAME", DEFAULT_MAIL_FROM_NAME).strip()
+    smtp_host = os.environ.get("SMTP_HOST", DEFAULT_SMTP_HOST).strip()
+    smtp_port_raw = os.environ.get("SMTP_PORT", str(DEFAULT_SMTP_PORT)).strip()
+    smtp_user = get_env("SMTP_USER").strip()
+    smtp_pass = get_env("SMTP_PASS")
+
+    if sender.casefold() != REQUIRED_MAIL_FROM.casefold():
+        raise RuntimeError(
+            f"MAIL_FROM must be the approved ALMA sender: {REQUIRED_MAIL_FROM}"
+        )
+    for field_name, value in (
+        ("MAIL_FROM", sender),
+        ("MAIL_FROM_NAME", sender_name),
+        ("SMTP_HOST", smtp_host),
+        ("SMTP_USER", smtp_user),
+    ):
+        if not value or "\r" in value or "\n" in value:
+            raise RuntimeError(f"Invalid mail configuration: {field_name}")
+    try:
+        smtp_port = int(smtp_port_raw)
+    except ValueError as error:
+        raise RuntimeError("SMTP_PORT must be an integer") from error
+    if not 1 <= smtp_port <= 65535:
+        raise RuntimeError("SMTP_PORT must be between 1 and 65535")
+
+    return {
+        "sender": REQUIRED_MAIL_FROM,
+        "sender_header": formataddr((sender_name, REQUIRED_MAIL_FROM)),
+        "smtp_host": smtp_host,
+        "smtp_port": smtp_port,
+        "smtp_user": smtp_user,
+        "smtp_pass": smtp_pass,
+    }
+
+
+def deliver_email(message, recipients, config=None):
+    """Deliver one message through authenticated SMTP2GO with STARTTLS."""
+    config = config or load_mail_config()
+    clean_recipients = []
+    for recipient in recipients:
+        value = str(recipient).strip()
+        if not value or "\r" in value or "\n" in value:
+            raise RuntimeError("Invalid email recipient")
+        if value.casefold() not in {item.casefold() for item in clean_recipients}:
+            clean_recipients.append(value)
+    if not clean_recipients:
+        raise RuntimeError("Email delivery requires at least one recipient")
+
+    context = ssl.create_default_context()
+    try:
+        with smtplib.SMTP(
+            config["smtp_host"],
+            config["smtp_port"],
+            timeout=30,
+        ) as smtp:
+            smtp.ehlo()
+            smtp.starttls(context=context)
+            smtp.ehlo()
+            smtp.login(config["smtp_user"], config["smtp_pass"])
+            smtp.send_message(
+                message,
+                from_addr=config["sender"],
+                to_addrs=clean_recipients,
+            )
+    except Exception as error:
+        raise RuntimeError("SMTP2GO delivery failed") from error
 
 
 def get_project_version(mc):
@@ -1264,26 +1342,28 @@ def human_response_block(
 
 
 def send_email_with_attachments(to_email, subject, body, attachment_paths):
-    sender = get_env('GMAIL_USER')
-    password = get_env('GMAIL_APP_PASS')
-
-    msg = MIMEMultipart()
-    msg['From'] = sender
-    recipients = [sender]
-    if to_email and str(to_email).strip().lower() != "nan":
-        recipients.append(str(to_email).strip())
-    msg['To'] = ", ".join(recipients)
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
     if not attachment_paths:
         raise RuntimeError(f"Email delivery blocked without photo evidence: {subject}")
     for f_path in attachment_paths:
         if not f_path or not os.path.isfile(f_path):
             raise RuntimeError(f"Email attachment is unavailable: {subject}")
+
+    config = load_mail_config()
+    msg = MIMEMultipart()
+    msg["From"] = config["sender_header"]
+    msg["Reply-To"] = config["sender"]
+    recipients = [config["sender"]]
+    volunteer = str(normalize_sheet_value(to_email)).strip()
+    if volunteer and volunteer.casefold() != "nan":
+        recipients.append(volunteer)
+    msg["To"] = ", ".join(dict.fromkeys(recipients))
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain", "utf-8"))
+
+    for f_path in attachment_paths:
         try:
-            with open(f_path, 'rb') as f:
-                img_data = f.read()
+            with open(f_path, "rb") as image_file:
+                img_data = image_file.read()
             image = MIMEImage(img_data, name=os.path.basename(f_path))
             msg.attach(image)
         except Exception as error:
@@ -1292,12 +1372,10 @@ def send_email_with_attachments(to_email, subject, body, attachment_paths):
             ) from error
 
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
-            s.login(sender, password)
-            s.send_message(msg)
+        deliver_email(msg, recipients, config=config)
         LOG.info("Email sent: %s", subject)
-    except Exception as e:
-        raise RuntimeError(f"Email delivery failed for {subject}") from e
+    except Exception as error:
+        raise RuntimeError(f"Email delivery failed for {subject}") from error
 
 
 def send_service_email(to_email, subject, body):
@@ -1306,16 +1384,14 @@ def send_service_email(to_email, subject, body):
     if not recipient or recipient.casefold() == "nan":
         raise ValueError("Volunteer service notice requires an explicit email")
 
-    sender = get_env("GMAIL_USER")
-    password = get_env("GMAIL_APP_PASS")
-    msg = MIMEText(body, "plain")
-    msg["From"] = sender
+    config = load_mail_config()
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["From"] = config["sender_header"]
+    msg["Reply-To"] = config["sender"]
     msg["To"] = recipient
     msg["Subject"] = subject
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(sender, password)
-            smtp.send_message(msg)
+        deliver_email(msg, [recipient], config=config)
         LOG.info("Volunteer service notice sent: %s", subject)
     except Exception as error:
         raise RuntimeError(
