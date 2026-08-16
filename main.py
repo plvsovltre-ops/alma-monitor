@@ -203,12 +203,18 @@ def load_mail_config():
     ):
         if not value or "\r" in value or "\n" in value:
             raise RuntimeError(f"Invalid mail configuration: {field_name}")
+    if smtp_host.casefold() != DEFAULT_SMTP_HOST.casefold():
+        raise RuntimeError(
+            f"SMTP_HOST must be the approved SMTP2GO endpoint: {DEFAULT_SMTP_HOST}"
+        )
     try:
         smtp_port = int(smtp_port_raw)
     except ValueError as error:
         raise RuntimeError("SMTP_PORT must be an integer") from error
-    if not 1 <= smtp_port <= 65535:
-        raise RuntimeError("SMTP_PORT must be between 1 and 65535")
+    if smtp_port != DEFAULT_SMTP_PORT:
+        raise RuntimeError(
+            f"SMTP_PORT must be the approved STARTTLS port: {DEFAULT_SMTP_PORT}"
+        )
 
     return {
         "sender": REQUIRED_MAIL_FROM,
