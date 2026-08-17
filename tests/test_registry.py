@@ -435,6 +435,53 @@ class RegistryTests(unittest.TestCase):
                 )
         smtp.assert_not_called()
 
+    def test_result_email_requires_explicit_volunteer_address(self):
+        with mock.patch.object(main.os.path, "isfile", return_value=True), mock.patch.object(
+            main,
+            "load_mail_config",
+        ) as load_config:
+            with self.assertRaisesRegex(ValueError, "explicit volunteer email"):
+                main.send_email_with_attachments(
+                    "",
+                    "ALMA: test",
+                    "body",
+                    ["verified-photo.jpg"],
+                )
+        load_config.assert_not_called()
+
+    def test_result_email_keeps_evidence_private_and_adds_trace_headers(self):
+        smtp = mock.MagicMock()
+        smtp.__enter__.return_value = smtp
+        smtp.send_message.return_value = {}
+        config = {
+            "sender": "monitor@alma.eco",
+            "sender_header": "ALMA Monitor <monitor@alma.eco>",
+            "smtp_host": "mail-eu.smtp2go.com",
+            "smtp_port": 587,
+            "smtp_user": "alma-monitor-prod",
+            "smtp_pass": "smtp2go-secret",
+        }
+
+        with mock.patch.object(main.os.path, "isfile", return_value=True), mock.patch.object(
+            main,
+            "load_mail_config",
+            return_value=config,
+        ), mock.patch.object(main.smtplib, "SMTP", return_value=smtp):
+            submission = main.send_email_with_attachments(
+                "volunteer@example.com",
+                "ALMA: test",
+                "body",
+                ["verified-photo.jpg"],
+            )
+
+        message = smtp.send_message.call_args.args[0]
+        self.assertFalse(message.is_multipart())
+        self.assertEqual("body", message.get_payload(decode=True).decode("utf-8"))
+        self.assertTrue(message["Date"])
+        self.assertTrue(message["Message-ID"].endswith("@alma.eco>"))
+        self.assertEqual("accepted_by_provider", submission["status"])
+        self.assertEqual(2, submission["accepted_recipient_count"])
+
     def test_smtp2go_service_email_uses_approved_sender_and_starttls(self):
         smtp = mock.MagicMock()
         smtp.__enter__.return_value = smtp
@@ -567,6 +614,29 @@ class RegistryTests(unittest.TestCase):
                     config=config,
                 )
         self.assertNotIn("do-not-expose", str(error.exception))
+
+    def test_smtp2go_recipient_refusal_fails_closed(self):
+        smtp = mock.MagicMock()
+        smtp.__enter__.return_value = smtp
+        smtp.send_message.return_value = {
+            "volunteer@example.com": (550, b"recipient rejected")
+        }
+        config = {
+            "sender": "monitor@alma.eco",
+            "sender_header": "ALMA Monitor <monitor@alma.eco>",
+            "smtp_host": "mail-eu.smtp2go.com",
+            "smtp_port": 587,
+            "smtp_user": "alma-monitor-prod",
+            "smtp_pass": "do-not-expose",
+        }
+
+        with mock.patch.object(main.smtplib, "SMTP", return_value=smtp):
+            with self.assertRaisesRegex(RuntimeError, "SMTP2GO delivery failed"):
+                main.deliver_email(
+                    main.MIMEText("body"),
+                    ["volunteer@example.com"],
+                    config=config,
+                )
 
     def test_unreadable_image_is_rejected(self):
         with mock.patch.object(
@@ -734,6 +804,9 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual("ALMA: наблюдение case-1", send_email.call_args.args[1])
         state = main.read_incident_state(bucket, "case-1")
         self.assertEqual(state["status"], main.INCIDENT_STATUS_COMPLETED)
+        self.assertEqual("SMTP2GO", state["mail_provider"])
+        self.assertEqual("accepted_by_provider", state["mail_submission_status"])
+        self.assertNotIn("delivered_at", state)
         self.assertEqual(state["source_project_version"], "v125")
         self.assertIn("ЧТО МЫ УВИДЕЛИ", state["response_ru"])
         self.assertIn("БІЗ НЕ БАЙҚАДЫҚ", state["response_kz"])
