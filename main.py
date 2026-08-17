@@ -31,9 +31,7 @@ from google.api_core.exceptions import NotFound, PreconditionFailed
 import gspread
 
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.image import MIMEImage
-from email.utils import formataddr
+from email.utils import formataddr, formatdate, make_msgid
 from mergin import MerginClient
 from legal_core import (
     PublicReleaseGovernance,
@@ -52,7 +50,7 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.5.1"
+APP_VERSION = "1.5.2"
 
 REQUIRED_MAIL_FROM = "monitor@alma.eco"
 DEFAULT_MAIL_FROM_NAME = "ALMA Monitor"
@@ -92,6 +90,7 @@ INCIDENT_STATE_PREFIX = "state/incidents"
 INCIDENT_STATUS_PROCESSING = "processing"
 INCIDENT_STATUS_READY = "ready"
 INCIDENT_STATUS_DELIVERY_STARTED = "delivery_started"
+INCIDENT_STATUS_MAIL_SUBMITTED = "mail_submitted"
 INCIDENT_STATUS_DELIVERED = "delivered"
 INCIDENT_STATUS_COMPLETED = "completed"
 INCIDENT_STATUS_DELIVERY_UNCERTAIN = "delivery_uncertain"
@@ -103,6 +102,7 @@ INCIDENT_STATUSES = {
     INCIDENT_STATUS_PROCESSING,
     INCIDENT_STATUS_READY,
     INCIDENT_STATUS_DELIVERY_STARTED,
+    INCIDENT_STATUS_MAIL_SUBMITTED,
     INCIDENT_STATUS_DELIVERED,
     INCIDENT_STATUS_COMPLETED,
     INCIDENT_STATUS_DELIVERY_UNCERTAIN,
@@ -231,7 +231,7 @@ def load_mail_config():
 
 
 def deliver_email(message, recipients, config=None):
-    """Deliver one message through authenticated SMTP2GO with STARTTLS."""
+    """Submit one traceable message to SMTP2GO with STARTTLS."""
     config = config or load_mail_config()
     clean_recipients = []
     for recipient in recipients:
@@ -242,6 +242,10 @@ def deliver_email(message, recipients, config=None):
             clean_recipients.append(value)
     if not clean_recipients:
         raise RuntimeError("Email delivery requires at least one recipient")
+    if "Date" not in message:
+        message["Date"] = formatdate(localtime=False)
+    if "Message-ID" not in message:
+        message["Message-ID"] = make_msgid(domain="alma.eco")
 
     context = ssl.create_default_context()
     try:
@@ -254,13 +258,21 @@ def deliver_email(message, recipients, config=None):
             smtp.starttls(context=context)
             smtp.ehlo()
             smtp.login(config["smtp_user"], config["smtp_pass"])
-            smtp.send_message(
+            refused = smtp.send_message(
                 message,
                 from_addr=config["sender"],
                 to_addrs=clean_recipients,
             )
+            if isinstance(refused, dict) and refused:
+                raise RuntimeError("SMTP2GO refused one or more recipients")
     except Exception as error:
         raise RuntimeError("SMTP2GO delivery failed") from error
+    return {
+        "provider": "SMTP2GO",
+        "message_id": str(message["Message-ID"]),
+        "accepted_recipient_count": len(clean_recipients),
+        "status": "accepted_by_provider",
+    }
 
 
 def get_project_version(mc):
@@ -384,6 +396,7 @@ def incident_requires_processing(row, state):
     if state:
         return state.get("status") not in {
             INCIDENT_STATUS_DELIVERY_STARTED,
+            INCIDENT_STATUS_MAIL_SUBMITTED,
             INCIDENT_STATUS_DELIVERED,
             INCIDENT_STATUS_COMPLETED,
             INCIDENT_STATUS_DELIVERY_UNCERTAIN,
@@ -743,6 +756,7 @@ def get_volunteer_contribution(bucket, email, current_uid):
             if state.get("incident_id") == current_uid:
                 continue
             if state.get("status") not in {
+                INCIDENT_STATUS_MAIL_SUBMITTED,
                 INCIDENT_STATUS_DELIVERED,
                 INCIDENT_STATUS_COMPLETED,
             }:
@@ -1379,38 +1393,35 @@ def human_response_block(
 
 
 def send_email_with_attachments(to_email, subject, body, attachment_paths):
+    """Send the dossier while keeping verified photo evidence in Mergin Maps."""
     if not attachment_paths:
         raise RuntimeError(f"Email delivery blocked without photo evidence: {subject}")
     for f_path in attachment_paths:
         if not f_path or not os.path.isfile(f_path):
             raise RuntimeError(f"Email attachment is unavailable: {subject}")
 
+    volunteer = str(normalize_sheet_value(to_email)).strip()
+    if not volunteer or volunteer.casefold() == "nan":
+        raise ValueError("Result email requires an explicit volunteer email")
+
     config = load_mail_config()
-    msg = MIMEMultipart()
+    msg = MIMEText(body, "plain", "utf-8")
     msg["From"] = config["sender_header"]
     msg["Reply-To"] = config["sender"]
     recipients = [config["sender"]]
-    volunteer = str(normalize_sheet_value(to_email)).strip()
-    if volunteer and volunteer.casefold() != "nan":
-        recipients.append(volunteer)
+    recipients.append(volunteer)
     msg["To"] = ", ".join(dict.fromkeys(recipients))
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain", "utf-8"))
-
-    for f_path in attachment_paths:
-        try:
-            with open(f_path, "rb") as image_file:
-                img_data = image_file.read()
-            image = MIMEImage(img_data, name=os.path.basename(f_path))
-            msg.attach(image)
-        except Exception as error:
-            raise RuntimeError(
-                f"Could not prepare email attachment for {subject}"
-            ) from error
 
     try:
-        deliver_email(msg, recipients, config=config)
-        LOG.info("Email sent: %s", subject)
+        submission = deliver_email(msg, recipients, config=config)
+        LOG.info(
+            "Email accepted by SMTP2GO: %s (%s; evidence retained privately: %s)",
+            subject,
+            submission["message_id"],
+            len(attachment_paths),
+        )
+        return submission
     except Exception as error:
         raise RuntimeError(f"Email delivery failed for {subject}") from error
 
@@ -1428,8 +1439,13 @@ def send_service_email(to_email, subject, body):
     msg["To"] = recipient
     msg["Subject"] = subject
     try:
-        deliver_email(msg, [recipient], config=config)
-        LOG.info("Volunteer service notice sent: %s", subject)
+        submission = deliver_email(msg, [recipient], config=config)
+        LOG.info(
+            "Volunteer service notice accepted by SMTP2GO: %s (%s)",
+            subject,
+            submission["message_id"],
+        )
+        return submission
     except Exception as error:
         raise RuntimeError(
             f"Volunteer service notice delivery failed for {subject}"
@@ -1556,7 +1572,10 @@ def process_project(mc, bucket):
         seen_incident_ids.add(uid)
         state = read_incident_state(bucket, uid)
 
-        if state and state.get("status") == INCIDENT_STATUS_DELIVERED:
+        if state and state.get("status") in {
+            INCIDENT_STATUS_MAIL_SUBMITTED,
+            INCIDENT_STATUS_DELIVERED,
+        }:
             registry_ok = complete_delivered_incident(bucket, state) and registry_ok
             continue
         if state and state.get("status") == INCIDENT_STATUS_DELIVERY_STARTED:
@@ -2184,15 +2203,25 @@ def process_project(mc, bucket):
             previous=state,
             delivery_started_at=datetime.now(timezone.utc).isoformat(),
         )
-        send_email_with_attachments(
+        mail_submission = send_email_with_attachments(
             row.get('volunteer_email'), email_subject, email_body, attachments
         )
+        if not isinstance(mail_submission, dict):
+            mail_submission = {}
         state = write_incident_state(
             bucket,
             uid,
-            INCIDENT_STATUS_DELIVERED,
+            INCIDENT_STATUS_MAIL_SUBMITTED,
             previous=state,
-            delivered_at=datetime.now(timezone.utc).isoformat(),
+            mail_provider=str(mail_submission.get("provider") or "SMTP2GO"),
+            mail_message_id=str(mail_submission.get("message_id") or ""),
+            mail_submission_status=str(
+                mail_submission.get("status") or "accepted_by_provider"
+            ),
+            mail_accepted_recipient_count=int(
+                mail_submission.get("accepted_recipient_count") or 0
+            ),
+            mail_submitted_at=datetime.now(timezone.utc).isoformat(),
         )
         registry_ok = complete_delivered_incident(bucket, state) and registry_ok
 

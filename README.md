@@ -25,8 +25,9 @@ under `config/field/0.2.0-rc1/`. These
 catalogs cause no API call and no Gemini token use. Deterministically selected
 Legal Core provisions appear only as a short legal basis in the draft request;
 full citations and audit metadata remain in the private incident state. The
-worker sends one email with Russian and Kazakh text, then records the result in
-private Cloud Storage state and Google Sheets.
+worker sends one text-only email with Russian and Kazakh text, then records the
+result in private Cloud Storage state and Google Sheets. Photographs remain in
+the private Mergin Maps evidence store and are not duplicated into email.
 
 The worker treats the Mergin Maps project as read-only. It never writes generated
 text or delivery fields back to a field GeoPackage and never pushes the downloaded
@@ -208,8 +209,11 @@ secret containers before the first image exists. All later changes use a normal
   approval. A changed catalog, missing approval, unofficial source, or incomplete
   mapping blocks processing before Gemini is called.
 - The worker uses the incident ID and Cloud Storage state to prevent duplicate
-  email delivery and Google Sheets rows. A delivered result can restore a
-  missing registry row without sending the email again.
+  email submission and Google Sheets rows. SMTP acceptance is recorded as
+  `mail_submitted`; it is not represented as proof that the destination mailbox
+  displayed the message. A submitted result can restore a missing registry row
+  without sending the email again. Each message has a stable traceable
+  `Message-ID`. See [Email delivery](docs/EMAIL_DELIVERY.md).
 - A worker interruption after email delivery starts is quarantined as
   `delivery_uncertain`; it requires manual review and is never resent
   automatically. Configure a Cloud Logging alert for

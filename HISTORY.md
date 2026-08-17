@@ -1,5 +1,14 @@
 # Release history
 
+## 1.5.2
+
+- Keeps verified field photographs in private Mergin Maps storage instead of
+  duplicating them as email attachments.
+- Adds `Date` and traceable `Message-ID` headers and fails closed on explicit
+  SMTP recipient refusal.
+- Records SMTP2GO acceptance as `mail_submitted` rather than claiming final
+  mailbox delivery.
+
 ## 1.5.1
 
 - Replaces the unstable whole-file runtime check for reviewed GeoPackages with
