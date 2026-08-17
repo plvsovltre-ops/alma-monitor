@@ -2044,6 +2044,29 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "state object is invalid"):
             main.read_last_scanned_version(_Bucket("[]"))
 
+    def test_previous_watcher_schema_forces_one_full_rescan(self):
+        old_state = main.json.dumps(
+            {
+                "schema_version": main.STATE_SCHEMA_VERSION - 1,
+                "version": "v137",
+            }
+        )
+
+        self.assertIsNone(main.read_last_scanned_version(_Bucket(old_state)))
+
+    def test_current_watcher_schema_preserves_the_scanned_version(self):
+        current_state = main.json.dumps(
+            {
+                "schema_version": main.STATE_SCHEMA_VERSION,
+                "version": "v137",
+            }
+        )
+
+        self.assertEqual(
+            "v137",
+            main.read_last_scanned_version(_Bucket(current_state)),
+        )
+
     def test_main_does_not_advance_state_after_registry_failure(self):
         lock = (mock.Mock(), 7)
         with mock.patch.object(main, "get_env", return_value="configured"), mock.patch.object(
