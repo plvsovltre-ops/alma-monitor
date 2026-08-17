@@ -1,5 +1,12 @@
 # Release history
 
+## 1.5.1
+
+- Replaces the unstable whole-file runtime check for reviewed GeoPackages with
+  a deterministic feature-content digest covering geometry and attributes.
+- Accepts byte-level SQLite repackaging by Mergin Maps while continuing to
+  block any reviewed feature-content change.
+
 ## 1.4.0-rc1 — Public Release Governance (unreleased)
 
 - Adds a 32-object public legal review view covering 18 active legal cards, five

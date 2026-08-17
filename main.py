@@ -52,7 +52,7 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.5.1"
 
 REQUIRED_MAIL_FROM = "monitor@alma.eco"
 DEFAULT_MAIL_FROM_NAME = "ALMA Monitor"
@@ -1639,10 +1639,18 @@ def process_project(mc, bucket):
             catalog_unchanged = (
                 state.get("territory_catalog_sha256") == territory_catalog.sha256
             )
+            spatial_registry_unchanged = (
+                state.get("spatial_source_registry_sha256")
+                == territory_catalog.spatial_registry.sha256
+            )
             routing_input_unchanged = (
                 state.get("routing_input_sha256") == routing_input_sha256
             )
-            if catalog_unchanged and routing_input_unchanged:
+            if (
+                catalog_unchanged
+                and spatial_registry_unchanged
+                and routing_input_unchanged
+            ):
                 reason_code = str(state.get("spatial_rejection_code") or "")
                 if reason_code in {
                     "no_reviewed_territory_match",
@@ -1662,7 +1670,12 @@ def process_project(mc, bucket):
                     uid,
                 )
                 continue
-            if catalog_unchanged:
+            if not spatial_registry_unchanged:
+                LOG.info(
+                    "Reviewed spatial source registry changed; re-evaluating incident: %s",
+                    uid,
+                )
+            elif catalog_unchanged:
                 LOG.info(
                     "Incident routing input changed; re-evaluating incident: %s",
                     uid,
@@ -1774,6 +1787,12 @@ def process_project(mc, bucket):
                 spatial_rejection_code="no_reviewed_territory_match",
                 territory_catalog_id=territory_catalog.catalog_id,
                 territory_catalog_sha256=territory_catalog.sha256,
+                spatial_source_registry_id=(
+                    territory_catalog.spatial_registry.registry_id
+                ),
+                spatial_source_registry_sha256=(
+                    territory_catalog.spatial_registry.sha256
+                ),
                 routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
             )
@@ -1822,6 +1841,12 @@ def process_project(mc, bucket):
                 territory_id=territory["territory_id"],
                 territory_catalog_id=territory["catalog_id"],
                 territory_catalog_sha256=territory["catalog_sha256"],
+                spatial_source_registry_id=(
+                    territory_catalog.spatial_registry.registry_id
+                ),
+                spatial_source_registry_sha256=(
+                    territory_catalog.spatial_registry.sha256
+                ),
                 routing_input_sha256=routing_input_sha256,
                 spatial_quarantined_at=datetime.now(timezone.utc).isoformat(),
             )

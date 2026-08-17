@@ -1324,6 +1324,10 @@ class RegistryTests(unittest.TestCase):
             catalog_id="test-territories",
             sha256="test-territory-sha256",
         )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="test-spatial-sha256",
+        )
         territory_catalog.context_for_source.return_value = None
 
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
@@ -1381,6 +1385,10 @@ class RegistryTests(unittest.TestCase):
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
             sha256="test-territory-sha256",
+        )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="test-spatial-sha256",
         )
         territory_catalog.context_for_source.return_value = None
 
@@ -1453,12 +1461,17 @@ class RegistryTests(unittest.TestCase):
             "case-existing-spatial",
             main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
             territory_catalog_sha256="same-sha256",
+            spatial_source_registry_sha256="same-spatial-sha256",
             routing_input_sha256=fingerprint,
             spatial_rejection_code="no_reviewed_territory_match",
         )
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
             sha256="same-sha256",
+        )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="same-spatial-sha256",
         )
 
         patches = (
@@ -1602,6 +1615,10 @@ class RegistryTests(unittest.TestCase):
             catalog_id="test-territories",
             sha256="new-sha256",
         )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="new-spatial-sha256",
+        )
         territory_catalog.context_for_source.return_value = None
 
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
@@ -1652,6 +1669,7 @@ class RegistryTests(unittest.TestCase):
             "case-spatial",
             main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
             territory_catalog_sha256="same-sha256",
+            spatial_source_registry_sha256="same-spatial-sha256",
             routing_input_sha256=main.routing_input_fingerprint(
                 _Row(row),
                 incidents.crs,
@@ -1660,6 +1678,10 @@ class RegistryTests(unittest.TestCase):
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
             sha256="same-sha256",
+        )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="same-spatial-sha256",
         )
 
         with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
@@ -1688,6 +1710,73 @@ class RegistryTests(unittest.TestCase):
         resolve.assert_not_called()
         get_env.assert_not_called()
 
+    def test_spatial_quarantine_retries_after_spatial_registry_change(self):
+        row = {
+            "is_sent": 0,
+            "unique-id": "case-spatial-registry",
+            "incident_type": "waste",
+            "geometry": types.SimpleNamespace(wkb_hex="01SAME"),
+        }
+        incidents = _Frame([row])
+        photos = _Frame([])
+        bucket = _Bucket()
+        main.write_incident_state(
+            bucket,
+            "case-spatial-registry",
+            main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
+            territory_catalog_sha256="same-sha256",
+            spatial_source_registry_sha256="old-spatial-sha256",
+            routing_input_sha256=main.routing_input_fingerprint(
+                _Row(row),
+                incidents.crs,
+            ),
+        )
+        territory_catalog = mock.Mock(
+            catalog_id="test-territories",
+            sha256="same-sha256",
+        )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="new-spatial-sha256",
+        )
+        territory_catalog.context_for_source.return_value = None
+
+        with mock.patch.object(main.os.path, "exists", return_value=False), mock.patch.object(
+            main.gpd,
+            "read_file",
+            side_effect=[incidents, photos],
+            create=True,
+        ), mock.patch.object(main.glob, "glob", return_value=[]), mock.patch.object(
+            main,
+            "reconcile_google_sheet",
+            return_value=True,
+        ), mock.patch.object(
+            main,
+            "read_downloaded_project_version",
+            return_value="v137",
+        ), mock.patch.object(
+            main,
+            "load_runtime_legal_policy",
+            return_value=_ApprovedLegalPolicy(),
+        ), mock.patch.object(
+            main,
+            "load_territory_catalog",
+            return_value=territory_catalog,
+        ), mock.patch.object(
+            main,
+            "resolve_territory_context",
+            return_value=None,
+        ) as resolve, mock.patch.object(main, "get_env") as get_env:
+            self.assertTrue(main.process_project(mock.Mock(), bucket))
+
+        resolve.assert_called_once()
+        get_env.assert_not_called()
+        state = main.read_incident_state(bucket, "case-spatial-registry")
+        self.assertEqual(
+            "new-spatial-sha256",
+            state["spatial_source_registry_sha256"],
+        )
+
     def test_spatial_quarantine_retries_after_incident_point_change(self):
         old_row = _Row(
             {
@@ -1710,6 +1799,7 @@ class RegistryTests(unittest.TestCase):
             "case-spatial",
             main.INCIDENT_STATUS_SPATIAL_REVIEW_REQUIRED,
             territory_catalog_sha256="same-sha256",
+            spatial_source_registry_sha256="same-spatial-sha256",
             routing_input_sha256=main.routing_input_fingerprint(
                 old_row,
                 incidents.crs,
@@ -1718,6 +1808,10 @@ class RegistryTests(unittest.TestCase):
         territory_catalog = mock.Mock(
             catalog_id="test-territories",
             sha256="same-sha256",
+        )
+        territory_catalog.spatial_registry = types.SimpleNamespace(
+            registry_id="test-spatial-registry",
+            sha256="same-spatial-sha256",
         )
         territory_catalog.context_for_source.return_value = None
 
