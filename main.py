@@ -81,7 +81,11 @@ DEFAULT_MODEL_CANDIDATES = ("gemini-3.6-flash", "gemini-2.5-flash")
 STATE_OBJECT = "state/last-scanned-version.json"
 LOCK_OBJECT = "locks/alma-monitor.lock"
 LOCK_TTL_SECONDS = 30 * 60
-STATE_SCHEMA_VERSION = 4
+# Version 5 intentionally invalidates the watcher cursor once. Release 1.5.1
+# changes the reviewed spatial-source integrity model, so incidents previously
+# quarantined by the old whole-file hash must be scanned again even when the
+# Mergin project version itself has not changed.
+STATE_SCHEMA_VERSION = 5
 INCIDENT_STATE_SCHEMA_VERSION = 1
 INCIDENT_STATE_PREFIX = "state/incidents"
 
