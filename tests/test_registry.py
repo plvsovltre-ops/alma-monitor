@@ -118,11 +118,12 @@ class _ApprovedLegalPolicy:
     reviewer_name = "Yernar Sailybayev"
     reviewed_on = "2026-08-12"
 
-    def select(self, incident_type):
+    def select(self, incident_type, context_profile_id=None):
         if str(incident_type).strip().lower() != "waste":
             raise main.UnsupportedIncidentTypeError("unsupported test type")
         return {
             "incident_type": "waste",
+            "context_profile_id": context_profile_id or "orchard_landscape",
             "label_ru": "Отходы или захламление",
             "rule_ids": ["kz-koap-344-2-storage"],
             "unknowns_ru": ["являются ли предметы отходами"],

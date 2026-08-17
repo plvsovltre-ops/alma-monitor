@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "kz-alma-open-spatial-sources-0.1.0",
+  "status": "OWNER_REVIEW_REQUIRED",
+  "policy_ru": "ALMA использует общедоступные пространственные данные как предварительный контекст гражданского наблюдения. Для каждого набора фиксируются источник, способ и дата получения, контрольная сумма, срок следующей проверки и ограничения. Открытая публикация данных сама по себе не превращает слой в официальный акт о границах, кадастровую выписку или карту функционального зонирования.",
+  "sources": [
+    {
+      "source_id": "alag-ile-alatau-cadastral-polygons-2026-08-17",
+      "source_file": "Национальный_Природный_Парк.gpkg",
+      "public_source_url": "https://alag.kz/",
+      "government_reference_url": "https://www.gov.kz/memleket/entities/almaty-zher/press/article/details/43870",
+      "acquisition_method_ru": "Ручная выгрузка пользователем отдельных общедоступных кадастровых полигонов с геоинформационной карты ALAG; объединение без изменения геометрии в один GeoPackage.",
+      "acquired_on": "2026-08-17",
+      "last_reviewed_on": "2026-08-17",
+      "review_interval_days": 30,
+      "next_review_due": "2026-09-16",
+      "file_sha256": "b77c851db374c300cc867b03a91cf4ca195a43deb839aca38b951c9157676429",
+      "feature_count": 28,
+      "allowed_use": "OPEN_SOURCE_SCREENING_CONTEXT_ONLY",
+      "legal_boundary_status": "NOT_AN_OFFICIAL_BOUNDARY_ACT",
+      "limitations_ru": "Слой показывает кадастровые полигоны из открытого источника и служит сигналом возможного территориального контекста. Он не подтверждает официальную границу Иле-Алатауского национального парка, его охранной или функциональной зоны. Эти обстоятельства проверяет компетентный орган."
+    },
+    {
+      "source_id": "alag-water-context-polygons-2026-08-17",
+      "source_file": "Водоохранные_полосы.gpkg",
+      "public_source_url": "https://alag.kz/",
+      "government_reference_url": "https://www.gov.kz/memleket/entities/almaty-zher/press/article/details/43870",
+      "acquisition_method_ru": "Ручная выгрузка пользователем отдельных общедоступных полигонов с геоинформационной карты ALAG; объединение без изменения геометрии в один GeoPackage.",
+      "acquired_on": "2026-08-17",
+      "last_reviewed_on": "2026-08-17",
+      "review_interval_days": 30,
+      "next_review_due": "2026-09-16",
+      "file_sha256": "f48584f5eac9557ff991d83655f1e1bb7b9fd339988648da8791c8cffa29b871",
+      "feature_count": 33,
+      "allowed_use": "OPEN_SOURCE_SCREENING_CONTEXT_ONLY",
+      "legal_boundary_status": "NOT_AN_OFFICIAL_BOUNDARY_ACT",
+      "limitations_ru": "Слой служит открытым предварительным сигналом близости к территории, отмеченной пользователем как водоохранный контекст. В наборе нет номера решения об установлении водоохранной зоны или полосы и официальных координат такого решения. Границы и применимый режим проверяет бассейновая инспекция."
+    }
+  ]
+}

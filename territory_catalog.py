@@ -8,6 +8,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from spatial_source_registry import SpatialSourceRegistry, SpatialSourceError
+
 
 DEFAULT_CATALOG = (
     Path(__file__).resolve().parent / "config" / "territory_catalog.json"
@@ -15,6 +17,14 @@ DEFAULT_CATALOG = (
 DEFAULT_APPROVAL = (
     Path(__file__).resolve().parent / "config" / "territory_catalog.approval.json"
 )
+FIELD_CATALOG = (
+    Path(__file__).resolve().parent
+    / "config"
+    / "field"
+    / "0.2.0-rc1"
+    / "territory_catalog.json"
+)
+FIELD_APPROVAL = FIELD_CATALOG.with_name("territory_catalog.approval.json")
 AUTHORIZED_REVIEWER = {
     "name": "Yernar Sailybayev",
     "capacity": "AUTHOR_AND_LEGAL_EDITOR",
@@ -38,6 +48,7 @@ class TerritoryCatalog:
         self,
         path: str | Path = DEFAULT_CATALOG,
         approval_path: str | Path = DEFAULT_APPROVAL,
+        spatial_registry: SpatialSourceRegistry | None = None,
     ):
         self.path = Path(path)
         self.approval_path = Path(approval_path)
@@ -57,22 +68,27 @@ class TerritoryCatalog:
         if not isinstance(approval, dict):
             raise TerritoryCatalogError("Territory catalog approval must be an object")
         self.approval = approval
+        self.spatial_registry = spatial_registry or SpatialSourceRegistry()
         self._territories: dict[str, dict[str, Any]] = {}
         self._validate()
 
     def _validate(self) -> None:
-        if self.catalog.get("schema_version") != "1.0":
+        schema_version = self.catalog.get("schema_version")
+        if schema_version not in {"1.0", "1.1"}:
             raise TerritoryCatalogError("Territory catalog schema is unsupported")
         _required_text(self.catalog.get("catalog_id"), "ID")
         if self.catalog.get("status") != "AUTHOR_REVIEW_REQUIRED":
             raise TerritoryCatalogError("Territory catalog marker is invalid")
-        if self.approval.get("schema_version") != "1.0":
+        if self.approval.get("schema_version") != schema_version:
             raise TerritoryCatalogError("Territory catalog approval schema is unsupported")
         if self.approval.get("catalog_id") != self.catalog.get("catalog_id"):
             raise TerritoryCatalogError("Territory catalog and approval IDs differ")
         if self.approval.get("catalog_sha256") != self.sha256:
             raise TerritoryCatalogError("Territory catalog approval hash does not match")
-        if self.approval.get("approval_scope") != "PRIVATE_CONTROLLED_PILOT_ONLY":
+        if self.approval.get("approval_scope") not in {
+            "PRIVATE_CONTROLLED_PILOT_ONLY",
+            "CONTROLLED_FIELD_SCREENING_ONLY",
+        }:
             raise TerritoryCatalogError("Territory catalog approval scope is invalid")
         if self.approval.get("decision") != "CONTROLLED_PILOT_APPROVED":
             raise TerritoryCatalogError("Territory catalog is not approved")
@@ -116,6 +132,26 @@ class TerritoryCatalog:
                 )
             for field in ("subject_ru", "subject_kz", "request_ru", "request_kz"):
                 _required_text(request.get(field), f"{incident_type}.{field}")
+
+        request_families = self.catalog.get("request_template_families", {})
+        if not isinstance(request_families, dict):
+            raise TerritoryCatalogError("Territory request template families are invalid")
+        for family_id, family in request_families.items():
+            _required_text(family_id, "request template family ID")
+            if not isinstance(family, dict) or set(family) != set(requests):
+                raise TerritoryCatalogError(
+                    f"Territory request template family is incomplete: {family_id}"
+                )
+            for incident_type, request in family.items():
+                if not isinstance(request, dict):
+                    raise TerritoryCatalogError(
+                        f"Territory request template is invalid: {family_id}/{incident_type}"
+                    )
+                for field in ("subject_ru", "subject_kz", "request_ru", "request_kz"):
+                    _required_text(
+                        request.get(field),
+                        f"{family_id}/{incident_type}.{field}",
+                    )
 
         territories = self.catalog.get("territories")
         if not isinstance(territories, list) or not territories:
@@ -177,6 +213,28 @@ class TerritoryCatalog:
                 raise TerritoryCatalogError(
                     f"Territory priority is invalid: {source_file}"
                 )
+            spatial_source_id = territory.get("spatial_source_id")
+            if spatial_source_id is not None:
+                _required_text(spatial_source_id, f"{source_file}.spatial_source_id")
+                record = self.spatial_registry.record_for_filename(source_file)
+                if record is None or record["source_id"] != spatial_source_id:
+                    raise TerritoryCatalogError(
+                        f"Territory spatial source is not registered: {source_file}"
+                    )
+                if territory.get("spatial_use") != (
+                    "OPEN_SOURCE_SCREENING_CONTEXT_ONLY"
+                ):
+                    raise TerritoryCatalogError(
+                        f"Territory spatial use is unsafe: {source_file}"
+                    )
+                family_id = _required_text(
+                    territory.get("request_template_family_id"),
+                    f"{source_file}.request_template_family_id",
+                )
+                if family_id not in request_families:
+                    raise TerritoryCatalogError(
+                        f"Territory request template family is unknown: {family_id}"
+                    )
             self._territories[source_file] = dict(territory)
 
     @property
@@ -212,9 +270,40 @@ class TerritoryCatalog:
             "authority": dict(self.catalog["routes"][route_id]),
         }
 
-    def request_for(self, incident_type: object) -> dict[str, str]:
+    def validate_source_file(
+        self,
+        source_file: str | Path,
+        territory: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        if not territory.get("spatial_source_id"):
+            return None
+        try:
+            record = self.spatial_registry.require_source(source_file)
+        except SpatialSourceError as exc:
+            raise TerritoryCatalogError(str(exc)) from exc
+        if record["source_id"] != territory["spatial_source_id"]:
+            raise TerritoryCatalogError(
+                f"Territory spatial source ID changed: {Path(source_file).name}"
+            )
+        return record
+
+    def request_for(
+        self,
+        incident_type: object,
+        territory: dict[str, Any] | None = None,
+    ) -> dict[str, str]:
         normalized = str(incident_type or "").strip().lower()
-        request = self.catalog["request_templates"].get(normalized)
+        family_id = (territory or {}).get("request_template_family_id")
+        if family_id:
+            families = self.catalog.get("request_template_families") or {}
+            family = families.get(family_id)
+            if not isinstance(family, dict):
+                raise TerritoryCatalogError(
+                    f"Territory request template family is missing: {family_id}"
+                )
+            request = family.get(normalized)
+        else:
+            request = self.catalog["request_templates"].get(normalized)
         if request is None:
             raise TerritoryCatalogError(
                 f"Incident type has no reviewed request template: {normalized or '<empty>'}"

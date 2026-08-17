@@ -1,15 +1,27 @@
 # ALMA Monitor
 
-> **Release status:** the code is publicly inspectable, but the public Legal
-> Core mode remains fail-closed until the author/legal-editor review, a separate
-> independent-lawyer review, and final hash-bound activation are committed.
+ALMA uses publicly accessible spatial data from open government and municipal
+geo-information resources. Each controlled dataset records its source URL,
+acquisition date and method, SHA-256 checksum, review interval, next review
+date, and limitations. Public availability does not make a layer an official
+legal boundary or cadastral extract. See
+[Spatial data provenance](docs/SPATIAL_DATA_PROVENANCE.md).
+
+> **Release status:** the hash-bound public Legal Core release
+> `kz-alma-public-0.1.0-rc1` was approved on 15 August 2026. The separate OOPT
+> and water expansion `0.2.0-rc1` passed legal review but is used in field mode
+> only as conservative open-source spatial screening; its boundary-dependent
+> rules remain inactive until official boundary provenance is bound to the
+> release.
 
 ALMA Monitor receives new field incidents from a private Mergin Maps project.
 It resolves a reviewed territory and authority route from orchard layers before
 Gemini is used. Gemini describes only observable facts. The recipient, subject,
 short request, territory name, and monitoring purpose come from the local
-reviewed `config/territory_catalog.json`. The public-interest context and next
-steps come from the separately reviewed `config/response_catalog.json`. These
+reviewed territory catalog. The public-interest context and next steps come
+from the separately reviewed response catalog. Public mode uses the immutable
+catalogs under `config/`; controlled field mode uses the versioned catalogs
+under `config/field/0.2.0-rc1/`. These
 catalogs cause no API call and no Gemini token use. Deterministically selected
 Legal Core provisions appear only as a short legal basis in the draft request;
 full citations and audit metadata remain in the private incident state. The
@@ -62,9 +74,10 @@ Set `GEMINI_MODEL` only when a different supported model is needed. The default
 is `gemini-3.6-flash`. The worker uses `gemini-2.5-flash` as a fallback.
 
 `ALMA_RELEASE_MODE` defaults to `controlled_pilot`. Do not set it to
-`public_legal_release` until the exact governance records under
-`governance/public/` are approved. A premature public setting fails before
-Gemini is called.
+`public_legal_release` only for the exact release approved under
+`governance/public/`. Any later change to its governed artifacts fails before
+Gemini is called. The default `controlled_pilot` mode loads the separately
+approved field-screening package.
 
 Never commit secret values. Use `.env.example` only as a list of variable names.
 
@@ -182,14 +195,14 @@ secret containers before the first image exists. All later changes use a normal
   approval record and blocks the worker before registry writes or Gemini calls.
   After reviewing a future exact diff, the author can bind a new private-pilot
   approval with
-  `python scripts/approve_territory_catalog.py --catalog config/territory_catalog.json --approval config/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
-- The `kz-almaty-orchard-routes-0.3.0` catalog is the active controlled-pilot
+  `python scripts/approve_territory_catalog.py --catalog config/field/0.2.0-rc1/territory_catalog.json --approval config/field/0.2.0-rc1/territory_catalog.approval.json --reviewer "Yernar Sailybayev" --capacity AUTHOR_AND_LEGAL_EDITOR --reviewed-on YYYY-MM-DD`.
+- The `kz-almaty-field-routes-0.4.0` catalog is the active controlled-field
   routing release. Its approval sidecar binds the author/legal decision to the
   exact catalog SHA-256; a changed, pending, missing, or differently reviewed
   catalog blocks the worker before registry writes or Gemini calls. The routing
   matrix and its official sources are recorded in
   `docs/COMPETENT_AUTHORITY_ROUTING.md`.
-- The `kz-alma-human-response-0.1.0` catalog is the active controlled-pilot
+- The `kz-alma-human-response-0.2.0` catalog is the active controlled-field
   human-response release. It binds orchard public-interest context and practical
   next steps for all five exact field signal types to an author/legal-editor
   approval. A changed catalog, missing approval, unofficial source, or incomplete
@@ -255,14 +268,15 @@ a source registry, an author/legal-editor review record, a manifest, and checksu
 The catalog verifies these artifacts and every reviewed card hash before a
 citation can be returned.
 
-Yernar Sailybayev approved the reviewed cards as author and legal editor only
-for a private controlled pilot. Independent lawyer review remains pending and
-public legal release is blocked.
+Yernar Sailybayev approved the reviewed cards as author and legal editor. A
+separate independent lawyer completed the confidential review of the exact
+public package, and the hash-bound public Legal Core release was activated on
+15 August 2026. The reviewer's identity is not published by request.
 
-The proposed public overlay reviews only the 32 objects actually used by the
-current worker: 18 Legal Core cards, five deterministic mappings, four authority
-routes, and five request templates. Its initial records deliberately state
-`PUBLIC_LEGAL_RELEASE_BLOCKED`. Editing a legacy card flag cannot unlock it.
+The approved public overlay contains only the 32 objects used by that release:
+18 Legal Core cards, five deterministic mappings, four authority routes, and
+five request templates. Editing a legacy card flag or a governed catalog cannot
+extend or silently replace this scope.
 
 The runtime integration uses a separate five-row policy under
 `legal_core/policies/kz/0.1.0-rc1/`. The policy remains an immutable proposal

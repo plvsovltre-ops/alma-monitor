@@ -13,7 +13,12 @@ from legal_core import (
     UnknownRuleError,
     UnsupportedIncidentTypeError,
 )
-from legal_core.runtime_policy import DEFAULT_APPROVAL, DEFAULT_POLICY
+from legal_core.runtime_policy import (
+    DEFAULT_APPROVAL,
+    DEFAULT_POLICY,
+    FIELD_SCREENING_APPROVAL,
+    FIELD_SCREENING_POLICY,
+)
 
 
 class RuntimeLegalPolicyTests(unittest.TestCase):
@@ -107,6 +112,27 @@ class RuntimeLegalPolicyTests(unittest.TestCase):
                     UnsupportedIncidentTypeError
                 ):
                     policy.select(value)
+
+    def test_field_screening_policy_uses_context_and_never_model_text(self):
+        policy = RuntimeLegalPolicy(
+            FIELD_SCREENING_POLICY,
+            FIELD_SCREENING_APPROVAL,
+        )
+        park = policy.select("waste", "ile_alatau_open_source_screening")
+        water = policy.select("waste", "water_open_source_screening")
+        orchard = policy.select("waste", "orchard_landscape")
+
+        self.assertNotEqual(park["rule_ids"], water["rule_ids"])
+        self.assertNotEqual(park["rule_ids"], orchard["rule_ids"])
+        self.assertIn("kz-water-85-2-protection-zone-spatial-data", water["rule_ids"])
+        self.assertNotIn("kz-oopt-48-1-5-8-other-harm", park["rule_ids"])
+        self.assertEqual(
+            "ile_alatau_open_source_screening", park["context_profile_id"]
+        )
+        with self.assertRaisesRegex(
+            UnsupportedIncidentTypeError, "no reviewed legal mapping"
+        ):
+            policy.select("waste", "invented_territory_context")
 
     def test_description_cannot_participate_in_rule_selection(self):
         with tempfile.TemporaryDirectory() as directory:

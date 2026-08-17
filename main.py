@@ -52,7 +52,7 @@ logging.basicConfig(
 LOG = logging.getLogger("alma_monitor")
 LOG.info("Libraries loaded")
 
-APP_VERSION = "1.4.1"
+APP_VERSION = "1.5.0"
 
 REQUIRED_MAIL_FROM = "monitor@alma.eco"
 DEFAULT_MAIL_FROM_NAME = "ALMA Monitor"
@@ -934,7 +934,15 @@ def load_runtime_legal_policy():
     """Load the exact author-reviewed policy or fail before Gemini is used."""
     release_mode = os.environ.get("ALMA_RELEASE_MODE", "controlled_pilot").strip()
     if release_mode == "controlled_pilot":
-        return RuntimeLegalPolicy()
+        from legal_core.runtime_policy import (
+            FIELD_SCREENING_APPROVAL,
+            FIELD_SCREENING_POLICY,
+        )
+
+        return RuntimeLegalPolicy(
+            policy_path=FIELD_SCREENING_POLICY,
+            approval_path=FIELD_SCREENING_APPROVAL,
+        )
     if release_mode == "public_legal_release":
         governance = PublicReleaseGovernance()
         return RuntimeLegalPolicy(
@@ -946,11 +954,21 @@ def load_runtime_legal_policy():
 
 def load_territory_catalog():
     """Load reviewed territory labels and routes without calling Gemini."""
+    release_mode = os.environ.get("ALMA_RELEASE_MODE", "controlled_pilot").strip()
+    if release_mode == "controlled_pilot":
+        from territory_catalog import FIELD_APPROVAL, FIELD_CATALOG
+
+        return TerritoryCatalog(FIELD_CATALOG, FIELD_APPROVAL)
     return TerritoryCatalog()
 
 
 def load_response_catalog():
     """Load approved public-interest and action text without calling Gemini."""
+    release_mode = os.environ.get("ALMA_RELEASE_MODE", "controlled_pilot").strip()
+    if release_mode == "controlled_pilot":
+        from response_catalog import FIELD_APPROVAL, FIELD_CATALOG
+
+        return ResponseCatalog(FIELD_CATALOG, FIELD_APPROVAL)
     return ResponseCatalog()
 
 
@@ -973,8 +991,16 @@ def resolve_territory_context(point, territory_files, catalog):
         if territory is None:
             continue
         try:
+            source_record = catalog.validate_source_file(source_file, territory)
             layer = gpd.read_file(source_file).to_crs("EPSG:4326")
             contained = layer[layer.contains(point)]
+        except TerritoryCatalogError as exc:
+            LOG.error(
+                "Reviewed spatial source is unavailable and was skipped: %s (%s)",
+                os.path.basename(source_file),
+                exc,
+            )
+            continue
         except Exception as exc:
             raise RuntimeError(
                 f"Could not evaluate reviewed territory source: {os.path.basename(source_file)}"
@@ -986,6 +1012,7 @@ def resolve_territory_context(point, territory_files, catalog):
             {
                 **territory,
                 "source_reference": read_territory_reference(match_row, territory),
+                "spatial_source": source_record,
             }
         )
 
@@ -1765,18 +1792,24 @@ def process_project(mc, bucket):
             )
             continue
         try:
+            legal_selections[uid] = legal_policy.select(
+                legal_selections[uid]["incident_type"],
+                territory["context_profile_id"],
+            )
             territory = territory_catalog.route_context(
                 territory,
                 legal_selections[uid]["incident_type"],
             )
             request_template = territory_catalog.request_for(
-                legal_selections[uid]["incident_type"]
+                legal_selections[uid]["incident_type"],
+                territory,
             )
             response_context = response_catalog.context_for(
                 territory["context_profile_id"]
             )
             response_action = response_catalog.action_for(
-                legal_selections[uid]["incident_type"]
+                legal_selections[uid]["incident_type"],
+                territory["context_profile_id"],
             )
         except (TerritoryCatalogError, ResponseCatalogError):
             review_state = write_incident_state(
@@ -2053,6 +2086,30 @@ def process_project(mc, bucket):
             "territory_source_file": territory["source_file"],
             "territory_catalog_id": territory["catalog_id"],
             "territory_catalog_sha256": territory["catalog_sha256"],
+            "spatial_source_registry_id": (territory.get("spatial_source") or {}).get(
+                "registry_id", ""
+            ),
+            "spatial_source_registry_sha256": (territory.get("spatial_source") or {}).get(
+                "registry_sha256", ""
+            ),
+            "spatial_source_id": (territory.get("spatial_source") or {}).get(
+                "source_id", ""
+            ),
+            "spatial_source_allowed_use": (territory.get("spatial_source") or {}).get(
+                "allowed_use", ""
+            ),
+            "spatial_source_legal_boundary_status": (
+                territory.get("spatial_source") or {}
+            ).get("legal_boundary_status", ""),
+            "spatial_source_url": (territory.get("spatial_source") or {}).get(
+                "public_source_url", ""
+            ),
+            "spatial_source_last_reviewed_on": (
+                territory.get("spatial_source") or {}
+            ).get("last_reviewed_on", ""),
+            "spatial_source_next_review_due": (
+                territory.get("spatial_source") or {}
+            ).get("next_review_due", ""),
             "response_catalog_id": response_catalog.catalog_id,
             "response_catalog_sha256": response_catalog.sha256,
             "response_context_profile_id": response_context["profile_id"],

@@ -23,6 +23,7 @@ RUN python -m pip install --upgrade pip \
 COPY main.py ./
 COPY territory_catalog.py ./
 COPY response_catalog.py ./
+COPY spatial_source_registry.py ./
 COPY config ./config
 COPY legal_core ./legal_core
 COPY governance ./governance

@@ -15,11 +15,23 @@ DEFAULT_CATALOG = (
 DEFAULT_APPROVAL = (
     Path(__file__).resolve().parent / "config" / "response_catalog.approval.json"
 )
+FIELD_CATALOG = (
+    Path(__file__).resolve().parent
+    / "config"
+    / "field"
+    / "0.2.0-rc1"
+    / "response_catalog.json"
+)
+FIELD_APPROVAL = FIELD_CATALOG.with_name("response_catalog.approval.json")
 AUTHORIZED_REVIEWER = {
     "name": "Yernar Sailybayev",
     "capacity": "AUTHOR_AND_LEGAL_EDITOR",
 }
-SUPPORTED_CONTEXT_PROFILES = {"orchard_landscape"}
+SUPPORTED_CONTEXT_PROFILES = {
+    "orchard_landscape",
+    "ile_alatau_open_source_screening",
+    "water_open_source_screening",
+}
 SUPPORTED_INCIDENT_TYPES = {
     "construction",
     "logging",
@@ -63,18 +75,22 @@ class ResponseCatalog:
         self._validate()
 
     def _validate(self) -> None:
-        if self.catalog.get("schema_version") != "1.0":
+        schema_version = self.catalog.get("schema_version")
+        if schema_version not in {"1.0", "1.1"}:
             raise ResponseCatalogError("Response catalog schema is unsupported")
         catalog_id = _required_text(self.catalog.get("catalog_id"), "ID")
         if self.catalog.get("status") != "AUTHOR_REVIEW_REQUIRED":
             raise ResponseCatalogError("Response catalog marker is invalid")
-        if self.approval.get("schema_version") != "1.0":
+        if self.approval.get("schema_version") != schema_version:
             raise ResponseCatalogError("Response catalog approval schema is unsupported")
         if self.approval.get("catalog_id") != catalog_id:
             raise ResponseCatalogError("Response catalog and approval IDs differ")
         if self.approval.get("catalog_sha256") != self.sha256:
             raise ResponseCatalogError("Response catalog approval hash does not match")
-        if self.approval.get("approval_scope") != "PRIVATE_CONTROLLED_PILOT_ONLY":
+        if self.approval.get("approval_scope") not in {
+            "PRIVATE_CONTROLLED_PILOT_ONLY",
+            "CONTROLLED_FIELD_SCREENING_ONLY",
+        }:
             raise ResponseCatalogError("Response catalog approval scope is invalid")
         if self.approval.get("decision") != "CONTROLLED_PILOT_APPROVED":
             raise ResponseCatalogError("Response catalog is not approved")
@@ -102,7 +118,12 @@ class ResponseCatalog:
             ) from exc
 
         profiles = self.catalog.get("context_profiles")
-        if not isinstance(profiles, dict) or set(profiles) != SUPPORTED_CONTEXT_PROFILES:
+        expected_profiles = (
+            SUPPORTED_CONTEXT_PROFILES
+            if schema_version == "1.1"
+            else {"orchard_landscape"}
+        )
+        if not isinstance(profiles, dict) or set(profiles) != expected_profiles:
             raise ResponseCatalogError("Response catalog context profiles are incomplete")
         for profile_id, profile in profiles.items():
             if not isinstance(profile, dict):
@@ -150,6 +171,30 @@ class ResponseCatalog:
             for field in ("assessment_ru", "assessment_kz", "next_ru", "next_kz"):
                 _required_text(action.get(field), f"{incident_type}.{field}")
 
+        contextual_actions = self.catalog.get("actions_by_context", {})
+        expected_contextual = (
+            SUPPORTED_CONTEXT_PROFILES - {"orchard_landscape"}
+            if schema_version == "1.1"
+            else set()
+        )
+        if not isinstance(contextual_actions, dict) or set(contextual_actions) != expected_contextual:
+            raise ResponseCatalogError("Response contextual actions are incomplete")
+        for profile_id, profile_actions in contextual_actions.items():
+            if not isinstance(profile_actions, dict) or set(profile_actions) != SUPPORTED_INCIDENT_TYPES:
+                raise ResponseCatalogError(
+                    f"Response contextual action matrix is incomplete: {profile_id}"
+                )
+            for incident_type, action in profile_actions.items():
+                if not isinstance(action, dict):
+                    raise ResponseCatalogError(
+                        f"Response contextual action is invalid: {profile_id}/{incident_type}"
+                    )
+                for field in ("assessment_ru", "assessment_kz", "next_ru", "next_kz"):
+                    _required_text(
+                        action.get(field),
+                        f"{profile_id}/{incident_type}.{field}",
+                    )
+
     @property
     def catalog_id(self) -> str:
         return self.catalog["catalog_id"]
@@ -167,9 +212,19 @@ class ResponseCatalog:
             "procedural_basis": dict(self.catalog["procedural_basis"]),
         }
 
-    def action_for(self, incident_type: object) -> dict[str, str]:
+    def action_for(
+        self,
+        incident_type: object,
+        profile_id: object | None = None,
+    ) -> dict[str, str]:
         normalized = str(incident_type or "").strip().lower()
-        action = self.catalog["actions"].get(normalized)
+        normalized_profile = str(profile_id or "").strip()
+        if normalized_profile and normalized_profile != "orchard_landscape":
+            action = (self.catalog.get("actions_by_context") or {}).get(
+                normalized_profile, {}
+            ).get(normalized)
+        else:
+            action = self.catalog["actions"].get(normalized)
         if action is None:
             raise ResponseCatalogError(
                 f"Incident has no reviewed response action: {normalized or '<empty>'}"

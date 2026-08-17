@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.1",
+  "catalog_id": "kz-alma-human-response-0.2.0",
+  "catalog_sha256": "dd746bbb8f98d19d908b78a6f9d6059edf70ed30e505e91ed1cebdd582dc0c06",
+  "approval_scope": "CONTROLLED_FIELD_SCREENING_ONLY",
+  "decision": "CONTROLLED_PILOT_APPROVED",
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-17",
+  "statement": "The owner approved the human-facing screening context. The text preserves uncertainty and asks the competent authority to verify official boundaries and legal regime."
+}
