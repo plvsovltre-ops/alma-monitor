@@ -2,6 +2,7 @@
 """Apply the reviewed ALMA field-mode safeguards to an existing QGIS project."""
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -13,6 +14,7 @@ import zipfile
 PHOTO_EXPRESSION = (
     "'DCIM/alma_' || format_date(now(),'yyyyMMdd_HHmmsszzz') || '.{extension}'"
 )
+EDITABLE_LAYER_NAMES = {"Инцидент", "photos"}
 
 
 def _layer(root, name):
@@ -62,10 +64,131 @@ def _require_field(layer, field_name):
     constraint.set("notnull_strength", "1")
 
 
+def _local_gpkg_source(datasource):
+    path, separator, options = (datasource or "").partition("|")
+    if not path.lower().endswith(".gpkg"):
+        return None
+    return path, separator + options if separator else ""
+
+
+def _root_source(datasource):
+    parsed = _local_gpkg_source(datasource)
+    if parsed is None:
+        return datasource
+    path, options = parsed
+    return f"./{os.path.basename(path)}{options}"
+
+
+def _configure_local_layers(root):
+    tree_by_id = {
+        item.get("id"): item
+        for item in root.findall(".//layer-tree-layer")
+        if item.get("id")
+    }
+    for layer in root.findall(".//maplayer"):
+        datasource = layer.find("datasource")
+        if datasource is None or not datasource.text:
+            continue
+        normalized = _root_source(datasource.text)
+        datasource.text = normalized
+        layer_id = layer.findtext("id")
+        tree_item = tree_by_id.get(layer_id)
+        if tree_item is not None:
+            tree_item.set("source", normalized)
+
+        if layer.get("type") == "vector" and layer.findtext("provider") == "ogr":
+            layer_name = layer.findtext("layername")
+            layer.set(
+                "readOnly",
+                "0" if layer_name in EDITABLE_LAYER_NAMES else "1",
+            )
+            if layer_name == "Инцидент" and tree_item is not None:
+                tree_item.set("checked", "Qt::Checked")
+
+
+def _configure_gps_target(root, incidents):
+    gps = root.find("ProjectGpsSettings")
+    if gps is None:
+        gps = ET.SubElement(root, "ProjectGpsSettings")
+    incident_id = incidents.findtext("id")
+    if not incident_id:
+        raise ValueError("The incident layer has no stable QGIS ID")
+    gps.set("destinationLayer", incident_id)
+    gps.set("destinationLayerProvider", "ogr")
+    gps.set("destinationLayerSource", "./Инцидент.gpkg|layername=Инцидент")
+    gps.set("destinationLayerName", "Инцидент")
+    gps.set("destinationFollowsActiveLayer", "0")
+
+
+def _clear_export_directory(root):
+    properties = root.find("properties")
+    if properties is None:
+        properties = ET.SubElement(root, "properties")
+    qfield_sync = properties.find("QFieldSync")
+    if qfield_sync is None:
+        qfield_sync = ET.SubElement(properties, "QFieldSync")
+    export_directory = qfield_sync.find("exportDirectoryProject")
+    if export_directory is None:
+        export_directory = ET.SubElement(
+            qfield_sync,
+            "exportDirectoryProject",
+            {"type": "QString"},
+        )
+    export_directory.set("type", "QString")
+    export_directory.text = None
+
+
+def _file_sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _materialize_root_sources(root, project_directory):
+    """Copy local GeoPackages beside the QGZ without overwriting different data."""
+    processed = set()
+    for layer in root.findall(".//maplayer"):
+        datasource = layer.findtext("datasource")
+        parsed = _local_gpkg_source(datasource)
+        if parsed is None:
+            continue
+        source_text, _ = parsed
+        source_path = (
+            source_text
+            if os.path.isabs(source_text)
+            else os.path.normpath(os.path.join(project_directory, source_text))
+        )
+        target_path = os.path.join(project_directory, os.path.basename(source_text))
+        key = (os.path.realpath(source_path), os.path.realpath(target_path))
+        if key in processed:
+            continue
+        processed.add(key)
+        if not os.path.isfile(source_path):
+            if os.path.isfile(target_path):
+                continue
+            raise ValueError(f"Missing GeoPackage referenced by QGIS: {source_text}")
+        if os.path.realpath(source_path) == os.path.realpath(target_path):
+            continue
+        if os.path.exists(target_path):
+            if _file_sha256(source_path) != _file_sha256(target_path):
+                raise ValueError(
+                    "Refusing to overwrite a different root GeoPackage: "
+                    f"{os.path.basename(target_path)}"
+                )
+            continue
+        shutil.copy2(source_path, target_path)
+
+
 def configure_project_xml(xml_bytes):
     root = ET.fromstring(xml_bytes)
     photos = _layer(root, "photos")
     incidents = _layer(root, "Инцидент")
+
+    _configure_local_layers(root)
+    _configure_gps_target(root, incidents)
+    _clear_export_directory(root)
 
     _require_field(photos, "photo")
     _require_field(photos, "external_pk")
@@ -130,7 +253,12 @@ def configure_qgz(path):
         if len(qgs_names) != 1:
             raise ValueError("QGZ must contain exactly one QGS project")
         qgs_name = qgs_names[0]
-        configured_xml = configure_project_xml(source.read(qgs_name))
+        original_xml = source.read(qgs_name)
+        _materialize_root_sources(
+            ET.fromstring(original_xml),
+            os.path.dirname(path),
+        )
+        configured_xml = configure_project_xml(original_xml)
         members = [(item, source.read(item.filename)) for item in source.infolist()]
 
     directory = os.path.dirname(path)
