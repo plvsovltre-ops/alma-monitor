@@ -1,5 +1,6 @@
 import json
 import os
+import sqlite3
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -70,7 +71,7 @@ def _project_xml():
     incident = _layer(
         "Инцидент",
         "incident_id",
-        ["incident_type", "volunteer_email"],
+        ["incident_type", "volunteer_email", "unique-id"],
     )
     layers.append(incident)
     reference = _layer("ООПТ", "protected_id", ["name"])
@@ -103,6 +104,28 @@ def _project_xml():
     qfield_sync = ET.SubElement(properties, "QFieldSync")
     ET.SubElement(qfield_sync, "exportDirectoryProject").text = "/private/export"
     return ET.tostring(root, encoding="utf-8")
+
+
+def _write_incident_database(path, rows=()):
+    connection = sqlite3.connect(path)
+    try:
+        connection.execute(
+            'CREATE TABLE "Инцидент" '
+            '(fid INTEGER PRIMARY KEY, geom BLOB, "unique-id" TEXT)'
+        )
+        connection.execute(
+            'CREATE TRIGGER incident_generic_update AFTER UPDATE ON "Инцидент" '
+            'WHEN OLD.fid != NEW.fid AND ST_IsEmpty(NEW.geom) '
+            'BEGIN SELECT ST_MinX(NEW.geom), ST_MaxX(NEW.geom), '
+            'ST_MinY(NEW.geom), ST_MaxY(NEW.geom); END'
+        )
+        connection.executemany(
+            'INSERT INTO "Инцидент" (fid, "unique-id") VALUES (?, ?)',
+            rows,
+        )
+        connection.commit()
+    finally:
+        connection.close()
 
 
 class FieldProjectTests(unittest.TestCase):
@@ -178,6 +201,22 @@ class FieldProjectTests(unittest.TestCase):
         self.assertIsNone(
             root.find("./properties/QFieldSync/exportDirectoryProject").text
         )
+        unique_constraint = next(
+            item for item in layers_by_name["Инцидент"].findall(
+                "./constraints/constraint"
+            )
+            if item.get("field") == "unique-id"
+        )
+        self.assertEqual("3", unique_constraint.get("constraints"))
+        self.assertEqual("1", unique_constraint.get("notnull_strength"))
+        self.assertEqual("1", unique_constraint.get("unique_strength"))
+        unique_default = next(
+            item for item in layers_by_name["Инцидент"].findall(
+                "./defaults/default"
+            )
+            if item.get("field") == "unique-id"
+        )
+        self.assertEqual("uuid()", unique_default.get("expression"))
 
     def test_qgz_copies_nested_geopackage_to_project_root(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -196,9 +235,9 @@ class FieldProjectTests(unittest.TestCase):
             with zipfile.ZipFile(qgz, "w") as archive:
                 archive.writestr("alma_bot.qgs", ET.tostring(root, encoding="utf-8"))
 
-            for filename in ("photos.gpkg", "Инцидент.gpkg"):
-                with open(os.path.join(directory, filename), "wb") as stream:
-                    stream.write(filename.encode("utf-8"))
+            with open(os.path.join(directory, "photos.gpkg"), "wb") as stream:
+                stream.write(b"photos")
+            _write_incident_database(os.path.join(directory, "Инцидент.gpkg"))
 
             configure_qgz(qgz)
 
@@ -229,9 +268,9 @@ class FieldProjectTests(unittest.TestCase):
                 stream.write(b"reviewed-source")
             with open(os.path.join(directory, "ООПТ.gpkg"), "wb") as stream:
                 stream.write(b"different-root-data")
-            for filename in ("photos.gpkg", "Инцидент.gpkg"):
-                with open(os.path.join(directory, filename), "wb") as stream:
-                    stream.write(filename.encode("utf-8"))
+            with open(os.path.join(directory, "photos.gpkg"), "wb") as stream:
+                stream.write(b"photos")
+            _write_incident_database(os.path.join(directory, "Инцидент.gpkg"))
 
             root = ET.fromstring(_project_xml())
             reference = next(
@@ -244,6 +283,51 @@ class FieldProjectTests(unittest.TestCase):
                 archive.writestr("alma_bot.qgs", ET.tostring(root, encoding="utf-8"))
 
             with self.assertRaisesRegex(ValueError, "Refusing to overwrite"):
+                configure_qgz(qgz)
+
+    def test_qgz_backfills_blank_incident_relation_ids(self):
+        with tempfile.TemporaryDirectory() as directory:
+            qgz = os.path.join(directory, "alma_bot.qgz")
+            with zipfile.ZipFile(qgz, "w") as archive:
+                archive.writestr("alma_bot.qgs", _project_xml())
+            with open(os.path.join(directory, "photos.gpkg"), "wb") as stream:
+                stream.write(b"photos")
+            with open(os.path.join(directory, "Национальный_Парк.gpkg"), "wb") as stream:
+                stream.write(b"reference")
+            incident_path = os.path.join(directory, "Инцидент.gpkg")
+            _write_incident_database(
+                incident_path,
+                [(1, None), (2, ""), (3, "{existing-id}")],
+            )
+
+            configure_qgz(qgz)
+
+            connection = sqlite3.connect(incident_path)
+            try:
+                values = connection.execute(
+                    'SELECT "unique-id" FROM "Инцидент" ORDER BY fid'
+                ).fetchall()
+            finally:
+                connection.close()
+            self.assertEqual("{existing-id}", values[2][0])
+            self.assertEqual(3, len({value[0] for value in values}))
+            self.assertTrue(all(value[0].startswith("{") for value in values))
+
+    def test_qgz_rejects_duplicate_existing_incident_relation_ids(self):
+        with tempfile.TemporaryDirectory() as directory:
+            qgz = os.path.join(directory, "alma_bot.qgz")
+            with zipfile.ZipFile(qgz, "w") as archive:
+                archive.writestr("alma_bot.qgs", _project_xml())
+            with open(os.path.join(directory, "photos.gpkg"), "wb") as stream:
+                stream.write(b"photos")
+            with open(os.path.join(directory, "Национальный_Парк.gpkg"), "wb") as stream:
+                stream.write(b"reference")
+            _write_incident_database(
+                os.path.join(directory, "Инцидент.gpkg"),
+                [(1, "{duplicate}"), (2, "{duplicate}")],
+            )
+
+            with self.assertRaisesRegex(ValueError, "duplicate unique-id"):
                 configure_qgz(qgz)
 
     def test_rejects_project_without_expected_layer(self):

@@ -6,7 +6,9 @@ import hashlib
 import json
 import os
 import shutil
+import sqlite3
 import tempfile
+import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -62,6 +64,34 @@ def _require_field(layer, field_name):
     flags = int(constraint.get("constraints", "0")) | 1
     constraint.set("constraints", str(flags))
     constraint.set("notnull_strength", "1")
+
+
+def _require_unique_field(layer, field_name):
+    _require_field(layer, field_name)
+    constraint = next(
+        item for item in layer.findall("./constraints/constraint")
+        if item.get("field") == field_name
+    )
+    flags = int(constraint.get("constraints", "0")) | 2
+    constraint.set("constraints", str(flags))
+    constraint.set("unique_strength", "1")
+
+
+def _set_default(layer, field_name, expression):
+    defaults = layer.find("defaults")
+    if defaults is None:
+        defaults = ET.SubElement(layer, "defaults")
+    default = next(
+        (
+            item for item in defaults.findall("default")
+            if item.get("field") == field_name
+        ),
+        None,
+    )
+    if default is None:
+        default = ET.SubElement(defaults, "default", {"field": field_name})
+    default.set("expression", expression)
+    default.set("applyOnUpdate", "0")
 
 
 def _local_gpkg_source(datasource):
@@ -181,6 +211,62 @@ def _materialize_root_sources(root, project_directory):
         shutil.copy2(source_path, target_path)
 
 
+def _repair_incident_ids(project_directory):
+    """Backfill legacy blank relation IDs without guessing photo relationships."""
+    path = os.path.join(project_directory, "Инцидент.gpkg")
+    if not os.path.isfile(path):
+        raise ValueError("Missing GeoPackage referenced by QGIS: Инцидент.gpkg")
+
+    connection = sqlite3.connect(path)
+    try:
+        # GDAL-created GeoPackages may evaluate this function in generic
+        # RTree UPDATE triggers even when only a non-spatial field changes.
+        # The migration never updates geometry or fid.
+        connection.create_function(
+            "ST_IsEmpty",
+            1,
+            lambda geometry: 1 if geometry is None else 0,
+        )
+        for function_name in ("ST_MinX", "ST_MaxX", "ST_MinY", "ST_MaxY"):
+            connection.create_function(function_name, 1, lambda geometry: None)
+        connection.execute("BEGIN IMMEDIATE")
+        columns = {
+            row[1] for row in connection.execute('PRAGMA table_info("Инцидент")')
+        }
+        if "fid" not in columns or "unique-id" not in columns:
+            raise ValueError(
+                "Incident GeoPackage must contain fid and unique-id fields"
+            )
+        duplicate = connection.execute(
+            'SELECT "unique-id" FROM "Инцидент" '
+            'WHERE "unique-id" IS NOT NULL AND TRIM("unique-id") <> \'\' '
+            'GROUP BY "unique-id" HAVING COUNT(*) > 1 LIMIT 1'
+        ).fetchone()
+        if duplicate is not None:
+            raise ValueError("Incident GeoPackage contains duplicate unique-id values")
+
+        missing = [
+            row[0]
+            for row in connection.execute(
+                'SELECT fid FROM "Инцидент" '
+                'WHERE "unique-id" IS NULL OR TRIM("unique-id") = \'\''
+            )
+        ]
+        for fid in missing:
+            relation_id = "{" + str(uuid.uuid4()) + "}"
+            connection.execute(
+                'UPDATE "Инцидент" SET "unique-id" = ? WHERE fid = ?',
+                (relation_id, fid),
+            )
+        connection.commit()
+        return len(missing)
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+
+
 def configure_project_xml(xml_bytes):
     root = ET.fromstring(xml_bytes)
     photos = _layer(root, "photos")
@@ -194,6 +280,8 @@ def configure_project_xml(xml_bytes):
     _require_field(photos, "external_pk")
     _require_field(incidents, "incident_type")
     _require_field(incidents, "volunteer_email")
+    _require_unique_field(incidents, "unique-id")
+    _set_default(incidents, "unique-id", "uuid()")
 
     relation_widget = next(
         (
@@ -277,6 +365,7 @@ def configure_qgz(path):
                     configured_xml if item.filename == qgs_name else content,
                 )
         shutil.copystat(path, temporary_path)
+        _repair_incident_ids(directory)
         os.replace(temporary_path, path)
     finally:
         if os.path.exists(temporary_path):
