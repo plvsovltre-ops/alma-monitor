@@ -215,6 +215,12 @@ secret containers before the first image exists. All later changes use a normal
 - Apply the field form safeguards to a cloned Mergin project with
   `python scripts/configure_field_project.py /path/to/alma_bot.qgz`, inspect the
   resulting QGIS form, and then synchronise that project through Mergin Maps.
+  The configurator also places every local GeoPackage beside the QGZ, rewrites
+  local sources as relative paths, keeps only `Инцидент` and `photos` editable,
+  and fixes the GPS capture target to `Инцидент`. It refuses to overwrite a
+  different root GeoPackage or package a project with a missing data source.
+  This prevents a desktop-only layer path or an accidental reference-layer edit
+  from producing a Mergin conflict or disappearing from the mobile project.
 - The recorded source version comes from the downloaded project's own Mergin
   metadata, not from a later server lookup.
 - Keep one task and one parallel worker. A Cloud Storage lock stops overlapping
