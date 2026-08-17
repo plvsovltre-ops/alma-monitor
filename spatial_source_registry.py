@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import sqlite3
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -17,6 +19,7 @@ AUTHORIZED_REVIEWER = {
     "name": "Yernar Sailybayev",
     "capacity": "AUTHOR_AND_LEGAL_EDITOR",
 }
+CONTENT_HASH_METHOD = "GPKG_FEATURE_CONTENT_V1"
 
 
 class SpatialSourceError(RuntimeError):
@@ -29,8 +32,121 @@ def _required_text(value: object, label: str) -> str:
     return value.strip()
 
 
+def _quote_identifier(value: str) -> str:
+    """Quote one SQLite identifier obtained from GeoPackage metadata."""
+    return '"' + value.replace('"', '""') + '"'
+
+
+def _geometry_wkb(blob: object) -> bytes:
+    """Remove the mutable GeoPackage envelope and return the stored WKB."""
+    if not isinstance(blob, bytes):
+        raise SpatialSourceError("Spatial source geometry is missing")
+    if len(blob) < 8 or blob[:2] != b"GP":
+        raise SpatialSourceError("Spatial source geometry is not GeoPackage binary")
+    envelope_type = (blob[3] >> 1) & 0b111
+    envelope_size = {0: 0, 1: 32, 2: 48, 3: 48, 4: 64}.get(envelope_type)
+    if envelope_size is None or len(blob) < 8 + envelope_size:
+        raise SpatialSourceError("Spatial source geometry envelope is invalid")
+    wkb = blob[8 + envelope_size :]
+    if not wkb:
+        raise SpatialSourceError("Spatial source geometry WKB is empty")
+    return wkb
+
+
+def _canonical_value(value: object, *, geometry: bool = False) -> object:
+    if geometry:
+        return {"wkb": _geometry_wkb(value).hex()}
+    if value is None or isinstance(value, (str, int)):
+        return value
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise SpatialSourceError("Spatial source contains a non-finite number")
+        return {"float": format(value, ".17g")}
+    if isinstance(value, bytes):
+        return {"blob_sha256": hashlib.sha256(value).hexdigest()}
+    raise SpatialSourceError("Spatial source contains an unsupported value")
+
+
+def gpkg_feature_content_sha256(path: str | Path) -> str:
+    """Hash feature geometry and attributes, independent of SQLite packaging.
+
+    Mergin Maps may rebuild a GeoPackage while applying a changeset. The SQLite
+    pages and GeoPackage envelopes can then differ even though every reviewed
+    feature is unchanged. This digest intentionally excludes primary-key row
+    IDs and non-feature metadata, sorts features deterministically, and hashes
+    the WKB plus all reviewed feature attributes.
+    """
+    path = Path(path)
+    if not path.is_file():
+        raise SpatialSourceError(f"Spatial source cannot be read: {path.name}")
+    try:
+        connection = sqlite3.connect(path)
+        geometry_layers = connection.execute(
+            "SELECT table_name, column_name, geometry_type_name, srs_id "
+            "FROM gpkg_geometry_columns ORDER BY table_name"
+        ).fetchall()
+        if not geometry_layers:
+            raise SpatialSourceError("Spatial source contains no feature layer")
+
+        layers = []
+        for table_name, geometry_column, geometry_type, srs_id in geometry_layers:
+            columns = connection.execute(
+                f"PRAGMA table_info({_quote_identifier(table_name)})"
+            ).fetchall()
+            if not columns:
+                raise SpatialSourceError("Spatial source feature table is missing")
+            primary_keys = {column[1] for column in columns if column[5]}
+            content_columns = [
+                column[1] for column in columns if column[1] not in primary_keys
+            ]
+            if geometry_column not in content_columns:
+                raise SpatialSourceError("Spatial source geometry column is missing")
+
+            selection = ", ".join(_quote_identifier(name) for name in content_columns)
+            rows = []
+            for values in connection.execute(
+                f"SELECT {selection} FROM {_quote_identifier(table_name)}"
+            ):
+                feature = {
+                    name: _canonical_value(value, geometry=name == geometry_column)
+                    for name, value in zip(content_columns, values)
+                }
+                rows.append(
+                    json.dumps(
+                        feature,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
+                )
+            rows.sort()
+            layers.append(
+                {
+                    "table": table_name,
+                    "geometry_column": geometry_column,
+                    "geometry_type": geometry_type,
+                    "srs_id": srs_id,
+                    "columns": content_columns,
+                    "features": rows,
+                }
+            )
+    except (OSError, sqlite3.Error) as exc:
+        raise SpatialSourceError(f"Spatial source cannot be read: {path.name}") from exc
+    finally:
+        if "connection" in locals():
+            connection.close()
+
+    payload = json.dumps(
+        {"schema": "alma-gpkg-feature-content-v1", "layers": layers},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 class SpatialSourceRegistry:
-    """Validate provenance, scope, review age, and exact local file hashes."""
+    """Validate provenance, scope, review age, and reviewed feature content."""
 
     def __init__(
         self,
@@ -57,7 +173,7 @@ class SpatialSourceRegistry:
         self._validate()
 
     def _validate(self) -> None:
-        if self.registry.get("schema_version") != "1.0":
+        if self.registry.get("schema_version") != "1.1":
             raise SpatialSourceError("Spatial source registry schema is unsupported")
         registry_id = _required_text(self.registry.get("registry_id"), "registry ID")
         if self.registry.get("status") != "OWNER_REVIEW_REQUIRED":
@@ -93,6 +209,8 @@ class SpatialSourceRegistry:
                 "last_reviewed_on",
                 "next_review_due",
                 "file_sha256",
+                "content_hash_method",
+                "content_sha256",
                 "allowed_use",
                 "legal_boundary_status",
                 "limitations_ru",
@@ -114,6 +232,16 @@ class SpatialSourceRegistry:
                 source["file_sha256"]
             ) != 64:
                 raise SpatialSourceError(f"Spatial source hash is invalid: {source_id}")
+            if source["content_hash_method"] != CONTENT_HASH_METHOD:
+                raise SpatialSourceError(
+                    f"Spatial source content hash method is invalid: {source_id}"
+                )
+            if source["content_sha256"] != source["content_sha256"].lower() or len(
+                source["content_sha256"]
+            ) != 64:
+                raise SpatialSourceError(
+                    f"Spatial source content hash is invalid: {source_id}"
+                )
             try:
                 last_reviewed = date.fromisoformat(source["last_reviewed_on"])
                 next_review = date.fromisoformat(source["next_review_due"])
@@ -149,11 +277,8 @@ class SpatialSourceRegistry:
             raise SpatialSourceError(
                 f"Spatial source review is overdue: {record['source_id']}"
             )
-        try:
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        except OSError as exc:
-            raise SpatialSourceError(f"Spatial source cannot be read: {path.name}") from exc
-        if digest != record["file_sha256"]:
+        digest = gpkg_feature_content_sha256(path)
+        if digest != record["content_sha256"]:
             raise SpatialSourceError(f"Spatial source changed after review: {path.name}")
         return {
             **record,

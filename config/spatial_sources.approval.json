@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "registry_id": "kz-alma-open-spatial-sources-0.1.0",
-  "registry_sha256": "713f73a190fda7bbdf96fd6098d92b3ef0112370d6e0c6a0f01d5b013b03b01d",
+  "registry_id": "kz-alma-open-spatial-sources-0.1.1",
+  "registry_sha256": "12c14d65e0fdd864c664d045fae7b06e0b3c23a3861f85bf020d0f6b7970f98a",
   "decision": "OPEN_SOURCE_SCREENING_APPROVED",
   "approval_scope": "CONTROLLED_FIELD_RELEASE_ONLY",
   "reviewer": {
@@ -9,5 +9,5 @@
     "capacity": "AUTHOR_AND_LEGAL_EDITOR"
   },
   "reviewed_on": "2026-08-17",
-  "statement": "The owner supplied the ALAG provenance, approved periodic source checks, and authorized field use only as an open-source screening context. This approval does not classify the files as official legal boundaries, cadastral extracts, functional zoning, or water-protection boundary decisions."
+  "statement": "The owner supplied the ALAG provenance, approved periodic source checks, and authorized field use only as an open-source screening context. Runtime integrity is bound to deterministic GeoPackage feature geometry and attributes so Mergin repackaging alone does not invalidate reviewed data. This approval does not classify the files as official legal boundaries, cadastral extracts, functional zoning, or water-protection boundary decisions."
 }
