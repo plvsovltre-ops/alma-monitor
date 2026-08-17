@@ -7,12 +7,14 @@ from pathlib import Path
 from territory_catalog import (
     DEFAULT_APPROVAL,
     DEFAULT_CATALOG,
+    FIELD_APPROVAL,
+    FIELD_CATALOG,
     TerritoryCatalog,
     TerritoryCatalogError,
 )
 
-PROPOSED_CATALOG = DEFAULT_CATALOG
-PROPOSED_APPROVAL = DEFAULT_APPROVAL
+PROPOSED_CATALOG = FIELD_CATALOG
+PROPOSED_APPROVAL = FIELD_APPROVAL
 
 
 class TerritoryCatalogTests(unittest.TestCase):
@@ -198,8 +200,11 @@ class TerritoryCatalogTests(unittest.TestCase):
             },
             approval["reviewer"],
         )
-        self.assertEqual("2026-08-13", approval["reviewed_on"])
-        self.assertEqual(proposal_hash, TerritoryCatalog().sha256)
+        self.assertEqual("2026-08-17", approval["reviewed_on"])
+        self.assertEqual(
+            proposal_hash,
+            TerritoryCatalog(PROPOSED_CATALOG, PROPOSED_APPROVAL).sha256,
+        )
 
     def test_v02_pending_decision_cannot_activate(self):
         temp_dir, catalog_path, approval_path = self._approved_files(
@@ -224,7 +229,7 @@ class TerritoryCatalogTests(unittest.TestCase):
         )
         self.addCleanup(temp_dir.cleanup)
         catalog = TerritoryCatalog(catalog_path, approval_path)
-        expected_routes = {
+        orchard_routes = {
             "waste": "almaty_land_resources",
             "logging": "almaty_ecology_environment",
             "construction": "almaty_urban_planning_control",
@@ -233,6 +238,18 @@ class TerritoryCatalogTests(unittest.TestCase):
         }
 
         for territory in catalog.catalog["territories"]:
+            if territory["context_profile_id"] == "ile_alatau_open_source_screening":
+                expected_routes = {
+                    value: "ile_alatau_national_park_administration"
+                    for value in orchard_routes
+                }
+            elif territory["context_profile_id"] == "water_open_source_screening":
+                expected_routes = {
+                    value: "balkhash_alakol_water_inspection"
+                    for value in orchard_routes
+                }
+            else:
+                expected_routes = orchard_routes
             self.assertEqual(
                 expected_routes,
                 territory["route_ids_by_incident_type"],
@@ -241,9 +258,9 @@ class TerritoryCatalogTests(unittest.TestCase):
             for incident_type, route_id in expected_routes.items():
                 routed = catalog.route_context(context, incident_type)
                 self.assertEqual(route_id, routed["route_id"])
-                request = catalog.request_for(incident_type)
-                self.assertTrue(request["request_ru"].endswith("О результате прошу сообщить."))
-                self.assertTrue(request["request_kz"].endswith("Нәтижесі туралы хабарлауды сұраймын."))
+                request = catalog.request_for(incident_type, context)
+                self.assertTrue(request["request_ru"].strip())
+                self.assertTrue(request["request_kz"].strip())
 
         with self.assertRaisesRegex(
             TerritoryCatalogError,
@@ -265,13 +282,26 @@ class TerritoryCatalogTests(unittest.TestCase):
                 "almaty_ecology_environment",
                 "almaty_urban_planning_control",
                 "balkhash_alakol_water_inspection",
+                "ile_alatau_national_park_administration",
             },
             set(catalog.catalog["routes"]),
         )
         for route in catalog.catalog["routes"].values():
             self.assertTrue(route["official_source_url"].startswith("https://"))
             self.assertTrue(route["competence_source_url"].startswith("https://"))
-            self.assertEqual("2026-08-13", route["verified_on"])
+            self.assertIn(route["verified_on"], {"2026-08-13", "2026-08-17"})
+
+    def test_open_source_layers_are_explicitly_screening_only(self):
+        catalog = TerritoryCatalog(PROPOSED_CATALOG, PROPOSED_APPROVAL)
+        for filename in (
+            "Национальный_Природный_Парк.gpkg",
+            "Водоохранные_полосы.gpkg",
+        ):
+            context = catalog.context_for_source(filename)
+            self.assertEqual(
+                "OPEN_SOURCE_SCREENING_CONTEXT_ONLY", context["spatial_use"]
+            )
+            self.assertTrue(context["spatial_source_id"].startswith("alag-"))
 
 
 if __name__ == "__main__":

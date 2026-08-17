@@ -1,0 +1,356 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "kz-alma-legal-core-expansion-0.2.0-rc1",
+  "jurisdiction": "KZ",
+  "status": "LEGAL_REVIEW_REQUIRED",
+  "review_view_version": "1.3",
+  "source_checked_on": "2026-08-17",
+  "authorship": "ALMA was initiated and originally designed by Yernar Sailybayev in Almaty, Kazakhstan.",
+  "activation_gate": "BLOCKED_PENDING_AUTHOR_LEGAL_APPROVAL_AND_SPATIAL_PROVENANCE",
+  "scope_ru": "Расширение контролируемого Legal Core для Иле-Алатауского государственного национального природного парка и водоохранных полос Алматы. Пакет не устанавливает нарушение, виновность или окончательную юридическую квалификацию.",
+  "incident_types": [
+    "waste",
+    "logging",
+    "construction",
+    "soil_damage",
+    "water_pollution"
+  ],
+  "review_objects": [
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-2-2-sector-law-boundary",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 2 статьи 2 — соотношение с отраслевым законодательством",
+      "review_text": "Отношения по использованию и охране вод, лесов и иных природных ресурсов на ООПТ регулируются соответствующим отраслевым законодательством только в части, не урегулированной Законом об ООПТ. При пересечении режимов сначала проверяется специальный режим ООПТ, затем применимые отраслевые требования.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-23-3-purpose-current",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 3 статьи 23 — соответствие целевому назначению",
+      "review_text": "На землях ООПТ запрещается деятельность, не соответствующая их целевому назначению, кроме мероприятий гражданской защиты. Для применения нормы орган подтверждает принадлежность точки к земле ООПТ, целевое назначение и характер деятельности.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-28-protection-regimes",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, статья 28 — виды режимов охраны",
+      "review_text": "Закон различает заповедный, заказной и регулируемый режимы охраны. Запрет или допустимость действия нельзя выводить только из названия ООПТ: требуется подтвердить категорию территории, установленный режим и применимую функциональную зону.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-45-1-national-park-zones",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 1 статьи 45 — функциональные зоны национального парка",
+      "review_text": "Национальный парк делится на заповедную зону, зону экологической стабилизации, туристскую и рекреационную зону и зону ограниченной хозяйственной деятельности. ALMA не выбирает режим без официальной карты функционального зонирования.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-45-2-reserve-zone",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 2 статьи 45 — заповедная зона национального парка",
+      "review_text": "В заповедной зоне запрещаются хозяйственная деятельность и рекреационное использование, кроме регулируемого экологического туризма. Применение требует официального подтверждения, что наблюдение относится именно к этой зоне.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-45-3-stabilization-zone",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 3 статьи 45 — зона экологической стабилизации",
+      "review_text": "В зоне экологической стабилизации действует охранный режим, направленный на сохранение природных комплексов, с предусмотренными законом ограничениями хозяйственной и рекреационной деятельности. Точный вывод требует официальной зоны и вида действия.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-45-4-tourism-zone",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 4 статьи 45 — туристская и рекреационная зона",
+      "review_text": "В туристской и рекреационной зоне допускается регулируемое туристское и рекреационное использование. Наличие посетительской или хозяйственной активности само по себе не доказывает нарушение; проверяются зона, разрешенный вид деятельности и условия управления парком.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-45-5-limited-economic-zone",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункт 5 статьи 45 — зона ограниченной хозяйственной деятельности",
+      "review_text": "В зоне ограниченной хозяйственной деятельности допускаются предусмотренные законом виды деятельности, связанные с функционированием национального парка и обслуживанием посетителей. Требуется проверить функциональную зону, документы и связь работ с разрешенными целями.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-48-1-1-harmful-objects-current",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, подпункт 1 пункта 1 статьи 48 — вредно воздействующие объекты в охранной зоне",
+      "review_text": "В охранной зоне государственного национального природного парка запрещаются размещение, проектирование, строительство и эксплуатация объектов и технологий, вредно воздействующих на экосистемы парка. Эта карточка относится к официально подтвержденной охранной зоне, а не автоматически к территории самого парка.",
+      "admission_status": "REVIEW_REQUIRED_NOT_MAPPED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-48-1-2-discharges-current",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, подпункт 2 пункта 1 статьи 48 — выбросы и сбросы в охранной зоне",
+      "review_text": "В охранной зоне национального парка запрещаются выброс загрязняющих веществ в атмосферу и сброс загрязняющих веществ и сточных вод в открытые водные источники и на рельеф местности. Нужны подтвержденная охранная зона и проверка вещества или сброса.",
+      "admission_status": "REVIEW_REQUIRED_NOT_MAPPED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-oopt-48-2-3-protection-zone-conditions-current",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Закон РК об ООПТ, пункты 2 и 3 статьи 48 — условия допустимой деятельности в охранной зоне",
+      "review_text": "Перечисленная законом деятельность в охранной зоне допустима только при отсутствии негативного влияния на экосистемы национального парка и с мерами сохранения мест обитания и биоразнообразия. Карточка не превращает отсутствие видимого ущерба на фото в доказательство соблюдения требований.",
+      "admission_status": "REVIEW_REQUIRED_NOT_MAPPED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-koap-381-1-3-oopt-repeat",
+      "official_source": "https://adilet.zan.kz/rus/docs/K1400000235",
+      "norm_or_decision": "КоАП РК, часть 3 статьи 381-1 — деяния на ООПТ или повторность",
+      "review_text": "Норма усиливает ответственность за предусмотренные частями 1 или 2 действия с деревьями и кустарниками, если они совершены на ООПТ либо повторно. ALMA сообщает признаки и координаты; состав, категорию земли, ущерб, повторность и виновность устанавливает орган.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-forest-113-selected-breaches",
+      "official_source": "https://adilet.zan.kz/rus/docs/K030000477_",
+      "norm_or_decision": "Лесной кодекс РК, отдельные подпункты пункта 1 статьи 113 — нарушения лесного законодательства",
+      "review_text": "Статья охватывает, в частности, самовольные постройки и склады, повреждение и незаконную порубку, засорение или повреждение леса отходами и сточными водами, а также вредно воздействующие объекты. Применимый подпункт выбирается только после подтверждения лесного фонда и фактов.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-4-protection-principles",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, статья 4 — принципы водного законодательства",
+      "review_text": "Водное законодательство исходит из значения воды как основы жизни и окружающей среды, бассейнового управления и приоритета охраны вод от загрязнения, засорения и истощения, а также доступности информации и участия общественности. Карточка задает контекст, а не самостоятельный состав нарушения.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-5-2-oopt-boundary",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, пункт 2 статьи 5 — соотношение с режимом ООПТ",
+      "review_text": "Отношения, связанные с водными объектами на ООПТ, регулируются также специальным законодательством. При пересечении слоя водоохранной полосы и ООПТ ALMA не выбирает более удобный режим, а сохраняет оба контекста и просит орган установить применимые требования.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-85-1-protection-zones-purpose-current",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, пункт 1 статьи 85 — назначение водоохранных зон и полос и исключение",
+      "review_text": "Водоохранные зоны и полосы устанавливаются для предотвращения загрязнения, засорения и истощения вод и сохранения растительного и животного мира. Пункт содержит исключение для водных объектов на землях ООПТ и государственного лесного фонда; пересечение обязательно требует проверки режима органом.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-85-2-protection-zone-spatial-data",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, пункт 2 статьи 85 — проектные границы и пространственные данные",
+      "review_text": "Границы водоохранных зон и полос определяются проектной документацией и координатами, обозначаются знаками и публикуются как пространственные данные. Для автоматического допуска ALMA нужен официальный источник слоя и решение об установлении границ.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-1-2-surface-waste",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, подпункт 2 пункта 1 статьи 86 — загрязнение и засорение поверхностных вод",
+      "review_text": "На поверхностных водных объектах запрещается загрязнение и засорение перечисленными опасными веществами, бытовыми и производственными отходами, химическими продуктами и иными указанными материалами. Вид вещества и попадание в воду проверяются отдельно.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-1-6-works-no-approval",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, подпункт 6 пункта 1 статьи 86 — работы без согласования",
+      "review_text": "Строительные, сельскохозяйственные, буровые, санационные и иные работы на поверхностном водном объекте требуют согласования с бассейновой водной инспекцией. Волонтер фиксирует признаки работ; наличие и содержание согласования проверяются по документам.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-2-protective-strip",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, пункт 2 статьи 86 — деятельность в водоохранной полосе",
+      "review_text": "В пределах водоохранной полосы хозяйственная деятельность в общем случае запрещена, кроме прямо перечисленных законом видов. Сначала подтверждаются официальная граница, характер деятельности и наличие применимого исключения.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-3-1-no-protection-devices",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, подпункт 1 пункта 3 статьи 86 — объекты без защитных устройств",
+      "review_text": "В водоохранной зоне запрещен ввод новых и реконструированных объектов без устройств, предотвращающих загрязнение и засорение воды, зоны и полосы. Общая фотография объекта не доказывает ввод или отсутствие устройств; требуются документы и осмотр.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-3-4-dumps",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, подпункт 4 пункта 3 статьи 86 — свалки в водоохранной зоне",
+      "review_text": "В водоохранной зоне запрещается размещение и устройство свалок твердых бытовых и производственных отходов. Для вывода нужны подтвержденная граница зоны и проверка устойчивого размещения и статуса наблюдаемых предметов.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD",
+      "object_id": "kz-water-86-4-protection-systems",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водный кодекс РК, пункт 4 статьи 86 — защитные системы допустимых объектов",
+      "review_text": "Допустимые в водоохранной зоне объекты должны иметь бессточные системы либо сооружения и устройства против загрязнения, засорения, истощения и вредного воздействия вод. Отсутствие таких систем не устанавливается только по полевому фото.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "LEGAL_CARD_STATUS",
+      "object_id": "supersede-kz-oopt-48-1-5-8-other-harm",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "Блокировка устаревшей карточки kz-oopt-48-1-5-8-other-harm",
+      "review_text": "Старая карточка ссылалась на подпункты 5–8 пункта 1 статьи 48, которых нет в проверенной текущей структуре статьи. Карточка не входит в действующий публичный набор из 18 норм и должна оставаться недоступной для будущего выбора; актуальные положения статьи 48 представлены отдельными карточками этого предложения.",
+      "admission_status": "SUPERSEDED_BLOCKED"
+    },
+    {
+      "object_type": "CONTEXT_PROFILE",
+      "object_id": "ile_alatau_national_park",
+      "official_source": "https://www.gov.kz/memleket/entities/ecogeo/press/news/details/1252960?lang=ru",
+      "norm_or_decision": "Контекст Иле-Алатауского государственного национального природного парка",
+      "review_text": "Парк создан для сохранения уникальных природных комплексов Заилийского Алатау, биоразнообразия, горных ландшафтов, лесов и редких видов. Это природное наследие, которое поддерживает воду, почвы и устойчивость региона. В ответе волонтеру контекст излагается просто; точный режим определяется только после подтверждения функциональной зоны.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "CONTEXT_PROFILE",
+      "object_id": "almaty_water_protection_strip",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Контекст водоохранной полосы",
+      "review_text": "Водоохранная полоса — ближайшая к воде территория с наиболее строгим режимом. Её назначение — не допустить загрязнение, засорение и истощение воды и сохранить связанные экосистемы. При пересечении с ООПТ ALMA сохраняет оба контекста и не делает автоматический вывод о применимом режиме.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "ile_alatau_national_park:waste",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_ | https://adilet.zan.kz/rus/docs/K030000477_",
+      "norm_or_decision": "ООПТ × отходы или захламление",
+      "review_text": "Детерминированные ориентиры: kz-oopt-23-3-purpose-current, kz-oopt-28-protection-regimes, kz-oopt-45-1-national-park-zones, kz-forest-113-selected-breaches. Проверить: принадлежность к парку и функциональную зону; являются ли предметы отходами или временными материалами; допустимость размещения; ответственное лицо. Просьба: проверить режим территории и статус размещения, принять меры при наличии оснований.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "ile_alatau_national_park:logging",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_ | https://adilet.zan.kz/rus/docs/K1400000235 | https://adilet.zan.kz/rus/docs/K030000477_",
+      "norm_or_decision": "ООПТ × вырубка или повреждение растительности",
+      "review_text": "Детерминированные ориентиры: kz-oopt-23-3-purpose-current, kz-oopt-28-protection-regimes, kz-oopt-45-1-national-park-zones, kz-koap-381-1-3-oopt-repeat, kz-forest-113-selected-breaches. Проверить: вид и состояние растительности, зона, документы, действие, ущерб и ответственное лицо. Просьба: проверить законность работ и состояние насаждений, принять меры при наличии оснований.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "ile_alatau_national_park:construction",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_ | https://adilet.zan.kz/rus/docs/K030000477_",
+      "norm_or_decision": "ООПТ × строительные или земляные работы",
+      "review_text": "Детерминированные ориентиры: kz-oopt-23-3-purpose-current, kz-oopt-28-protection-regimes, kz-oopt-45-1-national-park-zones, применимая карточка зоны 45 и kz-forest-113-selected-breaches. Проверить: функциональную зону, назначение работ, проект и разрешительные документы, влияние на природные комплексы. Просьба: проверить допустимость работ по режиму парка и сообщить меры.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "ile_alatau_national_park:soil_damage",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_",
+      "norm_or_decision": "ООПТ × изменение почвы или рельефа",
+      "review_text": "Детерминированные ориентиры: kz-oopt-23-3-purpose-current, kz-oopt-28-protection-regimes, kz-oopt-45-1-national-park-zones и применимая карточка зоны 45. Проверить: характер и объем воздействия, функциональную зону, документы, последствия для почв и природного комплекса. Просьба: проверить допустимость воздействия и необходимость восстановления.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "ile_alatau_national_park:water_pollution",
+      "official_source": "https://adilet.zan.kz/rus/docs/Z060000175_ | https://adilet.zan.kz/rus/docs/K2500000178 | https://adilet.zan.kz/rus/docs/K030000477_",
+      "norm_or_decision": "ООПТ × загрязнение или засорение воды",
+      "review_text": "Детерминированные ориентиры: kz-oopt-2-2-sector-law-boundary, kz-oopt-23-3-purpose-current, kz-water-5-2-oopt-boundary, kz-water-86-1-2-surface-waste, kz-forest-113-selected-breaches. Проверить: водный объект, вещество и попадание в воду, специальный режим ООПТ, источник воздействия, пробы и ответственное лицо. Просьба: проверить состояние воды и применимые режимы, принять меры.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "almaty_water_protection_strip:waste",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранная полоса × отходы или захламление",
+      "review_text": "Детерминированные ориентиры: kz-water-85-1-protection-zones-purpose-current, kz-water-85-2-protection-zone-spatial-data, kz-water-86-2-protective-strip, kz-water-86-3-4-dumps. Проверить: официальный статус полосы, являются ли предметы отходами, устойчивость размещения и применимое исключение. Просьба: проверить соблюдение режима и статус размещения.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "almaty_water_protection_strip:logging",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранная полоса × удаление или повреждение растительности",
+      "review_text": "Детерминированные ориентиры: kz-water-4-protection-principles, kz-water-85-1-protection-zones-purpose-current, kz-water-85-2-protection-zone-spatial-data, kz-water-86-2-protective-strip. Проверить: границу полосы, характер растительности и работ, допустимость деятельности и документы. Просьба: проверить влияние работ на защитную функцию полосы и законность деятельности.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "almaty_water_protection_strip:construction",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранная полоса × строительные или земляные работы",
+      "review_text": "Детерминированные ориентиры: kz-water-85-2-protection-zone-spatial-data, kz-water-86-1-6-works-no-approval, kz-water-86-2-protective-strip, kz-water-86-3-1-no-protection-devices, kz-water-86-4-protection-systems. Проверить: официальную полосу, вид работ, согласование инспекции, допустимое исключение и защитные системы. Просьба: проверить документы и соблюдение режима.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "almaty_water_protection_strip:soil_damage",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранная полоса × изменение почвы или рельефа",
+      "review_text": "Детерминированные ориентиры: kz-water-4-protection-principles, kz-water-85-1-protection-zones-purpose-current, kz-water-85-2-protection-zone-spatial-data, kz-water-86-2-protective-strip. Проверить: границу полосы, характер земляных работ, согласования, влияние на сток и устойчивость берега. Просьба: проверить допустимость воздействия и необходимость восстановления.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "POLICY_MAPPING",
+      "object_id": "almaty_water_protection_strip:water_pollution",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранная полоса × загрязнение или засорение воды",
+      "review_text": "Детерминированные ориентиры: kz-water-4-protection-principles, kz-water-85-1-protection-zones-purpose-current, kz-water-85-2-protection-zone-spatial-data, kz-water-86-1-2-surface-waste. Проверить: водный объект, вещество или предметы, факт попадания в воду, источник, пробы и ответственное лицо. Просьба: проверить состояние воды, источник воздействия и необходимые меры.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "AUTHORITY_ROUTE",
+      "object_id": "ile_alatau_national_park_administration",
+      "official_source": "https://www.gov.kz/memleket/entities/almaty-eco/press/article/details/208767 | https://www.gov.kz/memleket/entities/forest",
+      "norm_or_decision": "РГУ «Иле-Алатауский государственный национальный природный парк»; при необходимости — по компетенции Комитета лесного хозяйства и животного мира",
+      "review_text": "Первичный адресат для сигнала внутри подтвержденной территории парка — администрация парка как подведомственное РГУ. Комитет осуществляет реализационные, контрольные и надзорные функции в области ООПТ. В обращение включается просьба направить его по компетенции, если отдельный вопрос относится к территориальной инспекции, экологическому или иному органу.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "AUTHORITY_ROUTE",
+      "object_id": "balkhash_alakol_water_inspection",
+      "official_source": "https://www.gov.kz/memleket/entities/maidd/documents/details/744463 | https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Балхаш-Алакольская бассейновая инспекция по регулированию, охране и использованию водных ресурсов",
+      "review_text": "Первичный адресат для сигнала в подтвержденной водоохранной зоне или полосе — Балхаш-Алакольская бассейновая инспекция. В обращение включается просьба направить его по компетенции, если конкретный вопрос относится к местному исполнительному, экологическому, земельному или иному органу.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "REQUEST_TEMPLATE_FAMILY",
+      "object_id": "ile_alatau_national_park_request",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2000000350",
+      "norm_or_decision": "Краткая просьба о проверке наблюдения на территории национального парка",
+      "review_text": "Прошу проверить изложенные факты с учетом режима Иле-Алатауского государственного национального природного парка, определить применимую функциональную зону и наличие необходимых документов, принять меры при наличии оснований и сообщить установленные обстоятельства и результат. Если вопрос относится к компетенции другого органа, прошу направить обращение по компетенции. Прошу дать мотивированный ответ и разъяснить порядок обжалования решения или бездействия.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "REQUEST_TEMPLATE_FAMILY",
+      "object_id": "almaty_water_protection_strip_request",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2000000350",
+      "norm_or_decision": "Краткая просьба о проверке наблюдения в водоохранной полосе",
+      "review_text": "Прошу проверить изложенные факты с учетом режима водоохранной зоны и полосы, сопоставить координаты с утвержденными пространственными данными, проверить необходимые согласования и защитные меры, принять меры при наличии оснований и сообщить результат. Если вопрос относится к компетенции другого органа, прошу направить обращение по компетенции. Прошу дать мотивированный ответ и разъяснить порядок обжалования решения или бездействия.",
+      "admission_status": "REVIEW_REQUIRED"
+    },
+    {
+      "object_type": "SPATIAL_SOURCE",
+      "object_id": "ile_alatau_national_park_gpkg",
+      "official_source": "https://www.gov.kz/memleket/entities/ecogeo/press/news/details/1252960?lang=ru",
+      "norm_or_decision": "Национальный_Природный_Парк.gpkg; SHA-256 b77c851db374c300cc867b03a91cf4ca195a43deb839aca38b951c9157676429",
+      "review_text": "Проверенный файл содержит 28 геометрий и кадастровые идентификаторы, но в самом наборе не сохранена достаточная ссылка на официальный акт или портал-источник; часть полей происхождения пуста или содержит локальные пути. Файл нельзя называть официальной границей парка или картой функционального зонирования. До фиксации источника допускается только режим «кандидат слоя; юридическая оценка заблокирована».",
+      "admission_status": "BLOCKED_PENDING_PROVENANCE"
+    },
+    {
+      "object_type": "SPATIAL_SOURCE",
+      "object_id": "almaty_water_protection_strips_gpkg",
+      "official_source": "https://adilet.zan.kz/rus/docs/K2500000178",
+      "norm_or_decision": "Водоохранные_полосы.gpkg; SHA-256 f48584f5eac9557ff991d83655f1e1bb7b9fd339988648da8791c8cffa29b871",
+      "review_text": "Проверенный файл содержит 33 геометрии, но значения источника имеют технические имена, а пути ведут к локальным GeoJSON-файлам. Номер и дата решения об установлении границ и официальный URL пространственных данных не сохранены. До заполнения этих реквизитов слой допускается только как визуальный кандидат; автоматическая юридическая оценка должна быть заблокирована.",
+      "admission_status": "BLOCKED_PENDING_PROVENANCE"
+    }
+  ]
+}

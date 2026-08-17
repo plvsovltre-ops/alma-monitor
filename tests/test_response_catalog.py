@@ -9,6 +9,8 @@ from pathlib import Path
 from response_catalog import (
     DEFAULT_APPROVAL,
     DEFAULT_CATALOG,
+    FIELD_APPROVAL,
+    FIELD_CATALOG,
     ResponseCatalog,
     ResponseCatalogError,
 )
@@ -51,6 +53,19 @@ class ResponseCatalogTests(unittest.TestCase):
         self.assertEqual("Yernar Sailybayev", catalog.approval["reviewer"]["name"])
         self.assertIn("сад", catalog.context_for("orchard_landscape")["why_ru"])
         self.assertIn("eOtinish", catalog.action_for("waste")["next_ru"])
+
+    def test_field_catalog_has_exact_screening_approval(self):
+        catalog = ResponseCatalog(FIELD_CATALOG, FIELD_APPROVAL)
+        self.assertEqual(
+            "dd746bbb8f98d19d908b78a6f9d6059edf70ed30e505e91ed1cebdd582dc0c06",
+            catalog.sha256,
+        )
+        self.assertEqual("kz-alma-human-response-0.2.0", catalog.catalog_id)
+        screening = catalog.action_for(
+            "construction", "ile_alatau_open_source_screening"
+        )
+        self.assertIn("официальной проверки", screening["assessment_ru"])
+        self.assertIn("eOtinish", screening["next_ru"])
 
     def test_catalog_edit_after_approval_fails_closed(self):
         temp_dir, catalog_path, approval_path = self._files()

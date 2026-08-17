@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "kz-alma-legal-core-expansion-0.2.0-rc1",
+  "proposal_sha256": "f0df0ce5f24dacec3a6629f0b9e1c69e9bc59ac0c107062f7b991bbb7a9fc816",
+  "status": "INDEPENDENT_LAWYER_REVIEW_REPORTED_BY_OWNER",
+  "reviewer": {
+    "reference": "independent-legal-reviewer-kz-001",
+    "capacity": "INDEPENDENT_LAWYER",
+    "public_label": "Independent legal reviewer (identity confidential)"
+  },
+  "identity_disclosure": "CONFIDENTIAL",
+  "public_attribution_consent": false,
+  "reported_on": "2026-08-17",
+  "reviewed_object_count": 42,
+  "review_object_set_sha256": "56da588cb7f44f383bc80aebf6ac8d40c5709d5852354b1f6b9f92f633b29978",
+  "review_source_type": "RESTRICTED_GOOGLE_SHEET",
+  "activation_effect": "NONE",
+  "statement": "The owner reported completion of the independent legal review for all 42 hash-bound objects. The reviewer identity remains confidential. This status record does not activate boundary-dependent Legal Core mappings or classify an open spatial layer as an official boundary."
+}

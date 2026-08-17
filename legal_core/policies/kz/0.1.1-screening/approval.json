@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.1",
+  "policy_id": "kz-alma-field-screening-0.1.0",
+  "decision": "CONTROLLED_PILOT_APPROVED",
+  "required_reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-17",
+  "policy_sha256": "24349e455d32653a6bea0a06356812c63a686817a27a81daaffa59e397f47254",
+  "legal_release_artifacts": {
+    "cards.json": "cc21aa3f514e9b4f503cba9af46d01e87fc2339c03e3f25271ea4d1edd44c7c4",
+    "review.json": "2620b2115af63db76550b20e5cbd3940faa525ab55f56c04b1107b200a81cf63"
+  },
+  "approval_scope": "CONTROLLED_FIELD_SCREENING_ONLY",
+  "independent_lawyer_review_status": "INDEPENDENT_LAWYER_REVIEW_REPORTED_CONFIDENTIAL",
+  "public_release_status": "PUBLIC_LEGAL_RELEASE_BLOCKED",
+  "expansion_proposal_sha256": "f0df0ce5f24dacec3a6629f0b9e1c69e9bc59ac0c107062f7b991bbb7a9fc816",
+  "statement": "The owner approved a conservative field-screening policy after reporting completion of the expansion legal review. It uses only cards already admitted to the active Legal Core and does not activate the expansion's boundary-dependent rules."
+}

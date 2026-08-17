@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.1",
+  "policy_id": "kz-alma-field-screening-0.1.0",
+  "legal_release_id": "kz-0.1.0-rc1",
+  "status": "AUTHOR_LEGAL_REVIEW_REQUIRED",
+  "selection_basis": "Exact reviewed context_profile_id plus exact normalized incident_type. Open ALAG polygons are screening context only; the model never selects rule IDs or declares an official boundary.",
+  "mappings": {
+    "waste": {
+      "label_ru": "Отходы или захламление",
+      "rule_ids": [
+        "kz-koap-344-2-storage",
+        "kz-koap-505-1-cleaning",
+        "kz-land-65-1-9",
+        "kz-eco-340-3"
+      ],
+      "unknowns_ru": [
+        "являются ли наблюдаемые предметы отходами, а не временно складированными материалами",
+        "назначение места и допустимость складирования",
+        "границы и правообладатель земельного участка",
+        "ответственное лицо, длительность состояния и статус отходов как бесхозяйных"
+      ]
+    },
+    "logging": {
+      "label_ru": "Вырубка или повреждение зеленых насаждений",
+      "rule_ids": [
+        "kz-almaty-green-p42-1-damage",
+        "kz-almaty-green-p48-50-felling-permit",
+        "kz-almaty-green-p54-inspection-act",
+        "kz-koap-386-green-rules"
+      ],
+      "unknowns_ru": [
+        "вид, количество и состояние зеленых насаждений до события",
+        "наличие и содержание разрешения на вырубку или пересадку",
+        "наличие акта обследования и сведений реестра",
+        "лицо, действие, причинная связь и размер вреда"
+      ]
+    },
+    "construction": {
+      "label_ru": "Строительные или земляные работы рядом с насаждениями",
+      "rule_ids": [
+        "kz-almaty-green-p13-construction-preservation",
+        "kz-almaty-green-p32-1-construction-fencing",
+        "kz-almaty-green-p32-8-topsoil",
+        "kz-almaty-green-p42-10-12-soil-networks"
+      ],
+      "unknowns_ru": [
+        "границы участка, стройплощадки и охраняемых насаждений",
+        "проект, дендроплан и предусмотренные меры сохранения",
+        "характер и законность изменения рельефа или плодородного слоя",
+        "лицо, выполняющее работы, разрешения и причинная связь"
+      ]
+    },
+    "soil_damage": {
+      "label_ru": "Повреждение земли или плодородного слоя",
+      "rule_ids": [
+        "kz-land-65-1-9",
+        "kz-almaty-green-p32-8-topsoil",
+        "kz-almaty-green-p42-10-12-soil-networks",
+        "kz-koap-337-1-topsoil"
+      ],
+      "unknowns_ru": [
+        "является ли затронутый слой плодородным",
+        "характер, объем и законность снятия, среза или перемещения грунта",
+        "границы и правообладатель земельного участка",
+        "последствия для почвы и связь с конкретными действиями"
+      ]
+    },
+    "water_pollution": {
+      "label_ru": "Загрязнение или засорение водного объекта",
+      "rule_ids": [
+        "kz-water-75-1-protection-directions",
+        "kz-water-76-1-pollution-definition",
+        "kz-water-77-1-clogging-definition",
+        "kz-water-77-2-clogging-burial",
+        "kz-water-86-1-2-surface-waste"
+      ],
+      "unknowns_ru": [
+        "относится ли место к поверхностному водному объекту и каковы его официальные границы",
+        "состав вещества или предметов и факт их попадания в воду",
+        "источник, действие, ответственное лицо и причинная связь",
+        "результаты отбора проб, лабораторного анализа и оценка последствий"
+      ]
+    }
+  },
+  "context_mappings": {
+    "ile_alatau_open_source_screening": {
+      "waste": {
+        "label_ru": "Материалы в возможном природоохранном контексте",
+        "rule_ids": [
+          "kz-oopt-23-3-purpose",
+          "kz-oopt-45-4-6-tourism-protection",
+          "kz-forest-113-selected-breaches"
+        ],
+        "unknowns_ru": [
+          "официальная граница территории и применимая функциональная зона",
+          "статус предметов как отходов или временных материалов",
+          "допустимость размещения и ответственное лицо"
+        ]
+      },
+      "logging": {
+        "label_ru": "Растительность в возможном природоохранном контексте",
+        "rule_ids": [
+          "kz-oopt-23-3-purpose",
+          "kz-koap-381-1-3-oopt-repeat",
+          "kz-forest-113-selected-breaches"
+        ],
+        "unknowns_ru": [
+          "официальная граница территории и функциональная зона",
+          "вид и состояние растительности",
+          "документы, действие, ущерб и ответственное лицо"
+        ]
+      },
+      "construction": {
+        "label_ru": "Работы в возможном природоохранном контексте",
+        "rule_ids": [
+          "kz-oopt-23-3-purpose",
+          "kz-oopt-45-4-6-tourism-protection",
+          "kz-forest-113-selected-breaches"
+        ],
+        "unknowns_ru": [
+          "официальная граница и функциональная зона",
+          "назначение работ, проект и разрешительные документы",
+          "влияние на природные комплексы"
+        ]
+      },
+      "soil_damage": {
+        "label_ru": "Изменение почвы в возможном природоохранном контексте",
+        "rule_ids": [
+          "kz-oopt-23-3-purpose",
+          "kz-oopt-45-4-6-tourism-protection"
+        ],
+        "unknowns_ru": [
+          "официальная граница и функциональная зона",
+          "характер и объем воздействия",
+          "документы и последствия для природного комплекса"
+        ]
+      },
+      "water_pollution": {
+        "label_ru": "Вода в возможном природоохранном контексте",
+        "rule_ids": [
+          "kz-oopt-23-3-purpose",
+          "kz-water-75-1-protection-directions",
+          "kz-water-86-1-2-surface-waste",
+          "kz-forest-113-selected-breaches"
+        ],
+        "unknowns_ru": [
+          "официальная граница и специальный режим территории",
+          "водный объект, вещество и факт попадания в воду",
+          "источник воздействия, пробы и ответственное лицо"
+        ]
+      }
+    },
+    "water_open_source_screening": {
+      "waste": {
+        "label_ru": "Материалы в возможном водоохранном контексте",
+        "rule_ids": [
+          "kz-water-85-1-protection-zones-purpose",
+          "kz-water-85-2-protection-zone-spatial-data",
+          "kz-water-86-2-protective-strip",
+          "kz-water-86-3-4-dumps"
+        ],
+        "unknowns_ru": [
+          "утвержденная граница водоохранной зоны или полосы",
+          "статус предметов как отходов",
+          "допустимость размещения и применимое исключение"
+        ]
+      },
+      "logging": {
+        "label_ru": "Растительность в возможном водоохранном контексте",
+        "rule_ids": [
+          "kz-water-85-1-protection-zones-purpose",
+          "kz-water-85-2-protection-zone-spatial-data",
+          "kz-water-86-2-protective-strip"
+        ],
+        "unknowns_ru": [
+          "утвержденная граница полосы",
+          "характер растительности и работ",
+          "допустимость деятельности и документы"
+        ]
+      },
+      "construction": {
+        "label_ru": "Работы в возможном водоохранном контексте",
+        "rule_ids": [
+          "kz-water-85-2-protection-zone-spatial-data",
+          "kz-water-86-1-6-works-no-approval",
+          "kz-water-86-2-protective-strip",
+          "kz-water-86-3-1-no-protection-devices",
+          "kz-water-86-4-protection-systems"
+        ],
+        "unknowns_ru": [
+          "утвержденная граница полосы",
+          "вид работ и согласование инспекции",
+          "применимое исключение и защитные системы"
+        ]
+      },
+      "soil_damage": {
+        "label_ru": "Почва в возможном водоохранном контексте",
+        "rule_ids": [
+          "kz-water-85-1-protection-zones-purpose",
+          "kz-water-85-2-protection-zone-spatial-data",
+          "kz-water-86-2-protective-strip"
+        ],
+        "unknowns_ru": [
+          "утвержденная граница полосы",
+          "характер земляных работ и согласования",
+          "влияние на сток и устойчивость берега"
+        ]
+      },
+      "water_pollution": {
+        "label_ru": "Вода в возможном водоохранном контексте",
+        "rule_ids": [
+          "kz-water-75-1-protection-directions",
+          "kz-water-85-1-protection-zones-purpose",
+          "kz-water-85-2-protection-zone-spatial-data",
+          "kz-water-86-1-2-surface-waste"
+        ],
+        "unknowns_ru": [
+          "утвержденная граница водоохранного режима",
+          "водный объект, вещество и факт попадания в воду",
+          "источник воздействия, пробы и ответственное лицо"
+        ]
+      }
+    }
+  }
+}

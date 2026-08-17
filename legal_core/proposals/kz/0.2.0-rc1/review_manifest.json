@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "kz-alma-legal-core-expansion-0.2.0-rc1",
+  "proposal_sha256": "f0df0ce5f24dacec3a6629f0b9e1c69e9bc59ac0c107062f7b991bbb7a9fc816",
+  "review_object_count": 42,
+  "status": "LEGAL_REVIEW_REQUIRED",
+  "activation_gate": "BLOCKED_PENDING_AUTHOR_LEGAL_APPROVAL_AND_SPATIAL_PROVENANCE"
+}

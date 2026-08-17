@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "kz-alma-open-spatial-sources-0.1.0",
+  "registry_sha256": "713f73a190fda7bbdf96fd6098d92b3ef0112370d6e0c6a0f01d5b013b03b01d",
+  "decision": "OPEN_SOURCE_SCREENING_APPROVED",
+  "approval_scope": "CONTROLLED_FIELD_RELEASE_ONLY",
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-17",
+  "statement": "The owner supplied the ALAG provenance, approved periodic source checks, and authorized field use only as an open-source screening context. This approval does not classify the files as official legal boundaries, cadastral extracts, functional zoning, or water-protection boundary decisions."
+}

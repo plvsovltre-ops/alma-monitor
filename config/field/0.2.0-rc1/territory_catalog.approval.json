@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.1",
+  "catalog_id": "kz-almaty-field-routes-0.4.0",
+  "catalog_sha256": "717f1487ed05813d803419d7dea38acfc8499e33bdbbd888b5a5a45ce0485d35",
+  "approval_scope": "CONTROLLED_FIELD_SCREENING_ONLY",
+  "decision": "CONTROLLED_PILOT_APPROVED",
+  "reviewer": {
+    "name": "Yernar Sailybayev",
+    "capacity": "AUTHOR_AND_LEGAL_EDITOR"
+  },
+  "reviewed_on": "2026-08-17",
+  "spatial_registry_id": "kz-alma-open-spatial-sources-0.1.0",
+  "statement": "The owner approved the routes and open-source spatial screening labels. The two added layers do not establish official OOPT, functional-zone, or water-protection boundaries."
+}
