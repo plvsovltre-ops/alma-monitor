@@ -217,7 +217,8 @@ secret containers before the first image exists. All later changes use a normal
   resulting QGIS form, and then synchronise that project through Mergin Maps.
   The configurator also places every local GeoPackage beside the QGZ, rewrites
   local sources as relative paths, keeps only `Инцидент` and `photos` editable,
-  and fixes the GPS capture target to `Инцидент`. It refuses to overwrite a
+  fixes the GPS capture target to `Инцидент`, and assigns stable UUID relation
+  keys to legacy incidents that have a blank `unique-id`. It refuses to overwrite a
   different root GeoPackage or package a project with a missing data source.
   This prevents a desktop-only layer path or an accidental reference-layer edit
   from producing a Mergin conflict or disappearing from the mobile project.
