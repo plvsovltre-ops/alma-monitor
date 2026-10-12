@@ -1,25 +1,117 @@
 # ALMA Monitor
 
-> **Operational status:** ALMA is a launched closed operational pilot, not an
-> unrestricted mass public service. This repository records the public ALMA
-> Monitor v1 lineage. ALMA Monitor 2 is the separately controlled successor.
-> See [Operational status and release lineage](docs/OPERATIONAL_STATUS.md) and
-> the latest [publication-safe operational evidence](docs/OPERATIONAL_EVIDENCE_2026-09-04.md).
+**Care for the landscape. Keep the evidence. Help people act.**
 
-## Current controlled pilot
+## Our mission
 
-As of 4 September 2026, the private ALMA Monitor 2 successor is running as a
-closed operational pilot. An operator-verified production check confirmed the
-scheduled evidence-to-dossier path, an active 20-card Legal Core, Russian and
-Kazakh presentation, bounded delivery, verified off-host backup, and active
-reliability and watchdog controls. The same check recorded no pending bounded
-backlog and no automatic submission to a state authority.
+Our mission is to help protect Almaty's cultural landscape, fruit orchards and
+agrophytocenoses — the cultivated plant communities that make these orchards
+living places. We connect careful public observation with evidence that people
+and institutions can check and use.
 
-The dated, privacy-safe record identifies the exact private runtime revision
-without publishing its source, field evidence, credentials, recipient
-addresses, or sensitive coordinates. The implementation in this repository
-remains the public v1 lineage and must not be represented as a source mirror of
-the current private successor.
+An orchard is more than a collection of trees. It is part of a landscape shaped
+by cultivation, local knowledge and generations of care. We want changes to
+that landscape to be visible, documented and considered before its value is
+lost from view.
+
+## What we work to protect
+
+- **Cultural landscape:** orchards, the history of their cultivation, and the
+  relationship between people and place.
+- **Orchard plant communities:** fruit trees and associated vegetation,
+  considered within their wider soil, water and habitat context.
+- **The ability to care for a place:** safe civic participation, useful
+  observations and a clear route to ask a competent authority to check facts.
+
+These are our conservation aims. An observation, a map or a draft request does
+not by itself demonstrate that a landscape has been protected or restored.
+
+## The people behind ALMA
+
+ALMA was initiated and originally designed by **Yernar Sailybayev** in Almaty,
+Kazakhstan.
+
+The work also depends on the care of volunteers and observers who notice
+changes, record what they see and preserve the context. Their contributions
+are acknowledged alongside the project's authorship. We value patient
+observation, respect for people and the practical work of looking after a
+shared landscape.
+
+## How Monitor helps
+
+1. **Observe.** Record visible circumstances with photographs, place, time and
+   source.
+2. **Check.** Check the evidence and geographic context before interpretation;
+   preserve missing information as unknown.
+3. **Prepare.** Apply an exact release of human-approved Legal Core rules to
+   prepare a traceable assessment and, where appropriate, a draft request for
+   fact-checking.
+4. **Return the result.** Give the authorised participant a result, an
+   explanation of what needs clarification, or a status and next step.
+
+ALMA's legal application follows
+**MRV → VerifiedFacts → Legal Core → Assessment → safe draft communication**.
+MRV means Measurement, Reporting and Verification: observation or measurement,
+a structured record, and checks within a stated scope.
+
+AI may describe visible features after the evidence checks. It does not select
+legal provisions, a topic or a competent authority. ALMA does not establish a
+violation, guilt or ownership. A draft asks the competent authority to check
+facts; delivery to a participant does not submit it on their behalf.
+
+## Start here
+
+| If you want to… | Read or visit |
+| --- | --- |
+| See the public landscape and observation page | [ALMA Monitor website](https://alma.eco/monitor) |
+| Understand the pilot and the development timeline | [Operational status and release lineage](docs/OPERATIONAL_STATUS.md) |
+| Read a dated account of Monitor 2 operation | [Operational evidence — 4 September 2026](docs/OPERATIONAL_EVIDENCE_2026-09-04.md) |
+| Understand how legal references are controlled | [Legal Core](legal_core/README.md) and [release governance](docs/PUBLIC_RELEASE_GOVERNANCE.md) |
+| Check where spatial data comes from | [Spatial data provenance](docs/SPATIAL_DATA_PROVENANCE.md) |
+| Explore the software's development | [Commit history](https://github.com/plvsovltre-ops/alma-monitor/commits/main/) and [releases](https://github.com/plvsovltre-ops/alma-monitor/releases) |
+
+## Follow the history
+
+The repository preserves the public Monitor v1 source and development history,
+alongside selected public records about its closed Monitor 2 successor.
+
+- **21 December 2025:** [scheduled automation added to the early ALMA Bot](https://github.com/plvsovltre-ops/alma-monitor/commit/0bb23be12d8402f807cb195d54cbab0af2bb967a).
+- **10 August 2026:** [Cloud Run deployment work recorded for Monitor v1](https://github.com/plvsovltre-ops/alma-monitor/commit/859a125862a7a0ba32e3d57571c4035fc716b626).
+- **4 September 2026:** [a public operational record published for the closed Monitor 2 pilot](docs/OPERATIONAL_EVIDENCE_2026-09-04.md).
+
+A commit records a change to the repository. Deployment, testing and acceptance
+need their own dated evidence. The linked status document explains these
+boundaries.
+
+## Published pilot status
+
+The latest operational record linked here is dated **4 September 2026**. It
+describes Monitor 2 as a running closed operational pilot with scheduled
+processing, a 20-card Legal Core, Russian and Kazakh presentation, controlled
+dossier delivery and verified off-host backup. It is an operator verification,
+not an independent certification or a check of today's server state.
+
+Public information and documentation are available. Participation in the
+operational pilot is controlled; unrestricted public enrolment is not claimed.
+The public v1 code is not a source mirror of the private Monitor 2 runtime.
+
+## Take part with care
+
+Visit the [public Monitor page](https://alma.eco/monitor) for participation
+information, or contact [monitor@alma.eco](mailto:monitor@alma.eco).
+
+Observe only from safe and lawful places. Keep personal data, field photographs,
+sensitive coordinates and active-case details out of public GitHub issues and
+pull requests. The public repository is for software, documentation and
+publication-safe records.
+
+## Technical reference for Monitor v1
+
+<details>
+<summary>Open architecture, configuration, deployment and operating instructions</summary>
+
+The reference below describes the public v1 implementation. Use the dated
+status records above for the separate Monitor 2 pilot.
 
 ## Repository scope
 
@@ -326,8 +418,7 @@ The model receives no article-selection interface. It prepares only the factual
 draft; the application validates that the draft contains no legal citations and
 then appends exact reviewed cards and official links.
 
-ALMA was initiated and originally designed by Yernar Sailybayev in Almaty,
-Kazakhstan.
+</details>
 
 ## Licenses and name
 
